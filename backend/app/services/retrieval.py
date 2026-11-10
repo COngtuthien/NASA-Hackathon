@@ -293,7 +293,11 @@ def search(conn: sqlite3.Connection, q: str, investigation: str | None = None, d
     for ident in ids:
         for r in conn.execute("SELECT experiment_uid, investigation_id, display_id, source_row FROM experiments "
                               "WHERE display_id=?", (ident,)):
-            exp_matches.append(dict(r))
+            d = dict(r)
+            d["report_records"] = [dict(x) for x in conn.execute(
+                "SELECT table_id, page_pdf, page_printed, verification FROM report_records WHERE experiment_uid=?",
+                (d["experiment_uid"],))]
+            exp_matches.append(d)
     return {"query": q, "normalized_query": qn, "terms": terms, "total": total, "offset": offset, "limit": limit,
             "experiment_matches": exp_matches,
             "retrieval_mode": "hybrid (BM25 + LSA)" if mode["semantic"] else "lexical-only (BM25)",

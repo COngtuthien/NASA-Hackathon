@@ -240,6 +240,15 @@ def ask(conn: sqlite3.Connection, question: str, source_scope: str = "internal",
             pack.add("experiment", f"{exp['investigation']} {exp['display_id']} (source row {exp['source']['source_row']})",
                      content, experiment_uid=uid, access_level="experiment",
                      url=f"/experiments/{exp['dataset']}/{uid}")
+            for rr in exp.get("report_records", []):
+                if rr["verification"] != "verified":
+                    continue
+                vals = {k: v for k, v in rr["values"].items() if v not in (None, [], "")}
+                pack.add("report_table", f"BASS-II Summary Report Table {rr['table_id']}, row {rr['row_key']}",
+                         f"Curated table row (verified against the CSV). Printed cells: "
+                         + "; ".join(f"{k}: {v}" for k, v in rr["raw"].items() if v)[:1500],
+                         document_id=rr["document_id"], page_pdf=rr["page_pdf"], section=f"Table {rr['table_id']}",
+                         url=rr["source_url"], access_level="fulltext", data=vals)
     if COMPARE_RE.search(question) and len(uids) >= 2:
         cmp = tool("compare_experiments", {"uids": uids[:5]}, lambda: compare(conn, uids[:5]))
         if cmp:
@@ -455,7 +464,7 @@ def _citation(i: dict) -> dict:
         "url": i.get("url"), "document_id": i.get("document_id"), "chunk_id": i.get("chunk_id"),
         "experiment_uid": i.get("experiment_uid"), "paper_id": i.get("paper_id"), "doi": i.get("doi"),
         "page_pdf": i.get("page_pdf"), "section": i.get("section"), "excerpt": excerpt,
-        "data": None if isinstance(content, str) else content, "access_level": i.get("access_level"),
+        "data": i.get("data") if isinstance(content, str) else content, "access_level": i.get("access_level"),
         "rank_label": i.get("rank_label"), "reasons": i.get("reasons"),
     }
 

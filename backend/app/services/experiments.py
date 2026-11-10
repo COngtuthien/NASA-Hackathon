@@ -167,9 +167,17 @@ def get_experiment(conn: sqlite3.Connection, uid: str) -> dict:
         "SELECT l.relation_type, l.match_method, l.matched_text, l.review_status, c.chunk_id, c.document_id, "
         "c.page_pdf, c.page_printed, c.section, substr(c.text,1,600) AS excerpt, d.title, d.relative_path "
         "FROM evidence_links l JOIN document_chunks c USING(chunk_id) JOIN documents d USING(document_id) "
-        "WHERE l.experiment_uid=? ORDER BY d.title, c.page_pdf LIMIT 40", (uid,))]
+        "WHERE l.experiment_uid=? ORDER BY CASE l.review_status WHEN 'verified_table_row' THEN 0 WHEN 'exact_context' "
+        "THEN 1 ELSE 2 END, d.title, c.page_pdf LIMIT 40", (uid,))]
     for ln in links:
         ln["excerpt"] = _excerpt_around(ln["excerpt"], ln["matched_text"])
+    report_records = []
+    for r in conn.execute("SELECT * FROM report_records WHERE experiment_uid=? ORDER BY table_id", (uid,)):
+        d = dict(r)
+        for k in ("values_json", "units_json", "raw_json", "checks_json", "notes_json"):
+            d[k[:-5]] = jloads(d.pop(k), {})
+        d["source_url"] = f"/api/v1/documents/{d['document_id']}/file#page={d['page_pdf']}"
+        report_records.append(d)
     duplicates = []
     if ds.key == "flex":
         duplicates = [dict(r) for r in conn.execute(
@@ -183,7 +191,12 @@ def get_experiment(conn: sqlite3.Connection, uid: str) -> dict:
         "raw_fields": [{"header": h, "value": v} for h, v in jloads(e["raw_json"], [])],
         "observations": obs, "normalized": norm, "fields": [field_dict(f) for f in ds.fields],
         "quality_flags": flags, "dataset_flags": dataset_flags, "evidence_links": links,
-        "duplicate_display_ids": duplicates,
+        "duplicate_display_ids": duplicates, "report_records": report_records,
+        "link_levels": {
+            "verified_table_row": "Report table row whose printed values match this test's CSV values",
+            "exact_context": "ID appears with explicit context (e.g. 'test M5', 'GMT175-T9' with matching day)",
+            "auto_unreviewed": "Bare mention of the ID; not reviewed",
+        },
     }
     if ds.key == "saffire1":
         result["image_sets"] = [dict(r) for r in conn.execute("SELECT * FROM saffire_image_sets ORDER BY label")]

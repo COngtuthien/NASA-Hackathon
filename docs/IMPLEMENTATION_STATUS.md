@@ -1,5 +1,16 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 2 progress (branch `feature/spacefire-phase2`)
+| Priority | Status | Evidence |
+|---|---|---|
+| P1 GitHub sync | DONE | Checkpoint `ad46fbe` pushed; milestone commits follow |
+| P2 BASS-II report curation | DONE (backend + detail page) | `app/curation/bass_report.py` → `processed/curated/*.json` (committed). Table 5.1: 20/20 rows verified vs CSV; Table 7.1: 27/27 BASS-II rows verified + 4 BASS (I) rows kept unlinked; Appendix A: 123/126 verified, 3 genuine report-vs-CSV conflicts (F3, P3a, P22b) flagged `BASS-REPORT-CSV-CONFLICT`; flow direction for 117 tests; 126-vs-129 explained (O20–O22 absent from Appendix A) |
+| P3 Citation reliability | DONE | `app/ingest/linking.py`: levels verified_table_row / exact_context / auto_unreviewed; excludes ambiguous tokens (O2=oxygen, F2=SD card), GMT collisions with BASS (I), Table/Figure labels. Links 345 → 205 |
+| P4 UI redesign | NOT STARTED | Only detail-page report panel + link badges added |
+| P5 Retrieval evaluation | NOT STARTED | |
+| P6 Full regression | PARTIAL | backend 126 passed; tsc + eslint clean; E2E not re-run this milestone |
+
+
 _Last updated: 2026-11-11 (end of session 1). This file is the recovery point across sessions._
 
 ## Current milestone

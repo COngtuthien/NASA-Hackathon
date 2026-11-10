@@ -344,6 +344,53 @@ def bass_gases(conn: sqlite3.Connection, params: dict[str, str | None]) -> dict:
     return result
 
 
+def bass_report(conn: sqlite3.Connection) -> dict:
+    """Values curated from the BASS-II Summary Report (verified against the CSV at ingestion)."""
+    rows = []
+    for r in conn.execute("SELECT * FROM report_records ORDER BY table_id, page_pdf, rowid"):
+        d = dict(r)
+        for k in ("values_json", "units_json", "raw_json", "checks_json", "notes_json"):
+            d[k[:-5]] = json.loads(d.pop(k))
+        rows.append(d)
+    t51 = [r for r in rows if r["table_id"] == "5.1"]
+    stages = []
+    for r in t51:
+        if r["verification"] != "verified":
+            continue
+        v = r["values"]
+        pairs = [{"velocity_cm_s": a, "spread_rate_mm_s": b} for a, b in
+                 zip(v.get("velocity_cm_s", []), v.get("spread_rate_mm_s", []))]             if len(v.get("velocity_cm_s", [])) == len(v.get("spread_rate_mm_s", [])) else []
+        for k, p in enumerate(pairs):
+            stages.append({"experiment_uid": r["experiment_uid"], "test_id": r["test_id"], "stage": k + 1,
+                           "thickness_mm": v.get("thickness_mm"), "width_cm": v.get("width_cm"),
+                           "sides_burning": v.get("sides_burning"), "page_pdf": r["page_pdf"], **p})
+    t71 = [r for r in rows if r["table_id"] == "7.1"]
+    unpaired = [r["test_id"] for r in t51 if not (len(r["values"].get("velocity_cm_s", [])) ==
+                                                len(r["values"].get("spread_rate_mm_s", [])) and r["values"].get("velocity_cm_s"))]
+    return {
+        "source": {"document_id": "bass-ii-summary-report", "title": "BASS-II Summary Report (NASA/TM-20210011385)"},
+        "table_5_1": {"rows": t51, "stages": stages, "n_tests": len(t51), "n_stages": len(stages),
+                      "unpaired_tests": unpaired, "page_pdf": 65,
+                      "note": "Stage pairs are formed only when the printed velocity and spread-rate lists have the same "
+                              "length; their order is the printed order. 'Not tracked' spread rates are never filled in."},
+        "table_7_1": {"rows": t71, "page_pdf": 104},
+        "appendix_a": {"verified": sum(1 for r in rows if r["table_id"].startswith("A") and r["verification"] == "verified"),
+                       "needs_review": [r["test_id"] for r in rows if r["table_id"].startswith("A")
+                                        and r["verification"] == "needs_review"],
+                       "flow_direction_counts": _count([r["values"].get("flow_direction") for r in rows
+                                                        if r["table_id"].startswith("A") and r["verification"] == "verified"])},
+        "method": "PyMuPDF table detection + character-level cell reconstruction; each row cross-checked against the "
+                  "independent BASS-II CSV (test ID and gas readings). Disagreements are kept and flagged.",
+    }
+
+
+def _count(vals: list) -> dict:
+    out: dict = {}
+    for v in vals:
+        out[str(v)] = out.get(str(v), 0) + 1
+    return out
+
+
 # --------------------------------------------------------------- SAFFIRE-I ---
 
 def saffire_case(conn: sqlite3.Connection) -> dict:

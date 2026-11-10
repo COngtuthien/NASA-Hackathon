@@ -16,7 +16,8 @@ from pathlib import Path
 
 from ..core.config import get_settings
 from ..db.database import connect, init_schema, jdumps, transaction
-from . import bass2, documents, flex, saffire
+from ..curation import bass_report
+from . import bass2, documents, flex, linking, saffire
 from .common import Flag, now_iso, sha256_file
 
 log = logging.getLogger("spacefire.ingest")
@@ -130,52 +131,44 @@ BASS_COLS = ["experiment_uid", "pi", "test_id", "date_raw", "date_iso", "date_do
              "sides", "material_note", "flow_restrictor", "fan_raw", "fan_kind", "fan_tokens_json", "air_raw",
              "air_kind", "air_tokens_json", "air_single_cm_s", "radiometer_gain_raw", "frames_raw",
              "o2_initial", "o2_initial_kind", "o2_final", "o2_final_kind", "co2_initial", "co2_initial_kind",
-             "co2_final", "co2_final_kind", "co_initial", "co_initial_kind", "co_final", "co_final_kind"]
+             "co2_final", "co2_final_kind", "co_initial", "co_initial_kind", "co_final", "co_final_kind",
+             "flow_direction", "flow_direction_source", "as_run_number"]
 SAF_COLS = ["experiment_uid", "sample", "material", "thickness_cm", "length_cm", "width_cm", "air_flow_cm_s", "o2_raw",
             "o2_kind", "o2_low", "o2_high", "ignition_power_w", "ignition_time_s", "burn_time_s", "flow_direction",
             "camera_1", "camera_2"]
 
-FLEX_ID_RE = re.compile(r"\b(\d{2,3}CAL\d{2}|\d{3}[FR]\d{3}|[CHN]\d{2}[MH]\d{3})\b")
-FLEX_NUM_RE = re.compile(r"\bFLEX-(\d{3})\b")  # 3 digits: 'FLEX-2' is the follow-on experiment, not test #2
-SAF_RE = re.compile(r"\b(S[12])(?:C[12])?\b")
-
-
-def link_evidence(conn, chunks_by_inv: dict[str, list[dict]]) -> int:
-    n = 0
-    flex_ids = defaultdict(list)
-    flex_nums = {}
-    for r in conn.execute("SELECT experiment_uid, identifier, test_number FROM flex_tests"):
-        flex_ids[r["identifier"]].append(r["experiment_uid"])
-        flex_nums[r["test_number"]] = r["experiment_uid"]
-    bass_ids = {r["test_id"]: r["experiment_uid"] for r in conn.execute("SELECT experiment_uid, test_id FROM bass2_tests")}
-    bass_re = re.compile(r"(?<![A-Za-z.\-])(" + "|".join(sorted(map(re.escape, bass_ids), key=len, reverse=True)) +
-                         r")(?![A-Za-z0-9])")
-    rows = []
-    for ch in chunks_by_inv.get("PSI-69", []):
-        for m in set(FLEX_ID_RE.findall(ch["text"])):
-            for uid in flex_ids.get(m, []):
-                rows.append((uid, ch["chunk_id"], "explicit_id", "flex_identifier_regex", m))
-        for m in set(FLEX_NUM_RE.findall(ch["text"])):
-            uid = flex_nums.get(int(m))
-            if uid:
-                rows.append((uid, ch["chunk_id"], "explicit_id", "flex_test_number_regex", f"FLEX-{m}"))
-    for ch in chunks_by_inv.get("PSI-25", []):
-        text = ch["text"]
-        found = set()
-        for m in bass_re.finditer(text):
-            pre = text[max(0, m.start() - 9): m.start()].lower()
-            if re.search(r"(table|figure|fig\.|appendix|eq\.)\s*$", pre):
-                continue
-            found.add(m.group(1))
-        for tid in found:
-            rows.append((bass_ids[tid], ch["chunk_id"], "explicit_id", "bass_test_id_regex", tid))
-    for ch in chunks_by_inv.get("PSI-98", []):
-        for s in set(SAF_RE.findall(ch["text"])):
-            rows.append((f"saffire1:{s}", ch["chunk_id"], "explicit_id", "saffire_sample_regex", s))
-    conn.executemany("INSERT INTO evidence_links(experiment_uid, chunk_id, relation_type, match_method, matched_text, "
-                     "review_status) VALUES (?,?,?,?,?,'auto_unreviewed')", rows)
-    n += len(rows)
-    return n
+def _apply_curation(b2_records, b2_flags, curated: dict) -> None:
+    """Attach verified report facts to BASS-II rows and turn report/CSV disagreements into flags."""
+    appx = {r["test_id"]: r for r in curated.get("A", {}).get("rows", [])}
+    by_uid = {r.experiment_uid: r for r in b2_records}
+    for rec in b2_records:
+        a = appx.get(rec.display_id)
+        rec.normalized.update(flow_direction=None, flow_direction_source=None, as_run_number=None)
+        if a and a["verification"] == "verified":
+            v = a["values"]
+            if v.get("flow_direction"):
+                rec.normalized["flow_direction"] = v["flow_direction"]
+                rec.normalized["flow_direction_source"] = f"Summary Report Table {a['table']}, PDF p.{a['page_pdf']}"
+            rec.normalized["as_run_number"] = v.get("as_run_number")
+    for t in curated.values():
+        for r in t["rows"]:
+            real = [n for n in r.get("notes", []) if "both mean no reading" not in n and "not used" not in n]
+            if r["verification"] == "needs_review" and r.get("experiment_uid") and real:
+                rec = by_uid[r["experiment_uid"]]
+                b2_flags.append(Flag(
+                    "BASS-REPORT-CSV-CONFLICT", "document_conflict", "warning",
+                    f"Summary Report Table {r['table']} (PDF p.{r['page_pdf']}) disagrees with the CSV: "
+                    + "; ".join(real) + ". Both values are preserved; neither is corrected.",
+                    r["experiment_uid"], rec.source_row, evidence_ref=f"{bass_report.REPORT} PDF p.{r['page_pdf']}",
+                    status="disputed"))
+    if appx:
+        missing = sorted({r.display_id for r in b2_records} - set(appx))
+        for f in b2_flags:
+            if f.rule_id == "BASS-TEST-COUNT":
+                f.description = (f"Summary Report states 126 tests; its Appendix A test matrices list {len(appx)} "
+                                 f"tests and omit {', '.join(missing)} (the 2016 runs), which explains the CSV's 129 rows.")
+                f.evidence_ref = f"{bass_report.REPORT} Appendix A, PDF pp.111-121"
+                f.status = "confirmed"
 
 
 def write_flags(conn, flags: list[Flag], investigation_id: str, source_id_by_uid: dict, default_source: str):
@@ -215,6 +208,18 @@ def run(dry_run: bool = False) -> dict:
         manifest, timeline = [], []
         report["warnings"].append(f"SAFFIRE manifest failed: {exc!r}")
     sa_flags += saffire.manifest_flags(manifest, sa_sets)
+
+    # curated BASS-II Summary Report tables (verified against the CSV; written to processed/curated/)
+    curated_dir = settings.processed_dir / "curated"
+    try:
+        report["curated"] = bass_report.build(repo, curated_dir)
+        curated = {k: json.loads((curated_dir / f).read_text(encoding="utf-8")) for k, f in (
+            ("5.1", "bass2_table_5_1.json"), ("7.1", "bass2_table_7_1.json"), ("A", "bass2_appendix_a.json"))}
+    except Exception as exc:  # nonfatal: raw CSV data stays available
+        curated = {}
+        report["warnings"].append(f"BASS-II report curation failed: {exc!r}")
+    curated_rows = [r for t in curated.values() for r in t["rows"]]
+    _apply_curation(b2_records, b2_flags, curated)
 
     # documents
     doc_rows, chunk_rows, pubs, isa_meta = [], [], [], {}
@@ -313,12 +318,25 @@ def run(dry_run: bool = False) -> dict:
         by_inv: dict[str, list[dict]] = defaultdict(list)
         for c in canonical:
             by_inv[c["investigation_id"]].append(c)
-        nlinks = link_evidence(conn, by_inv)
+        rec_rows = []
+        for r in curated_rows:
+            rid = f"bass2-sr:{r['table']}:{r.get('row_key') or r['test_id']}"
+            rec_rows.append((rid, "bass-ii-summary-report", r["table"], r["page_pdf"], r.get("page_printed"),
+                             r.get("row_key") or r["test_id"], r["test_id"], r.get("experiment_uid"),
+                             r.get("investigation", "BASS-II"), r["verification"], jdumps(r["values"]),
+                             jdumps(r.get("units", {})), jdumps(r["raw"]), jdumps(r.get("checks", {})),
+                             jdumps(r.get("notes", []))))
+        conn.executemany("INSERT INTO report_records VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", rec_rows)
+        link_rows, link_report = linking.link_all(conn, by_inv, curated_rows)
+        conn.executemany("INSERT INTO evidence_links(experiment_uid, chunk_id, relation_type, match_method, "
+                         "matched_text, review_status) VALUES (?,?,?,?,?,?)", link_rows)
+        nlinks = len(link_rows)
+        report["linking"] = link_report
         counts = {
             "flex_burns": len(fx_records), "bass2_burns": len(b2_records), "saffire1_burns": len(sa_burns),
             "saffire1_image_sets": len(sa_sets), "quality_flags": nflags, "documents": len(doc_rows),
             "chunks": len(canonical), "evidence_links": nlinks, "publications": len(pubs),
-            "manifest_camera_sets": len(manifest),
+            "manifest_camera_sets": len(manifest), "report_records": len(rec_rows),
         }
         report["counts"] = counts
         report["finished_at"] = now_iso()

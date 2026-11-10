@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Callout, Empty, Kind, LinkButton, Loadable, PageHeader, Panel, Prov, Severity } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
+import { LinkLevel, ReportRecordCard, type ReportRecord } from "@/components/report";
 
 type Obs = {
   column_index: number; raw_field: string; raw_text: string; value_kind: string; numeric_value: number | null;
@@ -20,6 +21,7 @@ type Detail = {
   observations: Obs[]; normalized: Record<string, unknown>; quality_flags: Flag[]; dataset_flags: Flag[];
   evidence_links: Link_[]; duplicate_display_ids: { experiment_uid: string; source_row: number }[];
   image_sets?: { label: string; csv_description: string; csv_role: string; documented_role: string; manifest_set: string }[];
+  report_records: ReportRecord[];
 };
 type Pub = { title: string; authors: string | null; doi: string | null };
 
@@ -109,7 +111,13 @@ export default function DetailView() {
                 </Panel>
               )}
 
-              <Panel title="Report pages mentioning this test" aside={`${d.evidence_links.length} automatic matches`}>
+              {d.report_records.length > 0 && (
+                <Panel title="Values printed in the NASA Summary Report" aside={`${d.report_records.length} table rows`}>
+                  <p className="mb-3 text-sm text-text-2">Extracted from report tables and checked against this test&apos;s CSV values. Values the CSV does not contain (flow direction, spread rates, observations) come only from the report page cited.</p>
+                  <div className="flex flex-col gap-3">{d.report_records.map((r) => <ReportRecordCard key={r.record_id} r={r} />)}</div>
+                </Panel>
+              )}
+              <Panel title="Report pages mentioning this test" aside={`${d.evidence_links.length} links`}>
                 {d.evidence_links.length === 0 ? (
                   <Empty title="No document page names this test ID">Search the documents for related context instead.</Empty>
                 ) : (
@@ -121,7 +129,8 @@ export default function DetailView() {
                           <a href={`/api/v1/documents/${l.document_id}/file${l.page_pdf ? `#page=${l.page_pdf}` : ""}`} target="_blank" rel="noreferrer">
                             {l.title}{l.page_pdf ? `, PDF p.${l.page_pdf}` : ""}{l.page_printed ? ` (printed p.${l.page_printed})` : ""}
                           </a>
-                          <span className="text-xs text-text-3">matched “{l.matched_text}”, {l.review_status.replace("_", " ")}</span>
+                          <LinkLevel level={l.review_status} />
+                          <span className="text-xs text-text-3">matched “{l.matched_text}”</span>
                         </div>
                         <p className="mt-1 text-sm text-text-2">{l.excerpt}</p>
                         <Link href={`/evidence?chunk=${encodeURIComponent(l.chunk_id)}`} className="text-sm">Open passage</Link>

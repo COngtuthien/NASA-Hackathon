@@ -115,7 +115,10 @@ CREATE TABLE IF NOT EXISTS bass2_tests (
   co2_initial REAL, co2_initial_kind TEXT,
   co2_final REAL, co2_final_kind TEXT,
   co_initial REAL, co_initial_kind TEXT,
-  co_final REAL, co_final_kind TEXT
+  co_final REAL, co_final_kind TEXT,
+  flow_direction TEXT,                        -- from Summary Report Appendix A (verified rows only)
+  flow_direction_source TEXT,
+  as_run_number INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS saffire_burns (
@@ -235,6 +238,25 @@ CREATE TABLE IF NOT EXISTS evidence_links (
   review_status TEXT NOT NULL                 -- auto_unreviewed / curated
 );
 CREATE INDEX IF NOT EXISTS ix_link_exp ON evidence_links(experiment_uid);
+
+CREATE TABLE IF NOT EXISTS report_records (
+  record_id TEXT PRIMARY KEY,                 -- e.g. bass2-sr:5.1:M7
+  document_id TEXT NOT NULL,
+  table_id TEXT NOT NULL,                     -- 5.1 / 7.1 / A.4 ...
+  page_pdf INTEGER NOT NULL,
+  page_printed INTEGER,
+  row_key TEXT NOT NULL,                      -- identifier as printed (M7, GMT175-T9)
+  test_id TEXT NOT NULL,
+  experiment_uid TEXT REFERENCES experiments(experiment_uid),
+  investigation TEXT NOT NULL,                -- BASS-II or BASS (I)
+  verification TEXT NOT NULL,                 -- verified / needs_review / not_applicable
+  values_json TEXT NOT NULL,
+  units_json TEXT NOT NULL,
+  raw_json TEXT NOT NULL,                     -- verbatim printed cells
+  checks_json TEXT NOT NULL,
+  notes_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_report_exp ON report_records(experiment_uid);
 
 CREATE TABLE IF NOT EXISTS investigation_publications (
   pub_id INTEGER PRIMARY KEY AUTOINCREMENT,

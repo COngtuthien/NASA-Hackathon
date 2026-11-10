@@ -210,6 +210,28 @@ def bass_gases(request: Request, conn=Depends(get_conn)):
     return analytics.bass_gases(conn, dict(request.query_params))
 
 
+@router.get("/analytics/bass/report", tags=["analytics"])
+def bass_report_values(conn=Depends(get_conn)):
+    return analytics.bass_report(conn)
+
+
+@router.get("/curated/bass2", tags=["evidence"])
+def curated_bass2(table: str | None = None, verification: str | None = None, test_id: str | None = None,
+                  conn=Depends(get_conn)):
+    sql, args = "SELECT * FROM report_records WHERE 1=1", []
+    for col, val in (("table_id", table), ("verification", verification), ("test_id", test_id)):
+        if val:
+            sql += f" AND {col}=?"
+            args.append(val)
+    items = []
+    for r in conn.execute(sql + " ORDER BY page_pdf, rowid", args):
+        d = dict(r)
+        for k in ("values_json", "units_json", "raw_json", "checks_json", "notes_json"):
+            d[k[:-5]] = jloads(d.pop(k), {})
+        items.append(d)
+    return {"total": len(items), "items": items}
+
+
 @router.get("/analytics/saffire/case", tags=["analytics"])
 def saffire_case(conn=Depends(get_conn)):
     return analytics.saffire_case(conn)

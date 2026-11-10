@@ -92,6 +92,8 @@ BASS2 = DatasetDef(
         FieldDef("width_cm", "Width", "numeric", "cm", "input", "Fuel Sample Material", "Parsed from material text."),
         FieldDef("flow_restrictor", "Flow restrictor", "category", None, "input", "Flow restrictor",
                  "0 = highest flow, 2 = lowest."),
+        FieldDef("flow_direction", "Flow direction (report)", "category", None, "input", None,
+                 "From Summary Report Appendix A rows verified against the CSV; not in the CSV itself."),
         FieldDef("air_single_cm_s", "Air display (single reading)", "numeric", "cm/s", "instrument", "Air display",
                  "Only when the cell is one number; multi-stage cells are not reduced to one value."),
         FieldDef("o2_initial", "Initial O2", "numeric", "%vol", "input", "Calibrated  initial O2 % by vol ",
@@ -104,7 +106,7 @@ BASS2 = DatasetDef(
         FieldDef("co_initial", "Initial CO", "numeric", "ppm", "input", "Initial CO (ppm)", kind_col="co_initial_kind"),
         FieldDef("co_final", "Final CO", "numeric", "ppm", "output", "Final CO (ppm)", kind_col="co_final_kind"),
     ),
-    list_cols=("test_id", "pi", "date_iso", "gmt_doy", "sample_id", "material_class", "geometry", "flow_restrictor",
+    list_cols=("test_id", "pi", "date_iso", "gmt_doy", "sample_id", "material_class", "geometry", "flow_direction", "flow_restrictor",
                "o2_initial", "o2_final", "co2_initial", "co2_final", "co_initial", "co_final"),
 )
 
