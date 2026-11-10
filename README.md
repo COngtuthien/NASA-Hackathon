@@ -28,7 +28,8 @@ investigations are different physical systems and are never pooled into one data
 | BASS-II lab | `/physics/bass-ii` | Before/after gas deltas, O₂ consumed vs CO₂ produced vs PMMA 5/6 stoichiometry |
 | SAFFIRE-I case study | `/physics/saffire-i` | S1/S2 comparison, manifest-derived downlink timeline (no fabricated media) |
 | Similar experiments | `/similar` | Gower distance on initial conditions only, per-field explanations |
-| Data quality | `/quality` | 554 flags across 34 rules, traced to file/row/column, CSV export |
+| Data quality | `/quality` | 557 flags across 35 rules, traced to file/row/column, CSV export |
+| Curated report tables | `/physics/bass-ii`, experiment pages | BASS-II Summary Report Tables 5.1, 7.1, Appendix A extracted and verified row-by-row against the CSV |
 | FLEX ML (P2, gated) | `/ml/flex` | Leakage-safe GroupKFold evaluation; exploratory prediction with OOD refusal |
 | Methodology | `/methodology` | Provenance labels, rules, sources |
 
@@ -73,8 +74,8 @@ Copy `.env.example` to `.env`. Everything is optional:
 ## Tests
 
 ```bash
-cd backend && .venv/Scripts/python -m pytest          # 112 tests: unit, mocked providers, API, 42 golden questions
-cd frontend && npx playwright test                     # 16 browser E2E journeys (desktop + 390 px mobile)
+cd backend && .venv/Scripts/python -m pytest          # 131 tests: unit, providers, API, golden questions, curation, citations
+cd frontend && npx playwright test                     # browser E2E journeys (desktop + 390 px mobile)
 backend/.venv/Scripts/python scripts/smoke_test.py     # against a running backend
 cd frontend && npx tsc --noEmit && npx eslint . && npx next build
 ```
@@ -112,7 +113,13 @@ never downloaded or analyzed. The original dataset folders are never modified (t
 5. Assistant: ask about `Disruption`; then ask for a safe spacecraft O₂ threshold and see the abstention.
 6. SAFFIRE-I: S1 vs S2 and the downlink timeline; no images exist locally, and the app says so.
 
+## Retrieval options
+
+Default evidence retrieval is BM25 + LSA. An optional neural fusion (bge-small, ONNX) is available:
+`pip install -r backend/requirements-neural.txt`, `python -m app.services.neural --build`, `RETRIEVAL_DENSE=neural`.
+See `docs/RETRIEVAL_EVALUATION.md` for the benchmark that motivated keeping LSA as the default.
+
 ## Known limitations
 
-See `docs/IMPLEMENTATION_STATUS.md` (live LLM synthesis not exercised without a key; BASS-II report tables indexed as text,
-not curated numeric tables; regex-based test-ID evidence links are unreviewed).
+See `docs/IMPLEMENTATION_STATUS.md` (LLM synthesis deferred to a later phase; report figures not digitized; a few
+test-ID links are labelled "unreviewed mention").

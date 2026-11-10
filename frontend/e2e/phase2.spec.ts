@@ -45,3 +45,10 @@ test.describe("Phase 2: curated report data, citation confidence, UI refinements
     await expect(page.getByText(/BASS-II Summary Report Table 5\.1, row M7/)).toBeVisible();
   });
 });
+
+test("evidence passage panel has no horizontal page overflow", async ({ page }) => {
+  await page.goto("/evidence?q=BASS-II&chunk=bass-ii-summary-report:p65:0");
+  await expect(page.getByRole("heading", { name: "Passage" })).toBeVisible();
+  const ov = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(ov).toBeLessThanOrEqual(1);
+});

@@ -98,7 +98,7 @@ export default function EvidenceView() {
                           </div>
                           <p className="mt-1 font-semibold">{r.citation}</p>
                           {r.section && <p className="text-xs text-text-3">Section: {r.section}</p>}
-                          <p className="mt-1 text-sm text-text-2"><Highlight text={r.snippet} terms={d.terms} /></p>
+                          <p className="mt-1 text-sm text-text-2 [overflow-wrap:anywhere]"><Highlight text={r.snippet} terms={d.terms} /></p>
                           <p className="mt-1 text-xs text-text-3">Why ranked here: {r.reasons.join("; ")}</p>
                           <div className="mt-1 flex flex-wrap gap-x-4 text-sm">
                             {r.chunk_id && <button className="text-link" onClick={() => set({ chunk: r.chunk_id })}>Read full passage</button>}
@@ -114,7 +114,7 @@ export default function EvidenceView() {
             </Loadable>
           )}
         </div>
-        <div className="flex flex-col gap-5">
+        <div className="flex min-w-0 flex-col gap-5">
           {chunk && (
             <Panel title="Passage" aside={<button className="text-link" onClick={() => set({ chunk: null })}>Close</button>}>
               <Loadable state={ch} rows={8}>
@@ -123,7 +123,7 @@ export default function EvidenceView() {
                     <p className="font-semibold">{c.citation}</p>
                     <p className="text-xs text-text-3">File <span className="raw">{c.relative_path}</span>, chunk {c.chunk_id}</p>
                     {c.scope_note && <div className="mt-2"><Callout tone="warn">{c.scope_note}</Callout></div>}
-                    <p className="mt-2 whitespace-pre-wrap text-text-2"><Highlight text={c.text} terms={res.data?.terms ?? []} /></p>
+                    <p className="mt-2 whitespace-pre-wrap text-text-2 [overflow-wrap:anywhere]"><Highlight text={c.text} terms={res.data?.terms ?? []} /></p>
                     <div className="mt-2 flex flex-wrap gap-3">
                       <a href={c.source_url} target="_blank" rel="noreferrer">Open the source file{c.page_pdf ? ` at PDF p.${c.page_pdf}` : ""}</a>
                       {c.neighbors.map((n) => <button key={n.chunk_id} className="text-link" onClick={() => set({ chunk: n.chunk_id })}>{n.ordinal < c.ordinal ? "Previous passage" : "Next passage"}</button>)}
