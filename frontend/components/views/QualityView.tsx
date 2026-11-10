@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { BarChart } from "@/components/charts";
 import { Field, inputCls, Loadable, PageHeader, Pager, Panel, Severity } from "@/components/ui";
 import { expHref, INV_LABEL, qs, useApi } from "@/lib/api";
 
@@ -54,6 +55,18 @@ export default function QualityView() {
                   <Severity key={sv} level={sv} count={s.by_investigation_severity[`${inv}|${sv}`]} /> : null)}</span>
               </button>
             ))}
+            <div className="md:col-span-3">
+              <Panel title="Flags by investigation and severity" aside={`n = ${s.total} flags`}>
+                <BarChart x={["FLEX", "BASS-II", "SAFFIRE-I"]} stack xTitle="Investigation" yTitle="Flags (count)" height={260}
+                  ariaLabel="Stacked bar chart of quality flags by investigation and severity"
+                  series={(["critical", "warning", "info"] as const).map((sv) => ({
+                    name: sv[0].toUpperCase() + sv.slice(1),
+                    color: sv === "critical" ? "#FF6B6B" : sv === "warning" ? "#F5C451" : "#7FA7D9",
+                    y: ["PSI-69", "PSI-25", "PSI-98"].map((inv) => s.by_investigation_severity[`${inv}|${sv}`] ?? 0),
+                  }))} />
+                <p className="mt-1 text-xs text-text-3">Most flags are informational (blank cells, multi-stage text, reused samples). Critical flags mark physically impossible or placeholder values.</p>
+              </Panel>
+            </div>
           </div>
         )}
       </Loadable>

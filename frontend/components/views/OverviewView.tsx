@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { FlexMapChart, type FlexPoint } from "@/components/charts";
-import { Button, Callout, inputCls, LinkButton, Loadable, Panel, Prov } from "@/components/ui";
+import ScaleLadder from "@/components/ScaleLadder";
+import { Button, Callout, inputCls, LinkButton, Loadable, MetricTile, Panel, Prov } from "@/components/ui";
 import { fmt, INV_KEY, qs, useApi } from "@/lib/api";
 
 type Investigation = {
@@ -141,6 +142,15 @@ export default function OverviewView() {
                   </article>
                 ))}
               </section>
+              <section aria-label="What is in the database" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <MetricTile value={d.counts.total_burn_rows} label="Experiment rows" note="FLEX + BASS-II + SAFFIRE-I burns" href="/experiments" />
+                <MetricTile value={d.counts.chunks} label="Indexed passages" note={`from ${d.counts.documents} NASA documents`} href="/evidence" />
+                <MetricTile value={d.counts.report_records ?? "—"} label="Report table rows" note="BASS-II Summary Report, checked against the CSV" href="/physics/bass-ii#report" />
+                <MetricTile value={d.counts.quality_flags} label="Quality flags" note="each traced to a file, row and cell" href="/quality" />
+              </section>
+              <Panel title="Three physical scales, analyzed separately">
+                <ScaleLadder />
+              </Panel>
               <Callout>{d.caveat}</Callout>
 
               <Panel title="Key findings, recomputed from the data" aside={`${d.insights.length} findings`}>

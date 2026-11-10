@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import Plot, { baseLayout, CAT } from "@/components/Plot";
 import { Callout, Field, inputCls, Loadable, PageHeader, Panel, Prov } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
+import BassReportSection from "@/components/views/BassReportSection";
 
 type Rec = { experiment_uid: string; test_id: string; pi: string; material_class: string; geometry: string; o2_initial: number | null;
   o2_final: number | null; co2_initial: number | null; co2_final: number | null; co_initial: number | null; co_final: number | null;
@@ -52,7 +53,8 @@ export default function BassLabView() {
   return (
     <>
       <PageHeader title="BASS-II solid-fuel lab"
-        lead="Small solid samples burned in a flow duct inside the ISS Microgravity Science Glovebox. Oxygen, CO₂ and CO were read once before and once after each burn, for the whole ~250 L chamber. These are endpoints, not time series." />
+        lead="Small solid samples burned in a flow duct inside the ISS Microgravity Science Glovebox. Oxygen, CO₂ and CO were read once before and once after each burn, for the whole ~250 L chamber. These are endpoints, not time series."
+        sections={[{ id: "gas", label: "Gas balance" }, { id: "endpoints", label: "Per-test endpoints" }, { id: "spread", label: "Spread rate (Table 5.1)" }, { id: "outcomes", label: "SIBAL outcomes (Table 7.1)" }, { id: "report", label: "Test matrices" }]} />
       <div className="mb-5 flex flex-wrap items-end gap-3 rounded-lg border border-line bg-panel p-4">
         <Field label="Principal investigator" htmlFor="bpi">
           <select id="bpi" className={inputCls} value={pi} onChange={(e) => router.replace(`${pathname}${qs({ pi: e.target.value })}`, { scroll: false })}>
@@ -64,7 +66,7 @@ export default function BassLabView() {
       <Loadable state={g} rows={10}>
         {(d) => (
           <div className="flex flex-col gap-5">
-            <Panel title="Oxygen consumed vs CO₂ produced" aside={plot ? `n = ${plot.n} tests with both endpoints; ${d.summary.n_excluded_unphysical} excluded as unphysical` : undefined}>
+            <Panel id="gas" title="Oxygen consumed vs CO₂ produced" aside={plot ? `n = ${plot.n} tests with both endpoints; ${d.summary.n_excluded_unphysical} excluded as unphysical` : undefined}>
               <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
                 <div>{plot && <Plot data={plot.data} layout={plot.layout} height={400} ariaLabel="Scatter of oxygen consumed versus CO2 produced per BASS-II test"
                   onPointClick={(u) => router.push(expHref(String(u)))} />}
@@ -82,7 +84,7 @@ export default function BassLabView() {
               </div>
               <div className="mt-4"><Callout><ul className="list-disc pl-5">{d.limitations.map((l) => <li key={l}>{l}</li>)}</ul></Callout></div>
             </Panel>
-            <Panel title="Per-test gas endpoints and flow history" aside={`${d.records.length} tests`}>
+            <Panel id="endpoints" title="Per-test gas endpoints and flow history" aside={`${d.records.length} tests`}>
               <div className="max-h-[60vh] overflow-auto">
                 <table className="data">
                   <thead><tr><th>Test</th><th>Material</th><th className="num">O₂ i→f (%)</th><th className="num">ΔO₂</th><th className="num">CO₂ i→f (%)</th><th className="num">ΔCO₂</th><th className="num">CO i→f (ppm)</th><th>Air display (cm/s, stages as recorded)</th><th>Notes</th></tr></thead>
@@ -105,6 +107,7 @@ export default function BassLabView() {
           </div>
         )}
       </Loadable>
+      <BassReportSection />
     </>
   );
 }

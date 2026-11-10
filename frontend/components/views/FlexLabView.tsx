@@ -66,7 +66,8 @@ export default function FlexLabView() {
   return (
     <>
       <PageHeader title="FLEX droplet physics lab"
-        lead="Isolated methanol and n-heptane droplets burned on the ISS in O₂/N₂ atmospheres diluted with CO₂ or helium. Charts use only rows with the required values; excluded rows are listed with the reason." />
+        lead="Isolated methanol and n-heptane droplets burned on the ISS in O₂/N₂ atmospheres diluted with CO₂ or helium. Charts use only rows with the required values; excluded rows are listed with the reason."
+        sections={[{ id: "map", label: "Extinction map" }, { id: "d2", label: "d²-law check" }, { id: "ratio", label: "Extinction diameter" }]} />
       <div className="mb-5 grid gap-3 rounded-lg border border-line bg-panel p-4 sm:grid-cols-2 lg:grid-cols-5">
         <Field label="Fuel" htmlFor="ff"><select id="ff" className={inputCls} value={filters.fuel ?? ""} onChange={(e) => set("fuel", e.target.value)}>
           <option value="">Both</option><option>Methanol</option><option>Heptane</option></select></Field>
@@ -79,7 +80,7 @@ export default function FlexLabView() {
       </div>
 
       <div className="flex flex-col gap-5">
-        <Panel title="Extinction map: initial O₂ vs droplet size" aside={map.data ? `n = ${map.data.n_plotted} plotted of ${map.data.n_total} rows matching filters` : undefined}>
+        <Panel id="map" title="Extinction map: initial O₂ vs droplet size" aside={map.data ? `n = ${map.data.n_plotted} plotted of ${map.data.n_total} rows matching filters` : undefined}>
           <Loadable state={map} rows={8}>
             {(m) => (
               <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
@@ -134,7 +135,7 @@ export default function FlexLabView() {
           </Loadable>
         </Panel>
 
-        <Panel title="Extinction diameter relative to D₀ vs oxygen" aside={ratioPlot ? `n = ${ratioPlot.n} Extinction rows with Dext > 0` : undefined}>
+        <Panel id="ratio" title="Extinction diameter relative to D₀ vs oxygen" aside={ratioPlot ? `n = ${ratioPlot.n} Extinction rows with Dext > 0` : undefined}>
           {ratioPlot ? <Plot data={ratioPlot.data} layout={ratioPlot.layout} height={340} ariaLabel="Scatter of extinction diameter ratio versus initial oxygen"
             onPointClick={(u) => router.push(expHref(String(u)))} /> : <Loadable state={map}>{() => null}</Loadable>}
           <p className="mt-2 text-xs text-text-3">For heptane, the visible flame can go out (radiative extinction) while a cool flame keeps burning, so Dext marks the end of the visible flame, not of burning.</p>

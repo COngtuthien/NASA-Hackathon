@@ -23,6 +23,9 @@ type Answer = {
 };
 type Turn = { q: string; scope: string; res?: Answer; err?: ApiError };
 
+const SOURCE_LABEL: Record<string, string> = { experiment: "Experiment rows", analysis: "Computed", quality_flag: "Quality rules",
+  local_document: "NASA documents", report_table: "Report tables", external_paper: "External papers" };
+
 const STATUS: Record<string, { label: string; cls: string; note: string }> = {
   answered: { label: "Answered", cls: "text-ok border-ok/50", note: "All statements passed citation and number checks." },
   partial: { label: "Partial answer", cls: "text-warn border-warn/50", note: "Some generated statements failed verification and were removed." },
@@ -55,7 +58,7 @@ function DataPreview({ data }: { data: unknown }) {
 
 function CitationCard({ c, highlight }: { c: Citation; highlight: boolean }) {
   const link = c.source_type === "experiment" && c.experiment_uid ? expHref(c.experiment_uid)
-    : c.source_type === "local_document" && c.document_id ? `/api/v1/documents/${c.document_id}/file${c.page_pdf ? `#page=${c.page_pdf}` : ""}`
+    : (c.source_type === "local_document" || c.source_type === "report_table") && c.document_id ? `/api/v1/documents/${c.document_id}/file${c.page_pdf ? `#page=${c.page_pdf}` : ""}`
       : c.url;
   const external = c.source_type === "external_paper" || c.source_type === "local_document";
   return (
@@ -79,8 +82,12 @@ function CitationCard({ c, highlight }: { c: Citation; highlight: boolean }) {
 
 function AnswerBlock({ a }: { a: Answer }) {
   const [hl, setHl] = useState<string | null>(null);
+  const [kind, setKind] = useState<string>("all");
   const st = STATUS[a.status] ?? STATUS.retrieval_only;
+  const counts = a.citations.reduce<Record<string, number>>((m, c) => ({ ...m, [c.source_type]: (m[c.source_type] ?? 0) + 1 }), {});
+  const shown = kind === "all" ? a.citations : a.citations.filter((c) => c.source_type === kind);
   const cite = (id: string) => {
+    setKind("all");
     setHl(id);
     document.getElementById(`c-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
@@ -115,7 +122,17 @@ function AnswerBlock({ a }: { a: Answer }) {
       <div>
         <h3 className="subhead text-[15px]">Sources ({a.citations.length})</h3>
         {a.citations.length === 0 ? <p className="text-sm text-text-2">No supporting source was found.</p> : (
-          <ol className="mt-2 flex flex-col gap-2">{a.citations.map((c) => <CitationCard key={c.citation_id} c={c} highlight={hl === c.citation_id} />)}</ol>
+          <>
+            <div role="tablist" aria-label="Filter sources by type" className="mt-2 flex flex-wrap gap-1.5">
+              {[["all", "All"], ...Object.keys(counts).map((k) => [k, SOURCE_LABEL[k] ?? k])].map(([k, l]) => (
+                <button key={k} role="tab" aria-selected={kind === k} onClick={() => setKind(k)}
+                  className={`rounded-full border px-2.5 py-0.5 text-[13px] ${kind === k ? "border-flame bg-flame/15 text-text" : "border-line-strong text-text-2 hover:text-text"}`}>
+                  {l} <span className="text-text-3">{k === "all" ? a.citations.length : counts[k]}</span>
+                </button>
+              ))}
+            </div>
+            <ol className="mt-2 flex flex-col gap-2">{shown.map((c) => <CitationCard key={c.citation_id} c={c} highlight={hl === c.citation_id} />)}</ol>
+          </>
         )}
       </div>
       <details className="text-sm">

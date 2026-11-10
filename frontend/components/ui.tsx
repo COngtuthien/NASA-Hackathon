@@ -2,16 +2,28 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Icon } from "@/components/icons";
 import { ApiError } from "@/lib/api";
 
-export function PageHeader({ title, lead, actions }: { title: string; lead?: ReactNode; actions?: ReactNode }) {
+export function PageHeader({ title, lead, actions, sections }: {
+  title: string; lead?: ReactNode; actions?: ReactNode; sections?: { id: string; label: string }[];
+}) {
   return (
-    <header className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-      <div className="max-w-3xl">
-        <h1 className="display text-[28px] md:text-[34px]">{title}</h1>
-        {lead && <p className="mt-2 text-text-2 max-w-[72ch]">{lead}</p>}
+    <header className="mb-6">
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div className="max-w-3xl">
+          <h1 className="display text-[28px] md:text-[36px]">{title}</h1>
+          {lead && <p className="mt-2 max-w-[72ch] text-[15.5px] text-text-2">{lead}</p>}
+        </div>
+        {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
       </div>
-      {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+      {sections && sections.length > 0 && (
+        <nav aria-label="On this page" className="mt-4 flex flex-wrap gap-1.5 border-b border-line pb-3">
+          {sections.map((s) => (
+            <a key={s.id} href={`#${s.id}`} className="rounded-full border border-line-strong px-3 py-1 text-[13px] text-text-2 no-underline hover:border-flame/60 hover:text-text hover:no-underline">{s.label}</a>
+          ))}
+        </nav>
+      )}
     </header>
   );
 }
@@ -20,7 +32,7 @@ export function Panel({ title, children, aside, className = "", id }: {
   title?: ReactNode; children: ReactNode; aside?: ReactNode; className?: string; id?: string;
 }) {
   return (
-    <section id={id} className={`rounded-lg border border-line bg-panel ${className}`}>
+    <section id={id} className={`scroll-mt-28 rounded-lg border border-line bg-panel shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] ${className}`}>
       {(title || aside) && (
         <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-4 py-3">
           {title && <h2 className="subhead text-[17px]">{title}</h2>}
@@ -37,6 +49,7 @@ const PROV: Record<string, { label: string; cls: string; tip: string }> = {
   experiment: { label: "Measured", cls: "border-data/60 text-data", tip: "Exact value from a NASA CSV/XLSX row" },
   DOC: { label: "Document", cls: "border-link/60 text-link", tip: "Stated in a NASA source document (page cited)" },
   local_document: { label: "Document", cls: "border-link/60 text-link", tip: "Stated in a NASA source document (page cited)" },
+  report_table: { label: "Report table", cls: "border-link/60 text-link", tip: "Curated NASA report table row, verified against the CSV (page cited)" },
   COMPUTED: { label: "Computed", cls: "border-flame/60 text-flame", tip: "Deterministic calculation by SpaceFire code" },
   analysis: { label: "Computed", cls: "border-flame/60 text-flame", tip: "Deterministic calculation by SpaceFire code" },
   quality_flag: { label: "Quality rule", cls: "border-warn/60 text-warn", tip: "Automated data-quality rule" },
@@ -73,7 +86,7 @@ export function Severity({ level, count }: { level: string; count?: number }) {
 }
 
 export function Kind({ kind }: { kind?: string | null }) {
-  if (!kind || kind === "present") return null;
+  if (!kind || kind === "present" || kind === "text") return null;
   const label: Record<string, string> = {
     blank: "blank cell", dash: "dash (–)", none: "'none'", approximate: "approximate", range: "range",
     over_range: "over range", lower_bound: "lower bound", upper_bound: "upper bound", sequence: "multi-stage",
@@ -125,20 +138,25 @@ export function Skeleton({ rows = 4, h = 18 }: { rows?: number; h?: number }) {
 export function ErrorState({ error, onRetry }: { error: ApiError | Error; onRetry?: () => void }) {
   const offline = error instanceof ApiError && error.code === "offline";
   return (
-    <div role="alert" className="rounded-md border border-crit/40 bg-crit/10 p-4">
-      <p className="font-semibold text-crit">{offline ? "API offline" : "Request failed"}</p>
+    <div role="alert" className="flex gap-3 rounded-md border border-crit/40 bg-crit/10 p-4">
+      <Icon name="alert" size={20} className="mt-0.5 shrink-0 text-crit" />
+      <div>
+      <p className="font-semibold text-crit">{offline ? "The SpaceFire API is not reachable" : "Request failed"}</p>
       <p className="mt-1 text-sm text-text-2">{error.message}</p>
+      {offline && <p className="mt-1 text-sm text-text-3">Start the backend with scripts/start.ps1 (or start.sh), then retry.</p>}
       {error instanceof ApiError && error.requestId && (
         <p className="mt-1 text-xs text-text-3">Request ID {error.requestId}</p>
       )}
       {onRetry && <div className="mt-3"><Button onClick={onRetry}>Retry</Button></div>}
+      </div>
     </div>
   );
 }
 
 export function Empty({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="rounded-md border border-dashed border-line-strong p-6 text-center">
+    <div className="flex flex-col items-center rounded-md border border-dashed border-line-strong px-6 py-8 text-center">
+      <Icon name="empty" size={28} className="mb-2 text-text-3" />
       <p className="font-semibold">{title}</p>
       {children && <div className="mt-1 text-sm text-text-2">{children}</div>}
     </div>
@@ -190,4 +208,34 @@ export function Stat({ value, label, note }: { value: ReactNode; label: string; 
 export function Callout({ tone = "info", children }: { tone?: "info" | "warn" | "crit"; children: ReactNode }) {
   const cls = { info: "border-info/40 bg-info/5", warn: "border-warn/40 bg-warn/5", crit: "border-crit/40 bg-crit/5" }[tone];
   return <div className={`rounded-md border-l-4 ${cls} px-3 py-2 text-sm text-text-2`}>{children}</div>;
+}
+
+export function FilterChips({ chips, onRemove, onClear }: {
+  chips: { key: string; label: string }[]; onRemove: (key: string) => void; onClear?: () => void;
+}) {
+  if (!chips.length) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-1.5" aria-label="Active filters">
+      {chips.map((c) => (
+        <button key={c.key} onClick={() => onRemove(c.key)} aria-label={`Remove filter ${c.label}`}
+          className="inline-flex items-center gap-1 rounded-full border border-flame/40 bg-flame/10 px-2.5 py-0.5 text-[13px] text-text hover:border-flame">
+          {c.label}<Icon name="close" size={12} />
+        </button>
+      ))}
+      {onClear && chips.length > 1 && <button onClick={onClear} className="text-[13px] text-link hover:underline">Clear all</button>}
+    </div>
+  );
+}
+
+export function MetricTile({ value, label, note, href }: { value: ReactNode; label: string; note?: string; href?: string }) {
+  const inner = (
+    <>
+      <div className="text-[26px] font-semibold leading-none text-data [font-stretch:115%]">{value}</div>
+      <div className="mt-1.5 text-sm text-text">{label}</div>
+      {note && <div className="mt-0.5 text-xs text-text-3">{note}</div>}
+    </>
+  );
+  return href ? (
+    <Link href={href} className="block rounded-lg border border-line bg-panel/70 px-4 py-3 no-underline hover:border-flame/50 hover:no-underline">{inner}</Link>
+  ) : <div className="rounded-lg border border-line bg-panel/70 px-4 py-3">{inner}</div>;
 }

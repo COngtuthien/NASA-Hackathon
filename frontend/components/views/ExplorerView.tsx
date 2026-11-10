@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { Button, Empty, Field, inputCls, Kind, Loadable, PageHeader, Pager, Panel, Severity } from "@/components/ui";
+import { Button, Empty, Field, FilterChips, inputCls, Kind, Loadable, PageHeader, Pager, Panel, Severity } from "@/components/ui";
 import { DATASETS, expHref, fmt, useApi, useDraft } from "@/lib/api";
 
 type FieldDef = { name: string; label: string; kind: string; unit: string | null; role: string; source_header: string | null; note: string | null };
@@ -163,6 +163,21 @@ export default function ExplorerView() {
         </Panel>
 
         <div className="min-w-0">
+          <div className="mb-3">
+            <FilterChips
+              chips={[...activeFilters, ...(sp.get("q") ? ["q"] : [])].map((k) => {
+                const v = sp.get(k) ?? "";
+                const name = k.replace(/^(f_|min_|max_)/, "");
+                const label = list.data?.fields.find((x) => x.name === name)?.label ?? name;
+                if (k === "q") return { key: k, label: `Search: ${v}` };
+                if (k === "has") return { key: k, label: `Has numeric: ${v.split("|").join(", ")}` };
+                if (k.startsWith("min_")) return { key: k, label: `${label} ≥ ${v}` };
+                if (k.startsWith("max_")) return { key: k, label: `${label} ≤ ${v}` };
+                return { key: k, label: `${label}: ${v.split("|").join(" or ")}` };
+              })}
+              onRemove={(k) => update({ [k]: null })}
+              onClear={() => switchDataset(dataset)} />
+          </div>
           <Loadable state={list} rows={10}>
             {(d) => (
               <Panel title={`${d.total.toLocaleString()} ${d.total === 1 ? "row" : "rows"}`}

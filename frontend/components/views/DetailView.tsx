@@ -91,7 +91,7 @@ export default function DetailView() {
                               <span className="block text-xs text-warn">header unit “{o.unit_raw}”</span>)}
                           </td>
                           <td className="text-text-2">{o.measurement_role}</td>
-                          <td className="max-w-[340px] text-sm text-text-2">{o.derivation_note}</td>
+                          <td className="min-w-[220px] max-w-[340px] text-sm text-text-2">{o.derivation_note}</td>
                         </tr>
                       ))}
                     </tbody>

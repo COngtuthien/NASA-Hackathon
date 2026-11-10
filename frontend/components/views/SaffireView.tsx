@@ -42,13 +42,14 @@ export default function SaffireView() {
   return (
     <>
       <PageHeader title="SAFFIRE-I case study"
-        lead="The first large-scale fire in microgravity: a ~0.4 m × 0.94 m SIBAL cotton/fiberglass sheet burned aboard an uncrewed Cygnus vehicle in June 2016. The local data holds two burn records and a manifest of image files. It holds no images, flame measurements or sensor time series." />
+        lead="The first large-scale fire in microgravity: a ~0.4 m × 0.94 m SIBAL cotton/fiberglass sheet burned aboard an uncrewed Cygnus vehicle in June 2016. The local data holds two burn records and a manifest of image files. It holds no images, flame measurements or sensor time series."
+        sections={[{ id: "compare", label: "S1 vs S2" }, { id: "timeline", label: "Downlink timeline" }, { id: "manifest", label: "Manifest summary" }, { id: "sets", label: "Image sets & papers" }]} />
       <Loadable state={cs} rows={10}>
         {(c) => (
           <div className="flex flex-col gap-5">
             <Callout tone="warn">{c.statements.find((s) => s.kind === "UNSUPPORTED")?.text} No image thumbnails are shown because no image bytes exist locally.</Callout>
             <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
-              <Panel title="S1 vs S2, as recorded in the CSV" aside={<Link href="/compare?uids=saffire1:S1,saffire1:S2">Open in compare</Link>}>
+              <Panel id="compare" title="S1 vs S2, as recorded in the CSV" aside={<Link href="/compare?uids=saffire1:S1,saffire1:S2">Open in compare</Link>}>
                 <div className="overflow-x-auto">
                   <table className="data">
                     <thead><tr><th>Field</th><th><Link href={expHref("saffire1:S1")}>S1</Link></th><th><Link href={expHref("saffire1:S2")}>S2</Link></th></tr></thead>
@@ -86,7 +87,7 @@ export default function SaffireView() {
               </Loadable>
             </Panel>
 
-            <Panel title="Manifest summary by image set and camera" aside={`Campaign ${c.campaign_window.start_utc?.slice(11, 19)} to ${c.campaign_window.end_utc?.slice(11, 19)} UTC`}>
+            <Panel id="manifest" title="Manifest summary by image set and camera" aside={`Campaign ${c.campaign_window.start_utc?.slice(11, 19)} to ${c.campaign_window.end_utc?.slice(11, 19)} UTC`}>
               <div className="overflow-x-auto">
                 <table className="data">
                   <thead><tr><th>Set</th><th>Camera</th><th className="num">Frames listed</th><th>Start (UTC)</th><th className="num">Duration (s)</th><th className="num">Median Δt (ms)</th><th className="num">Received</th><th className="num">Corrupt</th><th className="num">ZIPs received</th></tr></thead>
@@ -101,7 +102,7 @@ export default function SaffireView() {
             </Panel>
 
             <div className="grid gap-5 md:grid-cols-2">
-              <Panel title="Image-set rows (F1, F2)">
+              <Panel id="sets" title="Image-set rows (F1, F2)">
                 <ul className="flex flex-col gap-2 text-sm">{c.image_sets.map((s) => (
                   <li key={s.label}><b>{s.label}</b>: CSV text <span className="raw">{s.csv_description}</span>
                     <span className="block text-text-2">Documented role: {s.documented_role}{s.csv_role !== s.documented_role && <span className="text-warn"> (conflicts with CSV)</span>}</span></li>))}</ul>
