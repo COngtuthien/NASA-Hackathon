@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+/* SpaceFire AI tokens. Dark aerospace: navy ink, flame orange = action, cyan = data, violet = links.
+   Categorical chart slots validated (dataviz validator, dark mode, surface #101E33): all checks pass. */
+:root {
+  --ink: #0a1424;
+  --panel: #101e33;
+  --raised: #16273f;
+  --line: #233654;
+  --line-strong: #31496d;
+  --text: #e6edf7;
+  --text-2: #a9b8cd;
+  --text-3: #7f92ad;
+  --flame: #ff8a3d;
+  --flame-ink: #1b0d03;
+  --data: #4fd1e8;
+  --link: #b39dff;
+  --crit: #ff6b6b;
+  --warn: #f5c451;
+  --info: #7fa7d9;
+  --ok: #6fcf8f;
+  --cat-1: #22a6bf;
+  --cat-2: #d87830;
+  --cat-3: #a07ceb;
+  --cat-4: #56a93b;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-panel: var(--panel);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-flame: var(--flame);
+  --color-flame-ink: var(--flame-ink);
+  --color-data: var(--data);
+  --color-link: var(--link);
+  --color-crit: var(--crit);
+  --color-warn: var(--warn);
+  --color-info: var(--info);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+@layer base {
+html,
+body {
+  background: var(--ink);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Display type: Archivo's width axis carries the voice */
+.display {
+  font-stretch: 125%;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.subhead {
+  font-stretch: 112%;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+a {
+  color: var(--link);
+  text-underline-offset: 3px;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--flame);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+}
+
+/* Verbatim source text: mono means "exactly as recorded by NASA" */
+.raw {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: #d7e2f2;
+  background: #0c1729;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 0.35em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--raised) 0%, #1c3150 50%, var(--raised) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+table.data {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+table.data th {
+  position: sticky;
+  top: 0;
+  background: var(--raised);
+  color: var(--text-2);
+  font-weight: 600;
+  font-size: 13px;
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line-strong);
+  white-space: nowrap;
+}
+table.data td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  vertical-align: top;
+}
+table.data tbody tr:hover td {
+  background: #132540;
+}
+td.num, th.num {
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+table.data.nowrap td {
+  white-space: nowrap;
+}
