@@ -51,6 +51,30 @@ def lsa_index() -> LsaIndex | None:
     return _lsa(str(get_settings().processed_dir))
 
 
+@lru_cache
+def _neural(processed_dir: str):
+    from .neural import NeuralIndex
+    return NeuralIndex.load(Path(processed_dir))
+
+
+def dense_indexes() -> list[tuple[str, object, float]]:
+    """Dense retrievers per RETRIEVAL_DENSE (lsa | neural | both). Missing indexes are skipped (graceful)."""
+    mode = get_settings().retrieval_dense.lower()
+    out = []
+    if mode in ("lsa", "both"):
+        idx = lsa_index()
+        if idx is not None:
+            out.append(("LSA", idx, 0.05))
+    if mode in ("neural", "both"):
+        try:
+            idx = _neural(str(get_settings().processed_dir))
+        except Exception:  # noqa: BLE001 - optional dependency
+            idx = None
+        if idx is not None:
+            out.append(("bge-small", idx, 0.3))
+    return out
+
+
 def normalize_query(q: str) -> str:
     q = q.translate(SUPERSCRIPT).replace("^2", "2").replace("²", "2")
     return " ".join(q.split())
@@ -109,6 +133,7 @@ class Hit:
     semantic_score: float | None = None
     fused: float = 0.0
     reasons: list[str] = field(default_factory=list)
+    dense_ranks: dict[str, int] = field(default_factory=dict)
     boosts: dict[str, float] = field(default_factory=dict)
 
 
@@ -188,14 +213,16 @@ def search(conn: sqlite3.Connection, q: str, investigation: str | None = None, d
                     continue
                 rank += 1
                 hits[r["chunk_id"]] = Hit(r["chunk_id"], lexical_rank=rank, lexical_score=-float(r["s"]))
-        idx = lsa_index()
-        if idx is not None:
+        for name, idx, floor in dense_indexes():
             mode["semantic"] = True
+            mode.setdefault("dense", []).append(name)
             for rank, (cid, sim) in enumerate(idx.search(qn, k=80, allowed=allowed), start=1):
-                if sim <= 0.05:
+                if sim <= floor:
                     break
                 h = hits.setdefault(cid, Hit(cid))
-                h.semantic_rank, h.semantic_score = rank, sim
+                h.dense_ranks[name] = rank
+                if h.semantic_rank is None or rank < h.semantic_rank:
+                    h.semantic_rank, h.semantic_score = rank, sim
         # exact-ID linkage
         id_chunks: dict[str, set[str]] = {}
         for ident in ids:
@@ -222,8 +249,8 @@ def search(conn: sqlite3.Connection, q: str, investigation: str | None = None, d
             text_low = m["text"].lower()
             if h.lexical_rank:
                 h.fused += 1.0 / (RRF_K + h.lexical_rank)
-            if h.semantic_rank:
-                h.fused += 1.0 / (RRF_K + h.semantic_rank)
+            for r_ in h.dense_ranks.values():
+                h.fused += 1.0 / (RRF_K + r_)
             for p in phrases:
                 if p.lower() in text_low:
                     h.boosts["exact_phrase"] = 0.02
@@ -243,7 +270,7 @@ def search(conn: sqlite3.Connection, q: str, investigation: str | None = None, d
             if groups:
                 h.reasons.append(f"Covers {len(matched_groups)}/{len(groups)} query concepts")
             if h.semantic_rank and h.semantic_rank <= 10:
-                h.reasons.append("Semantic (LSA) neighbor")
+                h.reasons.append("Semantic neighbor (" + ", ".join(k for k, v in h.dense_ranks.items() if v <= 10) + ")")
             w = DOC_TYPE_WEIGHT.get(m["doc_type"], 0.8)
             nwords = len(m["text"].split())
             quality = 1.0
@@ -300,7 +327,7 @@ def search(conn: sqlite3.Connection, q: str, investigation: str | None = None, d
             exp_matches.append(d)
     return {"query": q, "normalized_query": qn, "terms": terms, "total": total, "offset": offset, "limit": limit,
             "experiment_matches": exp_matches,
-            "retrieval_mode": "hybrid (BM25 + LSA)" if mode["semantic"] else "lexical-only (BM25)",
+            "retrieval_mode": ("hybrid (BM25 + " + " + ".join(mode.get("dense", [])) + ")") if mode["semantic"] else "lexical-only (BM25)",
             "score_note": "Scores rank retrieval relevance only; they are not calibrated confidence in a claim.",
             "results": page}
 

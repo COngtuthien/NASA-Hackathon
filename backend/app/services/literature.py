@@ -136,6 +136,13 @@ class Literature:
                     statuses[p] = {"status": "unavailable", "error": str(exc), "http_status": exc.status,
                                    "retry_after": exc.retry_after}
         results = dedupe(merged)
+        listed = {}
+        for r in conn.execute("SELECT lower(doi) d, investigation_id FROM investigation_publications WHERE doi IS NOT NULL"):
+            nd = normalize_doi(r["d"])
+            if nd:
+                listed.setdefault(nd, set()).add(r["investigation_id"])
+        for r in results:
+            r["nasa_psi_listed"] = sorted(listed.get(r.get("doi") or "", []))
         if open_access is not None:
             results = [r for r in results if r.get("is_open_access") is None or r["is_open_access"] == open_access]
         if sort == "date":

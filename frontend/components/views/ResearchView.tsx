@@ -9,6 +9,7 @@ type Paper = {
   paper_id: string; doi: string | null; title: string; authors: string[]; year: number | null; venue: string | null;
   canonical_url: string | null; abstract: string | null; is_open_access: boolean | null; fulltext_url: string | null;
   doc_type: string | null; cited_by_count: number | null; found_in: string[]; access_type: string; fulltext_read: boolean;
+  nasa_psi_listed?: string[];
 };
 type ProviderStatus = { status: string; fetched_at?: string; is_stale?: boolean; error?: string; returned?: number; total?: number; cache?: string };
 type SearchResp = { results: Paper[]; total: number; providers: Record<string, ProviderStatus>; external_available?: boolean;
@@ -38,6 +39,10 @@ function PaperItem({ p, onRelated }: { p: Paper; onRelated?: (id: string) => voi
       <a href={p.canonical_url ?? "#"} target="_blank" rel="noreferrer" className="font-semibold">{p.title}</a>
       <p className="text-sm text-text-2">{p.authors.slice(0, 5).join(", ")}{p.authors.length > 5 ? ", et al." : ""}{p.year ? ` (${p.year})` : ""}{p.venue ? `, ${p.venue}` : ""}</p>
       <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-text-3">
+        {p.nasa_psi_listed && p.nasa_psi_listed.length > 0 && (
+          <span className="rounded border border-ok/50 px-1 text-ok" title="This DOI is listed in NASA PSI investigation metadata">
+            Listed by NASA PSI for {p.nasa_psi_listed.map((i) => ({ "PSI-69": "FLEX", "PSI-25": "BASS-II", "PSI-98": "SAFFIRE-I" } as Record<string, string>)[i] ?? i).join(", ")}
+          </span>)}
         <span>Found in {p.found_in.map((f) => (f === "ntrs" ? "NASA NTRS" : f === "openalex" ? "OpenAlex" : f)).join(" and ")}</span>
         {p.doi && <a href={`https://doi.org/${p.doi}`} target="_blank" rel="noreferrer">doi:{p.doi}</a>}
         <span className={p.access_type === "abstract" ? "text-data" : ""}>{p.access_type === "abstract" ? "Abstract available, full text not read" : "Metadata only"}</span>

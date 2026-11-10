@@ -42,6 +42,9 @@ class Settings(BaseSettings):
     openalex_api_key: str = Field(default="", alias="OPENALEX_API_KEY", repr=False)
     ntrs_api_key: str = Field(default="", alias="NTRS_API_KEY", repr=False)
 
+    # Retrieval: dense component fused with BM25 (lsa | neural | both). Chosen by tests/retrieval_benchmark.jsonl.
+    retrieval_dense: str = Field(default="lsa", alias="RETRIEVAL_DENSE")
+
     # Web
     cors_origins: str = Field(default="http://localhost:3000,http://127.0.0.1:3000", alias="CORS_ORIGINS")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")

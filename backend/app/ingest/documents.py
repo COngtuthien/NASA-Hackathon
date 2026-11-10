@@ -212,7 +212,8 @@ def extract_pptx(path: Path, rel_key: str) -> ExtractedDoc:
         text = _clean("\n".join(parts))
         if len(text.split()) < LOW_TEXT_WORDS:
             out.low_text_pages.append(i)
-        out.pages.append(Page(i, text, f"Slide {i}" + (f": {title}" if title else "")))
+        # slides are cited by section ("Slide N"), never as a PDF page number
+        out.pages.append(Page(None, text, f"Slide {i}" + (f": {title}" if title else "")))
     return out
 
 
