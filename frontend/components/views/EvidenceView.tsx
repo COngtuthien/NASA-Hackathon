@@ -128,7 +128,7 @@ export default function EvidenceView() {
                       <a href={c.source_url} target="_blank" rel="noreferrer">Open the source file{c.page_pdf ? ` at PDF p.${c.page_pdf}` : ""}</a>
                       {c.neighbors.map((n) => <button key={n.chunk_id} className="text-link" onClick={() => set({ chunk: n.chunk_id })}>{n.ordinal < c.ordinal ? "Previous passage" : "Next passage"}</button>)}
                     </div>
-                    {c.linked_experiments.length > 0 && <p className="mt-2">Tests named here: {c.linked_experiments.map((l) => <Link key={l.experiment_uid} className="mr-2" href={expHref(l.experiment_uid)}>{l.display_id}</Link>)}</p>}
+                    {c.linked_experiments.length > 0 && <p className="mt-2 flex flex-wrap gap-x-2 gap-y-0.5"><span>Tests named here:</span> {c.linked_experiments.map((l) => <Link key={l.experiment_uid} href={expHref(l.experiment_uid)}>{l.display_id}</Link>)}</p>}
                   </div>
                 )}
               </Loadable>

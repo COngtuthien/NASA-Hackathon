@@ -16,22 +16,26 @@ investigations are different physical systems and are never pooled into one data
 
 ## Features
 
-| Feature | Route | Notes |
-|---|---|---|
-| Overview dashboard | `/` | Counts and findings recomputed from the database; interactive FLEX chart |
-| Research assistant | `/assistant` | Whitelisted data tools + hybrid document search + optional external literature; citation and number verification; explicit retrieval-only mode without an LLM key |
-| External research | `/research` | NASA NTRS + OpenAlex search, Crossref DOI verification, DOI dedupe, related works, cache with staleness labels |
-| Experiment explorer / detail | `/experiments`, `/experiments/{dataset}/{uid}` | Server-side filters/sort/paging, CSV export (normalized or original cells), raw vs parsed values, provenance, flags, report pages |
-| Compare | `/compare` | 2–5 tests; numeric deltas/charts only within one investigation |
-| Evidence explorer | `/evidence` | FTS5 BM25 + local LSA vectors, reciprocal rank fusion, rank reasons, verbatim snippets with PDF pages |
-| FLEX physics lab | `/physics/flex` | Extinction map, outcome-by-O₂ table, d²-law consistency check, Dext/D₀ vs O₂ |
-| BASS-II lab | `/physics/bass-ii` | Before/after gas deltas, O₂ consumed vs CO₂ produced vs PMMA 5/6 stoichiometry |
-| SAFFIRE-I case study | `/physics/saffire-i` | S1/S2 comparison, manifest-derived downlink timeline (no fabricated media) |
-| Similar experiments | `/similar` | Gower distance on initial conditions only, per-field explanations |
-| Data quality | `/quality` | 557 flags across 35 rules, traced to file/row/column, CSV export |
-| Curated report tables | `/physics/bass-ii`, experiment pages | BASS-II Summary Report Tables 5.1, 7.1, Appendix A extracted and verified row-by-row against the CSV |
-| FLEX ML (P2, gated) | `/ml/flex` | Leakage-safe GroupKFold evaluation; exploratory prediction with OOD refusal |
-| Methodology | `/methodology` | Provenance labels, rules, sources |
+Pages are organized by scientific phenomenon and research goal; the NASA investigation behind each view is shown as a
+source badge. Old Phase 1–2 URLs (`/physics/flex`, `/assistant`, `/quality`, ...) redirect to the routes below.
+
+| Group | Page | Route | Notes |
+|---|---|---|---|
+| Discover | Mission Control | `/` | Cinematic overview: labelled hero illustration, scroll story of microgravity combustion quoting NASA document pages, three scales of combustion, recomputed findings, interactive FLEX chart, research workflow |
+| | Research Copilot | `/copilot` | Whitelisted data tools + hybrid document search + optional external literature; citation and number verification; tool trace from the real tool calls; explicit evidence-only mode without an LLM key |
+| | Combustion Explorer | `/experiments`, `/experiments/{dataset}/{uid}` | Server-side filters/sort/paging, CSV export (normalized or original cells), raw vs parsed values, provenance, flags, report pages |
+| Scientific analysis | Flame Extinction & Burning Dynamics (FLEX) | `/phenomena/flame-extinction` | Condition console, extinction map, outcome bars by O₂ band, d²-law consistency check, Dext/D₀ vs O₂ |
+| | Flame Spread & Material Behavior (BASS-II) | `/phenomena/flame-spread` | Gas balance vs PMMA 5/6 stoichiometry, per-test endpoints, curated Summary Report Tables 5.1, 7.1 and Appendix A |
+| | Spacecraft Fire Dynamics (SAFFIRE-I) | `/phenomena/spacecraft-fire` | Airflow/spread-direction schematics from CSV fields, S1/S2 comparison, manifest-derived downlink timeline (no fabricated media) |
+| Research intelligence | Experiment Intelligence | `/intelligence/similar`, `/intelligence/compare` | Gower similarity on initial conditions only; 2–5 test comparison within one investigation |
+| | Evidence & Literature | `/evidence`, `/evidence/literature` | FTS5 BM25 + local LSA with rank reasons and PDF pages; NASA NTRS + OpenAlex search, Crossref DOI verification |
+| | Prediction & Modeling | `/modeling` | Model card, leakage-safe GroupKFold metrics, gated exploratory FLEX burn-time estimate with interval and OOD refusal |
+| Trust & methods | Data Reliability | `/reliability` | 557 flags across 35 rules: rows carrying flags, review status, problem categories, each flag traced to file/row/column, CSV export |
+| | Methodology | `/methodology` | Provenance labels, rules, sources |
+
+Motion: Motion for React (scroll reveals, staggered entrances, parallax, count-up of real values), React `<ViewTransition>`
+page transitions and CSS ambient loops that pause off-screen. Everything honours `prefers-reduced-motion`; charts never
+tween values.
 
 ## Quick start
 
@@ -106,12 +110,12 @@ never downloaded or analyzed. The original dataset folders are never modified (t
 
 ## Demo script (3–4 minutes)
 
-1. Overview: 274 / 129 / 2 and why the three systems differ; filter the FLEX chart to Methanol.
-2. FLEX lab: extinction map, click a point to its source row; d²-law check (median ratio ≈ 1.05) and the `CO` / `mm²/s` header flags.
-3. BASS-II: compare M5 and M4; open the Summary Report page for M5; gas balance vs PMMA stoichiometry.
-4. External research: “Saffire spacecraft fire experiment”; verify DOI 10.1016/j.combustflame.2018.10.012.
-5. Assistant: ask about `Disruption`; then ask for a safe spacecraft O₂ threshold and see the abstention.
-6. SAFFIRE-I: S1 vs S2 and the downlink timeline; no images exist locally, and the app says so.
+1. Mission Control: scroll the physics story (each step quotes a NASA page), then the three scales; filter the FLEX chart to Methanol.
+2. Flame Extinction & Burning Dynamics: pick Methanol in the condition console, read the outcome bars, check the d²-law (median ratio ≈ 1.05).
+3. Flame Spread & Material Behavior: gas balance vs PMMA stoichiometry; Table 5.1 spread rate vs flow velocity.
+4. Spacecraft Fire Dynamics: S1 concurrent vs S2 opposed, then the downlink timeline; no images exist locally, and the app says so.
+5. Research Copilot: ask about `Disruption`; then ask for a safe spacecraft O₂ threshold and see the abstention.
+6. Data Reliability: open "Source mismatches" and follow a flag to its source row.
 
 ## Retrieval options
 

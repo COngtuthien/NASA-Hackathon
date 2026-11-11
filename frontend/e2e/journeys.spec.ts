@@ -104,7 +104,7 @@ test.describe("SpaceFire AI user journeys", () => {
     await page.goto(`/evidence?q=${encodeURIComponent("BASS-II Table 5.1")}`);
     await expect(page.getByText("PDF p.65 (printed p.57)").first()).toBeVisible();
     await page.getByRole("button", { name: "Read full passage" }).first().click();
-    await expect(page.getByRole("heading", { name: "Passage" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Passage", exact: true })).toBeVisible();
   });
 
   test("FLEX physics lab: extinction map and d²-law consistency", async ({ page }) => {
