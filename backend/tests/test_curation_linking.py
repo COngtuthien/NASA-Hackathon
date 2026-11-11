@@ -92,7 +92,7 @@ def test_links_are_not_ambiguous(conn):
     o2 = conn.execute("SELECT review_status FROM evidence_links WHERE experiment_uid='bass2:48'").fetchall()
     assert all(r[0] in ("verified_table_row", "exact_context") for r in o2)  # never the oxygen token
     levels = {r[0] for r in conn.execute("SELECT DISTINCT review_status FROM evidence_links")}
-    assert levels <= {"verified_table_row", "exact_context", "auto_unreviewed"}
+    assert levels <= {"verified_table_row", "exact_context", "manually_reviewed", "auto_unreviewed"}
     # every verified link points at the report page of a verified row for that very test
     bad = conn.execute(
         "SELECT count(*) FROM evidence_links l JOIN document_chunks c USING(chunk_id) WHERE l.review_status="
@@ -119,3 +119,37 @@ def test_api_report_integration(client):
     assert lst["total"] > 0 and all(i["fields"]["flow_direction"] == "Concurrent" for i in lst["items"])
     cur = client.get("/api/v1/curated/bass2", params={"table": "7.1"}).json()
     assert cur["total"] == 31
+
+
+# ------------------------------------------------------------ manual reviews ---
+def test_review_file_is_well_formed():
+    from app.ingest.linking import load_reviews
+    data = load_reviews()
+    keys = [(r["experiment_uid"], r["chunk_id"]) for r in data["reviews"]]
+    assert len(keys) == len(set(keys)) == 28
+    assert {r["decision"] for r in data["reviews"]} <= set(data["decisions"])
+    assert all(r["evidence"].strip() and r["matched"] for r in data["reviews"])
+
+
+def test_apply_reviews_upgrades_only_matching_unreviewed_links():
+    from app.ingest.linking import apply_reviews
+    rows = [("bass2:2", "bass-ii-summary-report:p112:2", "explicit_id", "bass_id (bare mention)", "B2", "auto_unreviewed"),
+            ("bass2:5", "bass-ii-summary-report:p112:2", "explicit_id", "bass_id (bare mention)", "B5", "exact_context"),
+            ("bass2:9", "x:p1:0", "explicit_id", "bass_id (bare mention)", "B9", "auto_unreviewed")]
+    out, applied, stale = apply_reviews(rows)
+    assert out[0][5] == "manually_reviewed" and out[0][2] == "cross_reference" and "B5" in out[0][3]
+    assert out[1] == rows[1]  # never downgrades or rewrites a stronger level
+    assert out[2] == rows[2]  # unknown mention stays unreviewed
+    assert applied == 1 and len(stale) == 27
+
+
+@requires_db
+def test_all_bare_mentions_reviewed(conn):
+    by = dict(conn.execute("SELECT review_status, count(*) FROM evidence_links GROUP BY 1").fetchall())
+    assert by.get("auto_unreviewed", 0) == 0 and by["manually_reviewed"] == 28
+    rel = dict(conn.execute("SELECT relation_type, count(*) FROM evidence_links WHERE review_status='manually_reviewed' "
+                            "GROUP BY 1").fetchall())
+    assert rel == {"table_row": 20, "figure_caption": 5, "cross_reference": 3}
+    import json as _j
+    rep = _j.loads(conn.execute("SELECT value FROM meta WHERE key='ingest_report'").fetchone()[0])
+    assert rep["linking"]["manual_reviews"] == {"applied": 28, "stale": []}

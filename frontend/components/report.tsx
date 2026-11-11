@@ -14,13 +14,25 @@ const LEVEL: Record<string, { label: string; cls: string; tip: string }> = {
     tip: "Report table row whose printed values match this test's CSV values" },
   exact_context: { label: "Explicit mention", cls: "border-data/60 text-data",
     tip: "ID appears with explicit context, e.g. 'test M5' or 'GMT175-T9' with the matching day" },
+  manually_reviewed: { label: "Reviewed mention", cls: "border-data/40 text-data",
+    tip: "Bare mention checked by a person against the report row (run number, sample, GMT day)" },
   auto_unreviewed: { label: "Unreviewed mention", cls: "border-dashed border-text-3 text-text-3",
     tip: "Bare mention of the ID found automatically; not reviewed" },
 };
 
-export function LinkLevel({ level }: { level: string }) {
+const RELATION: Record<string, string> = {
+  table_row: "this test's own report row", figure_caption: "figure caption about this test",
+  cross_reference: "named in another test's notes, not this test's data",
+};
+
+export function LinkLevel({ level, relation, note }: { level: string; relation?: string; note?: string }) {
   const l = LEVEL[level] ?? { label: level, cls: "border-line text-text-3", tip: level };
-  return <span title={l.tip} className={`inline-flex rounded border px-1.5 py-px text-[12px] font-medium ${l.cls}`}>{l.label}</span>;
+  const rel = level === "manually_reviewed" && relation ? RELATION[relation] : undefined;
+  return (
+    <span title={note ?? l.tip} className={`inline-flex rounded border px-1.5 py-px text-[12px] font-medium ${l.cls}`}>
+      {l.label}{rel && <span className={`ml-1 font-normal ${relation === "cross_reference" ? "text-warn" : "text-text-2"}`}>· {rel}</span>}
+    </span>
+  );
 }
 
 export function VerificationBadge({ v }: { v: string }) {

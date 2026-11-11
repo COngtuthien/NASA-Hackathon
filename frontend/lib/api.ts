@@ -45,7 +45,52 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   return (await res.json()) as T;
 }
 
-export type ApiState<T> = { data: T | null; error: ApiError | null; loading: boolean; reload: () => void };
+/**
+ * POST and read an NDJSON stream: `onEvent` gets each progress line as it arrives; resolves with the `data` of the
+ * final `{"event":"result"}` line and rejects with an ApiError on an `{"event":"error"}` line or an HTTP error.
+ */
+export async function apiStream<T>(path: string, body: unknown, onEvent: (ev: Record<string, unknown>) => void,
+  signal?: AbortSignal): Promise<T> {
+  let res: Response;
+  try {
+    res = await fetch(`${API}${path}`, { method: "POST", signal, body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json", Accept: "application/x-ndjson" } });
+  } catch (e) {
+    if ((e as Error).name === "AbortError") throw e;
+    throw new ApiError(0, "offline", "The SpaceFire API is not reachable. Start the backend (scripts/start).");
+  }
+  if (!res.ok || !res.body) {
+    let b: ApiErrorBody = {};
+    try { b = await res.json(); } catch { /* proxy error page */ }
+    if (!b.error && (res.status === 502 || res.status === 500 || res.status === 504))
+      throw new ApiError(0, "offline", "The SpaceFire API is not reachable. Start the backend (scripts/start).");
+    throw new ApiError(res.status, b.error?.code ?? "http_error", b.error?.message ?? `HTTP ${res.status}`, b.error?.request_id);
+  }
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    buf += dec.decode(value ?? new Uint8Array(), { stream: !done });
+    let nl: number;
+    while ((nl = buf.indexOf("\n")) >= 0) {
+      const line = buf.slice(0, nl).trim();
+      buf = buf.slice(nl + 1);
+      if (!line) continue;
+      const ev = JSON.parse(line) as Record<string, unknown>;
+      if (ev.event === "result") return ev.data as T;
+      if (ev.event === "error") {
+        const er = ev.error as { code?: string; message?: string };
+        throw new ApiError(500, er.code ?? "stream_error", er.message ?? "The answer stream failed.");
+      }
+      onEvent(ev);
+    }
+    if (done) break;
+  }
+  throw new ApiError(0, "stream_ended", "The answer stream ended before a result arrived.");
+}
+
+export type ApiState<T> ={ data: T | null; error: ApiError | null; loading: boolean; reload: () => void };
 
 /** Fetch on mount / when `path` changes. `path = null` skips. Stale responses are ignored. */
 export function useApi<T>(path: string | null, body?: unknown): ApiState<T> {

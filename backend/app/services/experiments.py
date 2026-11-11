@@ -168,7 +168,8 @@ def get_experiment(conn: sqlite3.Connection, uid: str) -> dict:
         "c.page_pdf, c.page_printed, c.section, substr(c.text,1,600) AS excerpt, d.title, d.relative_path "
         "FROM evidence_links l JOIN document_chunks c USING(chunk_id) JOIN documents d USING(document_id) "
         "WHERE l.experiment_uid=? ORDER BY CASE l.review_status WHEN 'verified_table_row' THEN 0 WHEN 'exact_context' "
-        "THEN 1 ELSE 2 END, d.title, c.page_pdf LIMIT 40", (uid,))]
+        "THEN 1 WHEN 'manually_reviewed' THEN (CASE l.relation_type WHEN 'cross_reference' THEN 3 ELSE 2 END) "
+        "ELSE 4 END, d.title, c.page_pdf LIMIT 40", (uid,))]
     for ln in links:
         ln["excerpt"] = _excerpt_around(ln["excerpt"], ln["matched_text"])
     report_records = []
@@ -195,6 +196,8 @@ def get_experiment(conn: sqlite3.Connection, uid: str) -> dict:
         "link_levels": {
             "verified_table_row": "Report table row whose printed values match this test's CSV values",
             "exact_context": "ID appears with explicit context (e.g. 'test M5', 'GMT175-T9' with matching day)",
+            "manually_reviewed": "Bare mention checked by a person against the report row (run number, sample, GMT "
+                                 "day); relation_type says own row, figure caption or cross-reference",
             "auto_unreviewed": "Bare mention of the ID; not reviewed",
         },
     }

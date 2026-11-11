@@ -338,7 +338,7 @@ function Workflow({ ov }: { ov: Overview | null }) {
     { name: "Compare", icon: "compare", text: "Put 2–5 tests side by side, or find the nearest cases by initial conditions only, with a per-field explanation of the distance.",
       not: "Outcomes are never used to find similar cases, so similarity cannot leak the answer.", href: ROUTES.similar, cta: "Find similar experiments" },
     { name: "Verify evidence", icon: "documents", text: `Search ${c ? fmt(c.chunks) : "all"} passages from ${c ? c.documents : ""} NASA documents with page numbers, look up external papers, and check ${c ? fmt(c.quality_flags) : ""} data-quality flags.`,
-      not: "Automatic test-ID mentions are labelled unreviewed until verified against a report table.", href: ROUTES.documents, cta: "Search the evidence" },
+      not: "Test-ID mentions carry their link confidence: verified table row, explicit mention, or a bare mention reviewed by hand against the report row.", href: ROUTES.documents, cta: "Search the evidence" },
   ];
   const s = steps[i];
   return (

@@ -5,6 +5,10 @@ Link levels (stored in evidence_links.review_status):
                       were checked against the CSV (strongest).
   exact_context       the ID appears with explicit context ("test M5", "GMT175-T9" with a matching
                       day-of-year, "FLEX-145", a distinctive FLEX identifier like C01M201).
+  manually_reviewed   an auto_unreviewed mention that a person checked in context against the curated
+                      report row (run number, sample, GMT day); relation_type then says whether the
+                      passage is the test's own row, a figure caption about it, or a cross-reference
+                      inside another test's notes (app/curation/link_reviews.json).
   auto_unreviewed     a bare mention of a non-ambiguous ID in a document of the same investigation.
 Excluded (never linked; reason kept in the ingest report):
   ambiguous_token     the ID is also an ordinary token (O2 = oxygen, F2 = SD-card/camera labels,
@@ -15,8 +19,10 @@ Excluded (never linked; reason kept in the ingest report):
 """
 from __future__ import annotations
 
+import json
 import re
 from collections import Counter, defaultdict
+from pathlib import Path
 
 # Tokens that coincide with BASS-II/SAFFIRE test IDs but usually mean something else.
 AMBIGUOUS = {
@@ -127,6 +133,38 @@ def link_all(conn, chunks_by_inv: dict[str, list[dict]], curated_rows: list[dict
             add(f"saffire1:{s}", ch["chunk_id"], "explicit_id", "saffire_sample", s + cam,
                 "exact_context" if cam else "auto_unreviewed")
 
+    rows, applied, stale = apply_reviews(rows)
+    report = Counter(r[5] for r in rows) + Counter({"excluded": report["excluded"]})
     excl_reasons = Counter(e["reason"].split(":")[0] for e in excluded)
     return rows, {"links_by_level": dict(report), "excluded_examples": excluded[:40],
-                  "excluded_by_reason": dict(excl_reasons)}
+                  "excluded_by_reason": dict(excl_reasons),
+                  "manual_reviews": {"applied": applied, "stale": stale}}
+
+
+REVIEWS_PATH = Path(__file__).resolve().parents[1] / "curation" / "link_reviews.json"
+
+
+def load_reviews() -> dict:
+    return json.loads(REVIEWS_PATH.read_text(encoding="utf-8"))
+
+
+def apply_reviews(rows: list[tuple]) -> tuple[list[tuple], int, list[dict]]:
+    """Upgrade `auto_unreviewed` links that a person reviewed (app/curation/link_reviews.json) to
+    `manually_reviewed`, with the reviewed relation (own table row / figure caption / cross-reference).
+    Reviews that no longer match a generated link are returned as `stale` so a re-chunking cannot silently
+    drop or misapply a review."""
+    data = load_reviews()
+    decisions = data["decisions"]
+    by_key = {(r["experiment_uid"], r["chunk_id"]): r for r in data["reviews"]}
+    out, used = [], set()
+    for uid, chunk_id, rel, method, matched, level in rows:
+        rv = by_key.get((uid, chunk_id))
+        if rv and level == "auto_unreviewed" and rv["matched"] == matched:
+            d = decisions[rv["decision"]]
+            out.append((uid, chunk_id, d["relation_type"], f"manual_review ({d['label']}): {rv['evidence']}"[:400],
+                        matched, "manually_reviewed"))
+            used.add((uid, chunk_id))
+        else:
+            out.append((uid, chunk_id, rel, method, matched, level))
+    stale = [r for k, r in by_key.items() if k not in used]
+    return out, len(used), stale

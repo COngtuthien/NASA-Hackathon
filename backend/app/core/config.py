@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     llm_api_key: str = Field(default="", alias="LLM_API_KEY", repr=False)
     llm_base_url: str = Field(default="", alias="LLM_BASE_URL")
     llm_timeout_s: float = Field(default=60.0, alias="LLM_TIMEOUT_S")
+    # Gemini only: reasoning depth (minimal | low | medium | high). Low keeps latency and free-tier tokens down.
+    llm_thinking_level: str = Field(default="low", alias="LLM_THINKING_LEVEL")
+    # Reuse the model's output for an identical question + evidence pack (saves free-tier quota). 0 disables.
+    llm_cache_ttl_hours: float = Field(default=168.0, alias="LLM_CACHE_TTL_HOURS")
 
     # External literature
     external_search_enabled: bool = Field(default=True, alias="EXTERNAL_SEARCH_ENABLED")

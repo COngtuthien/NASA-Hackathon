@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "rea
 import { Icon } from "@/components/icons";
 import { DUR, EASE, motion } from "@/components/motion";
 import { Button, Callout, ErrorState, inputCls, PageHeader, Panel, Prov, Segmented } from "@/components/ui";
-import { apiFetch, ApiError, expHref, fmt, useApi } from "@/lib/api";
+import { apiFetch, ApiError, apiStream, expHref, fmt, useApi } from "@/lib/api";
 import { canonical, PHENOMENA } from "@/lib/routes";
 
 type Citation = {
@@ -19,12 +19,15 @@ type Claim = { text: string; kind: string; citation_ids: string[]; conditions: s
 type Answer = {
   question: string; answer: string | null; status: string; claims: Claim[]; citations: Citation[];
   limitations: string[]; suggested_followups: string[]; tool_calls: { tool: string; args: unknown; ok: boolean; error?: string; ms?: number }[];
-  llm: { configured: boolean; mode: string; reason: string | null; model?: string; error?: string };
+  llm: { configured: boolean; mode: string; reason: string | null; provider?: string; model?: string; error?: string;
+    model_version?: string | null; latency_ms?: number | null; calls?: number; retry_after_s?: number | null;
+    cached?: boolean; cached_at?: string | null; paused_until?: string };
   investigations_detected: string[]; experiments_matched: string[];
   external_providers: Record<string, { status: string; error?: string }> | null; trace_id: string;
   verification?: { rejected: string[]; accepted_claims: number };
 };
-type Turn = { q: string; scope: string; res?: Answer; err?: ApiError };
+type Step = { tool: string; args: unknown; running: boolean; ok?: boolean; ms?: number; error?: string };
+type Turn = { id: number; q: string; scope: string; res?: Answer; err?: ApiError; steps: Step[] };
 
 const SOURCE_LABEL: Record<string, string> = { experiment: "Experiment rows", analysis: "Computed", quality_flag: "Quality rules",
   local_document: "NASA documents", report_table: "Report tables", external_paper: "External papers" };
@@ -88,7 +91,44 @@ const TOOL_LABEL: Record<string, string> = {
   aggregate_experiments: "Aggregate experiment rows", bass_gas_deltas: "BASS-II gas balance", flex_extinction_map: "FLEX extinction map",
   saffire_case: "SAFFIRE-I case data", list_quality_flags: "Check quality flags", get_document_evidence: "Search NASA documents",
   search_literature: "Search external literature", flex_d2_check: "FLEX d²-law check",
+  synthesize_answer: "Write answer with the model", verify_citations: "Verify citations and numbers",
 };
+
+function stepLabel(t: { tool: string; args: unknown }) {
+  const base = TOOL_LABEL[t.tool] ?? t.tool.replace(/_/g, " ");
+  const a = (t.args ?? {}) as Record<string, unknown>;
+  if (t.tool === "synthesize_answer" && Number(a.attempt) > 1) return `${base} (retry after failed verification)`;
+  if (t.tool === "get_experiment" && a.uid) return `${base} ${String(a.uid)}`;
+  return base;
+}
+
+/** Live view of the pipeline while the answer is being built: every step the backend reports, as it happens. */
+function LiveProgress({ steps, elapsed }: { steps: Step[]; elapsed: number }) {
+  const current = [...steps].reverse().find((s) => s.running);
+  return (
+    <div className="flex flex-col gap-3" role="status" aria-live="polite">
+      <div className="flex items-center gap-3 text-sm text-text-2">
+        <span aria-hidden className="relative flex h-3 w-3"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-flame/60" /><span className="relative inline-flex h-3 w-3 rounded-full bg-flame" /></span>
+        <span>{current ? `${stepLabel(current)}…` : steps.length ? "Preparing the next step…" : "Planning which tools to run…"}</span>
+        <span className="text-text-3">{fmt(elapsed)} s</span>
+      </div>
+      {steps.length > 0 && (
+        <ol className="flex flex-col gap-1 border-l border-line pl-4" aria-label="Steps so far">
+          {steps.map((s, i) => (
+            <motion.li key={i} className="flex flex-wrap items-center gap-2 text-[13.5px]" initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: DUR.base, ease: EASE }}>
+              <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${s.running ? "animate-pulse bg-flame" : s.ok ? "bg-ok" : "bg-crit"}`} />
+              <span className={s.running ? "text-text" : s.ok ? "text-text-2" : "text-crit"}>{stepLabel(s)}</span>
+              {!s.running && typeof s.ms === "number" && s.ms > 0 && <span className="text-text-3">{fmt(s.ms)} ms</span>}
+              {!s.running && !s.ok && s.error && <span className="text-xs text-crit">{s.error.slice(0, 120)}</span>}
+              <span className="sr-only">{s.running ? "running" : s.ok ? "done" : "failed"}</span>
+            </motion.li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
 
 /** What actually ran for this answer, in order, with status and duration as reported by the backend. */
 function ToolTrace({ calls }: { calls: Answer["tool_calls"] }) {
@@ -102,7 +142,7 @@ function ToolTrace({ calls }: { calls: Answer["tool_calls"] }) {
           <span title={JSON.stringify(t.args).slice(0, 200)}
             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[12.5px] ${t.ok ? "border-ok/35 text-text-2" : "border-crit/50 text-crit"}`}>
             <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${t.ok ? "bg-ok" : "bg-crit"}`} />
-            {TOOL_LABEL[t.tool] ?? t.tool.replace(/_/g, " ")}
+            {stepLabel(t)}
             {typeof t.ms === "number" && <span className="text-text-3">{fmt(t.ms)} ms</span>}
             <span className="sr-only">{t.ok ? "succeeded" : `failed${t.error ? `: ${t.error}` : ""}`}</span>
           </span>
@@ -130,6 +170,18 @@ function AnswerBlock({ a }: { a: Answer }) {
         <span className="text-sm text-text-3">{st.note}</span>
       </div>
       <ToolTrace calls={a.tool_calls} />
+      {a.llm.configured && !a.llm.error && (a.llm.calls || a.llm.cached) ? (
+        <p className="text-xs text-text-3">
+          Written by {a.llm.model_version ?? a.llm.model}
+          {a.llm.cached ? ` (saved answer from ${a.llm.cached_at?.slice(0, 16).replace("T", " ")} UTC for identical evidence, re-verified now; no model request used)`
+            : a.llm.latency_ms ? ` in ${(a.llm.latency_ms / 1000).toFixed(1)} s` : ""}
+          {(a.llm.calls ?? 0) > 1 ? ` (${a.llm.calls} model calls: the first draft failed verification)` : ""} · {a.claims.length} verified statement{a.claims.length === 1 ? "" : "s"}
+        </p>
+      ) : null}
+      {a.llm.configured && a.llm.error && (
+        <Callout tone="warn">The language model could not answer ({a.llm.error === "rate_limit" ? "free-tier quota reached" : a.llm.error.replace(/_/g, " ")}
+          {a.llm.retry_after_s ? `; try again in about ${Math.ceil(a.llm.retry_after_s)} s` : ""}). Showing the retrieved and computed evidence only; nothing below is AI-written.</Callout>
+      )}
       {a.answer && <p className="max-w-[78ch] text-[16px] leading-relaxed">{withMarkers(a.answer, cite)}</p>}
       {a.claims.length > 0 && (
         <ul className="flex flex-col gap-2">
@@ -188,19 +240,23 @@ function AnswerBlock({ a }: { a: Answer }) {
   );
 }
 
-type Health = { llm: { configured: boolean; mode: string }; retrieval: { mode: string } };
+type Health = { llm: { configured: boolean; mode: string; provider?: string; model?: string; reason?: string | null; paused_until?: string };
+  retrieval: { mode: string } };
 
 function ModeBanner() {
   const h = useApi<Health>("/health");
   if (!h.data) return null;
-  const on = h.data.llm.configured;
+  const paused = h.data.llm.configured && h.data.llm.mode === "paused";
+  const on = h.data.llm.configured && !paused;
   return (
     <div className={`rounded-xl border px-4 py-3 text-sm ${on ? "border-ok/35 bg-ok/[0.05]" : "border-warn/35 bg-warn/[0.05]"}`}>
-      <p className={`font-semibold ${on ? "text-ok" : "text-warn"}`}>{on ? "AI synthesis on" : "Evidence-only mode"}</p>
-      <p className="mt-0.5 text-text-2">{on
+      <p className={`font-semibold ${on ? "text-ok" : "text-warn"}`}>{on ? "AI synthesis on" : paused ? `AI synthesis paused until ${h.data.llm.paused_until}` : "Evidence-only mode"}</p>
+      <p className="mt-0.5 text-text-2">{paused
+        ? "The model's free-tier request quota is used up. Until it resets you get the retrieved passages and computed tool results without AI-written prose; previously answered questions with identical evidence are still served from saved answers."
+        : on
         ? "A language model writes the answer; a verifier removes statements whose citations or numbers do not check out."
-        : "No language model is configured. You get the retrieved passages and computed tool results themselves, never AI-written prose."}</p>
-      <p className="mt-1 text-xs text-text-3">Retrieval: {h.data.retrieval.mode}</p>
+        : `No language model is available${h.data.llm.reason ? ` (${h.data.llm.reason.replace(/\.$/, "")})` : ""}. You get the retrieved passages and computed tool results themselves, never AI-written prose.`}</p>
+      <p className="mt-1 text-xs text-text-3">{h.data.llm.configured && h.data.llm.model ? `Model: ${h.data.llm.model} (${h.data.llm.provider}) · ` : ""}Retrieval: {h.data.retrieval.mode}</p>
     </div>
   );
 }
@@ -241,6 +297,7 @@ export default function AssistantView() {
   const [busy, setBusy] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const auto = useRef(false);
+  const seq = useRef(0);
   const ctxUid = sp.get("uid");
 
   async function ask(question: string) {
@@ -251,16 +308,38 @@ export default function AssistantView() {
     const timer = setInterval(() => setElapsed((s) => s + 1), 1000);
     const ctrl = new AbortController();
     const kill = setTimeout(() => ctrl.abort(), 120000);
-    const turn: Turn = { q: text, scope };
-    setTurns((t) => [turn, ...t]);
+    const id = ++seq.current;
+    const patch = (f: (x: Turn) => Turn) => setTurns((t) => t.map((x) => (x.id === id ? f(x) : x)));
+    setTurns((t) => [{ id, q: text, scope, steps: [] }, ...t]);
+    const body = { question: text, source_scope: scope, investigations: invs, context_experiment_uids: ctxUid ? [ctxUid] : [] };
+    const onEvent = (ev: Record<string, unknown>) => {
+      if (ev.event === "tool_start") {
+        patch((x) => ({ ...x, steps: [...x.steps, { tool: String(ev.tool), args: ev.args, running: true }] }));
+      } else if (ev.event === "tool_end") {
+        patch((x) => {
+          const steps = [...x.steps];
+          const j = steps.map((s) => s.running && s.tool === ev.tool).lastIndexOf(true);
+          const done: Step = { tool: String(ev.tool), args: ev.args, running: false, ok: Boolean(ev.ok),
+            ms: typeof ev.ms === "number" ? ev.ms : undefined, error: typeof ev.error === "string" ? ev.error : undefined };
+          if (j >= 0) steps[j] = done; else steps.push(done);
+          return { ...x, steps };
+        });
+      }
+    };
     try {
-      const res = await apiFetch<Answer>("/assistant/ask", { method: "POST", signal: ctrl.signal, body: JSON.stringify({
-        question: text, source_scope: scope, investigations: invs, context_experiment_uids: ctxUid ? [ctxUid] : [] }) });
-      setTurns((t) => t.map((x) => (x === turn ? { ...x, res } : x)));
+      let res: Answer;
+      try {
+        res = await apiStream<Answer>("/assistant/ask/stream", body, onEvent, ctrl.signal);
+      } catch (e) {
+        // an older backend without the streaming route: fall back to the one-shot endpoint
+        if (!(e instanceof ApiError && (e.status === 404 || e.status === 405))) throw e;
+        res = await apiFetch<Answer>("/assistant/ask", { method: "POST", signal: ctrl.signal, body: JSON.stringify(body) });
+      }
+      patch((x) => ({ ...x, res }));
     } catch (e) {
       const err = (e as Error).name === "AbortError" ? new ApiError(0, "timeout", "The assistant did not respond within 120 s. Try a narrower question.")
         : e instanceof ApiError ? e : new ApiError(0, "unknown", String(e));
-      setTurns((t) => t.map((x) => (x === turn ? { ...x, err } : x)));
+      patch((x) => ({ ...x, err }));
     } finally {
       clearInterval(timer);
       clearTimeout(kill);
@@ -331,14 +410,10 @@ export default function AssistantView() {
         </div>
         <div className="flex min-w-0 flex-col gap-5" aria-live="polite">
           {turns.length === 0 && <EmptyWorkspace onPick={(x) => { setQ(x); void ask(x); }} />}
-          {turns.map((t, i) => (
-            <Panel key={i} title={t.q} aside={t.scope === "internal" ? "NASA sources" : t.scope === "both" ? "NASA + external" : "External only"}>
+          {turns.map((t) => (
+            <Panel key={t.id} title={t.q} aside={t.scope === "internal" ? "NASA sources" : t.scope === "both" ? "NASA + external" : "External only"}>
               {t.err ? <ErrorState error={t.err} onRetry={() => void ask(t.q)} /> : t.res ? <AnswerBlock a={t.res} /> : (
-                <div className="flex items-center gap-3 text-sm text-text-2" role="status">
-                  <span aria-hidden className="relative flex h-3 w-3"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-flame/60" /><span className="relative inline-flex h-3 w-3 rounded-full bg-flame" /></span>
-                  Running data tools and searching sources… {fmt(elapsed)} s
-                  <span className="text-text-3">(the tool list appears when the response arrives)</span>
-                </div>
+                <LiveProgress steps={t.steps} elapsed={elapsed} />
               )}
             </Panel>
           ))}

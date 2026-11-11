@@ -2,14 +2,18 @@
 from __future__ import annotations
 
 import io
+import json
+import logging
 import mimetypes
+import queue
 import sqlite3
+import threading
 import zipfile
 from pathlib import Path
 from typing import Iterator
 
 from fastapi import APIRouter, Depends, Query, Request
-from fastapi.responses import FileResponse, PlainTextResponse, Response
+from fastapi.responses import FileResponse, PlainTextResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field
 
 from ...core.config import get_settings
@@ -192,6 +196,49 @@ class AskRequest(BaseModel):
 def assistant_ask(body: AskRequest, conn=Depends(get_conn)):
     return assistant.ask(conn, body.question, body.source_scope, body.investigations or None,
                          body.context_experiment_uids or None)
+
+
+@router.post("/assistant/ask/stream", tags=["assistant"])
+def assistant_ask_stream(body: AskRequest):
+    """Same answer as /assistant/ask, streamed as NDJSON: one `start`, then `tool_start`/`tool_end` per tool or
+    model call as it happens, then a final `result` (the full answer object) or `error` line."""
+    assistant.validate_request(body.question, body.source_scope, body.investigations or None)
+    path = get_settings().db_path
+    if not path.exists():
+        raise ApiError(503, "database_missing", "Database not built. Run: python -m app.ingest.run (from backend/).")
+    events: queue.Queue = queue.Queue()
+    done = object()
+
+    def work():
+        conn = connect(path)  # own connection: it lives and dies in this worker thread
+        try:
+            res = assistant.ask(conn, body.question, body.source_scope, body.investigations or None,
+                                body.context_experiment_uids or None, emit=events.put)
+            events.put({"event": "result", "data": res})
+        except ApiError as e:
+            events.put({"event": "error", "error": {"code": e.code, "message": e.message}})
+        except Exception:
+            logging.getLogger("spacefire.api").exception("assistant stream failed")
+            events.put({"event": "error", "error": {"code": "internal_error", "message": "Unexpected server error."}})
+        finally:
+            conn.close()
+            events.put(done)
+
+    threading.Thread(target=work, name="assistant-stream", daemon=True).start()
+
+    def lines():
+        while True:
+            try:
+                ev = events.get(timeout=15)
+            except queue.Empty:
+                yield b'{"event":"heartbeat"}\n'  # keeps proxies from closing an idle connection
+                continue
+            if ev is done:
+                return
+            yield (json.dumps(ev, ensure_ascii=False, default=str) + "\n").encode("utf-8")
+
+    return StreamingResponse(lines(), media_type="application/x-ndjson",
+                             headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"})
 
 
 # --------------------------------------------------------------- analytics ---

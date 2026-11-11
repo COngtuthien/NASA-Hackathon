@@ -25,6 +25,7 @@ if REAL_DB.exists():
     shutil.copy2(REAL_DB, TEST_DB)
 os.environ["DATABASE_PATH"] = str(TEST_DB)
 os.environ["LLM_API_KEY"] = ""
+os.environ["LLM_CACHE_TTL_HOURS"] = "0"  # tests opt in to the answer cache explicitly
 os.environ["EXTERNAL_SEARCH_ENABLED"] = "true"
 
 from app.core.config import get_settings  # noqa: E402
@@ -110,9 +111,12 @@ def mock_http():
 
 @pytest.fixture(autouse=True)
 def no_llm():
+    from app.providers.llm import resume_synthesis
     set_llm(None)
+    resume_synthesis()
     yield
     set_llm(None)
+    resume_synthesis()
 
 
 @pytest.fixture

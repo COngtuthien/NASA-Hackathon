@@ -15,7 +15,7 @@ type Obs = {
 type Flag = { flag_id: string; rule_id: string; severity: string; category: string; description: string; raw_field: string | null;
   raw_value: string | null; derived_value: string | null; evidence_ref: string | null; proposed_correction: string | null; status: string };
 type Link_ = { chunk_id: string; document_id: string; title: string; page_pdf: number | null; page_printed: number | null;
-  section: string | null; excerpt: string; matched_text: string; review_status: string };
+  section: string | null; excerpt: string; matched_text: string; review_status: string; relation_type: string; match_method: string };
 type Detail = {
   experiment_uid: string; dataset: string; investigation_id: string; investigation: string; display_id: string;
   experiment_kind: string; source: { relative_path: string; sha256: string; source_row: number; csv_line: number };
@@ -131,7 +131,8 @@ export default function DetailView() {
                           <a href={`/api/v1/documents/${l.document_id}/file${l.page_pdf ? `#page=${l.page_pdf}` : ""}`} target="_blank" rel="noreferrer">
                             {l.title}{l.page_pdf ? `, PDF p.${l.page_pdf}` : ""}{l.page_printed ? ` (printed p.${l.page_printed})` : ""}
                           </a>
-                          <LinkLevel level={l.review_status} />
+                          <LinkLevel level={l.review_status} relation={l.relation_type}
+                            note={l.review_status === "manually_reviewed" ? l.match_method.replace(/^manual_review /, "Reviewed ") : undefined} />
                           <span className="text-xs text-text-3">matched “{l.matched_text}”</span>
                         </div>
                         <p className="mt-1 text-sm text-text-2">{l.excerpt}</p>
