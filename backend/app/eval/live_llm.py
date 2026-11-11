@@ -2,7 +2,7 @@
 
 Run from backend/ (uses the key in the project-root .env; it is never printed):
     python -m app.eval.live_llm --ids g01,g13,g33 --pace 8
-    python -m app.eval.live_llm --all --pace 8 --report ../docs/LIVE_LLM_EVALUATION.md
+    python -m app.eval.live_llm --ids g02,g27 --pace 8 --report ../docs/LIVE_LLM_EVALUATION_RUN_B.md
 
 Free-tier friendly: questions run sequentially with `--pace` seconds between them, a per-minute 429 waits for the
 server's retry delay once, and a daily-quota 429 stops the run (the remaining questions are reported as not run).

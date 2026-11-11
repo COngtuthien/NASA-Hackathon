@@ -101,8 +101,9 @@ class GeminiProvider:
     """Google Gemini via the official `google-genai` SDK (Gemini Developer API).
 
     The key is handed to the SDK, which sends it in the `x-goog-api-key` header (never the URL); it is not stored
-    on this object, logged, or included in any error message. Transient 5xx responses get two SDK retries (2 s, 4 s backoff); 429 is never
-    retried here (it would only burn free-tier quota) and is surfaced as `rate_limit` with the server's retry delay.
+    on this object, logged, or included in any error message. Transient 5xx responses get two SDK retries (2 s, 4 s
+    backoff); 429 is never retried here (it would only burn free-tier quota) and is surfaced as `rate_limit` with the
+    server's retry delay.
     """
 
     name = "gemini"

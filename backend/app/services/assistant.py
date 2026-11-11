@@ -170,6 +170,40 @@ def _num_in(n: str, hay: str) -> bool:
     return False
 
 
+# --- unit consistency -----------------------------------------------------------------------------------------
+# Units that a documented quality rule corrects must be stated in the corrected form. The number check alone cannot
+# catch "burning rate 0.41 mm": 0.41 IS in the evidence, under the raw header 'Burning rate; mm'. Each rule: the quantity
+# it governs (regex), the only acceptable unit (regex on the whitespace-free unit), and the explanation fed back to the
+# model. A value stated without any unit is not flagged here; a value with a wrong unit is.
+UNIT_RULES = [
+    {"rule_id": "FLEX-UNIT-K",
+     "subject": re.compile(r"burning[- ]rate(?:[- ]constant)?(?:\s*\(K\))?|\bK\s*(?:=|:|of|is|was|values?)(?=\s)", re.I),
+     "unit_ok": re.compile(r"mm(?:\^2|²|2)/s", re.I),
+     "message": "FLEX burning rate K is the d²-law constant in mm²/s (rule FLEX-UNIT-K); the raw header unit 'mm' is "
+                "wrong. State K values in mm²/s"},
+]
+_VALUE_UNIT = re.compile(r"(?<![\w.])([-+]?\d+(?:\.\d+)?)\s*(mm\s*(?:\^\s*2|²|2)?\s*(?:/\s*s(?:ec)?)?|cm[\w²^/]*|µm|um|m/s)?",
+                         re.I)
+_LEAD = re.compile(r"^\s*(?:K\s*)?(?:[:=]|of|is|was|were|values?|equal to)?\s*", re.I)
+_CLAUSE_END = re.compile(r";|\.\s|\.$|,\s*(?:and\s+)?(?=[A-Za-z][a-z]+\s)|\band\b|\(")
+
+
+def unit_problems(text: str) -> list[str]:
+    """Values stated with a unit that contradicts a documented unit correction (see UNIT_RULES)."""
+    out: list[str] = []
+    for rule in UNIT_RULES:
+        for m in rule["subject"].finditer(text or ""):
+            clause = _LEAD.sub("", text[m.end(): m.end() + 70])
+            end = _CLAUSE_END.search(clause)
+            clause = clause[: end.start()] if end else clause
+            v = _VALUE_UNIT.search(clause)  # only the value belonging to this quantity: the first one after it
+            if v and v.group(2) and not rule["unit_ok"].fullmatch(re.sub(r"\s+", "", v.group(2)).replace("sec", "s")):
+                msg = f"Unit: '{m.group(0).strip()} {v.group(1)} {v.group(2).strip()}': {rule['message']}."
+                if msg not in out:
+                    out.append(msg)
+    return out
+
+
 def verify(result: dict, pack: EvidencePack) -> tuple[list[dict], list[str]]:
     """Return (accepted_claims, problems)."""
     ok, problems = [], []
@@ -191,11 +225,16 @@ def verify(result: dict, pack: EvidencePack) -> tuple[list[dict], list[str]]:
         if missing and c.get("kind") == "HYPOTHESIS":
             problems.append(f"Hypothesis contains unsupported numbers {missing}; removed.")
             continue
+        wrong_units = unit_problems(c.get("text", ""))
+        if wrong_units:
+            problems.append(f"{wrong_units[0]} Claim removed: '{c.get('text', '')[:80]}'")
+            continue
         ok.append(c)
-    # answer text citation markers must exist
-    for m in re.findall(r"cite-\d+", result.get("answer", "")):
+    # answer text citation markers must exist, and its prose obeys the same unit corrections
+    for m in re.findall(r"cite-\d+", result.get("answer") or ""):
         if m not in valid:
             problems.append(f"Answer references unknown {m}")
+    problems += [f"{u} (in the answer text)" for u in unit_problems(result.get("answer") or "")]
     return ok, problems
 
 
@@ -468,7 +507,7 @@ def ask(conn: sqlite3.Connection, question: str, source_scope: str = "internal",
         try:
             data = llm.generate_json(SYSTEM_PROMPT, user_msg if attempt == 0 else
                                      user_msg + "\n\nYour previous answer failed verification: " + "; ".join(problems)[:1500]
-                                     + "\nFix it: cite only listed ids and only numbers present in the cited evidence.",
+                                     + "\nFix it: cite only listed ids, only numbers present in the cited evidence, and corrected units.",
                                      ANSWER_SCHEMA)
         except LLMError as exc:
             tool_calls.append({"tool": "synthesize_answer", "args": {"attempt": attempt + 1, "model": llm.model},
@@ -515,8 +554,8 @@ def ask(conn: sqlite3.Connection, question: str, source_scope: str = "internal",
         bad_markers = [m for m in re.findall(r"cite-\d+", answer) if m not in pack.ids()]
         for m in bad_markers:
             answer = answer.replace(f"[{m}]", "")
-        if any("Numbers" in p for p in problems):
-            answer = None  # prose may carry unverified numbers; show verified claims only
+        if any(p.startswith(("Numbers", "Unit:")) for p in problems):
+            answer = None  # prose may carry unverified numbers or wrong units; show verified claims only
     result = {**base, "answer": answer, "status": status, "claims": claims,
               "limitations": limitations + list(data.get("limitations", []) if data else []),
               "suggested_followups": (data.get("suggested_followups", []) if data else [])[:4],

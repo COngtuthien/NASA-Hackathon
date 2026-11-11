@@ -60,6 +60,8 @@ thresholds are explicitly out of scope.
 Provider: Google Gemini (`gemini-3.8-flash`, official `google-genai` SDK) with JSON-schema output and a low thinking level.
 Experiment evidence carries the column-level dataset rules for its fields (e.g. FLEX `Burning rate; mm` is K in mm²/s), and
 the system prompt requires corrected units, because in live testing the model otherwise repeated the raw header unit.
+The verifier enforces it: a claim or answer sentence giving K in any unit other than mm²/s is rejected (regenerated
+once, then removed), because the number check alone passes "0.41 mm" when 0.41 is in the evidence under the raw header.
 The verifier checks citations and numbers, not reasoning: a claim can cite the right passage and still over-generalize,
 which is why claims carry a kind and the evidence is shown beside them. Model outputs for an identical evidence pack are
 cached (re-verified on use); after a quota error synthesis pauses until the provider's reset time. Live results:

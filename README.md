@@ -86,8 +86,9 @@ Copy `.env.example` to `.env`. Everything is optional:
    checks, quality rules) and hybrid document search; each result enters an *evidence pack* with a citation id.
 2. Gemini receives only the question and the evidence pack (marked as untrusted data) and must return JSON claims, each
    with a kind (DOC / COMPUTED / EXTERNAL / HYPOTHESIS) and citation ids.
-3. Code verifies every claim: cited ids must exist and every number must appear in the cited evidence. A failing draft is
-   regenerated once with the problems listed; statements that still fail are removed (status `partial`).
+3. Code verifies every claim: cited ids must exist, every number must appear in the cited evidence, and quantities
+   whose header unit is documented as wrong must use the corrected unit (FLEX burning rate K in mm²/s). A failing
+   draft is regenerated once with the problems listed; statements that still fail are removed (status `partial`).
 4. Provider errors, timeouts, refusals, malformed output and quota limits fall back to evidence only. After a 429 the
    model is paused until the reset time the provider returns, so no request is wasted; an identical question with
    identical evidence reuses the earlier output (re-verified on every use).
@@ -95,8 +96,8 @@ Copy `.env.example` to `.env`. Everything is optional:
 
 Free-tier budget: Gemini 3.8 Flash allows **20 generation requests per day** per project (reset at midnight Pacific).
 A question costs 1 request, or 2 when the first draft fails verification. Live evaluation over the golden questions:
-`cd backend && .venv/Scripts/python -m app.eval.live_llm --ids g01,g13 --report ../docs/LIVE_LLM_EVALUATION.md`
-(results in `docs/LIVE_LLM_EVALUATION.md`).
+`cd backend && .venv/Scripts/python -m app.eval.live_llm --ids g01,g13 --report ../docs/LIVE_LLM_EVALUATION_RUN_B.md`
+(results and pending checks in `docs/LIVE_LLM_EVALUATION.md`).
 
 The key stays on the server: it is read from `.env`, sent to Google in the `x-goog-api-key` header, and never returned by
 the API, logged, or bundled into the frontend.
@@ -104,8 +105,8 @@ the API, logged, or bundled into the frontend.
 ## Tests
 
 ```bash
-cd backend && .venv/Scripts/python -m pytest          # 170 tests: unit, providers (Gemini mocked), API, streaming, quota/cache,
-                                                       # 42 golden questions, curation, link reviews, report cross-checks
+cd backend && .venv/Scripts/python -m pytest          # 181 tests: unit, providers (Gemini mocked), API, streaming, quota/cache,
+                                                       # FLEX unit guard, 42 golden questions, curation, link reviews, report cross-checks
 cd frontend && npx playwright test                     # 36 browser E2E tests (desktop + 390 px mobile); the model is never called
 E2E_LIVE_LLM=1 npx playwright test -g "live Gemini"    # opt-in: one real Gemini request end to end
 backend/.venv/Scripts/python scripts/smoke_test.py     # against a running backend

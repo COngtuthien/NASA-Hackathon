@@ -229,3 +229,57 @@ def test_answer_cache_reuses_verified_output(client, monkeypatch):
     finally:
         monkeypatch.setenv("LLM_CACHE_TTL_HOURS", "0")
         get_settings.cache_clear()
+
+
+# --- FLEX unit correction (FLEX-UNIT-K): enforced in code, not only requested in the prompt ---------------------
+from app.services.assistant import unit_problems  # noqa: E402
+
+UNIT_Q = "Show FLEX identifier 193F001 and explain the duplicate ambiguity."
+
+
+@pytest.mark.parametrize("text,bad", [
+    ("row 70 reports a burning rate of 0.41 mm, and burn time of 1.6 s", True),   # live g02 output, 2026-11-11
+    ("It reported a burning rate of 0.52 mm, burn time of 4.3 s", True),           # live g27 output, 2026-11-11
+    ("K = 0.41 mm/s", True),
+    ("burning rate (K) of 0.41 mm²/s", False),
+    ("burning-rate constant K = 0.41 mm^2/s at an initial diameter of 4.67 mm", False),
+    ("The column 'Burning rate; mm' holds K in mm^2/s", False),
+    ("burning rate 0.41", False),
+    ("ignited at 300 K for 2 s", False),
+])
+def test_unit_guard(text, bad):
+    assert bool(unit_problems(text)) is bad
+
+
+def _unit_answer(unit):
+    return {"answer": f"Row 70 has a burning rate of 0.41 {unit} [cite-1].", "status": "answered",
+            "claims": [{"text": f"Row 70 (flex:70) has a burning rate of 0.41 {unit} and burn time 1.6 s.",
+                        "kind": "COMPUTED", "citation_ids": ["cite-1"], "conditions": ""}],
+            "limitations": [], "suggested_followups": []}
+
+
+def test_wrong_flex_unit_is_rejected_and_regenerated(client):
+    fake = FakeLLM([_unit_answer("mm"), _unit_answer("mm²/s")])
+    set_llm(fake)
+    j = ask(client, UNIT_Q)
+    exp = [c for c in j["citations"] if c["experiment_uid"] == "flex:70"][0]
+    assert "Burning rate; mm" in exp["data"]["raw_fields"]  # original header preserved verbatim
+    assert exp["data"]["column_notes"]["Burning rate; mm"].startswith("FLEX-UNIT-K")
+    assert len(fake.calls) == 2 and "mm²/s" in fake.calls[1] and "FLEX-UNIT-K" in fake.calls[1]
+    assert j["status"] == "answered" and "mm²/s" in j["claims"][0]["text"] and "0.41 mm²/s" in j["answer"]
+
+
+def test_persistent_wrong_unit_never_reaches_the_user(client):
+    set_llm(FakeLLM([_unit_answer("mm"), _unit_answer("mm")]))
+    j = ask(client, UNIT_Q)
+    assert j["claims"] == [] and j["answer"] is None and j["status"] == "insufficient_evidence"
+    assert any(p.startswith("Unit:") for p in j["verification"]["rejected"])
+
+
+def test_streamed_answers_get_the_same_unit_check(client):
+    set_llm(FakeLLM([_unit_answer("mm"), _unit_answer("mm²/s")]))
+    evs = [e for e in _stream(client, UNIT_Q) if e["event"] != "heartbeat"]
+    checks = [e for e in evs if e["event"] == "tool_end" and e["tool"] == "verify_citations"]
+    assert [c["ok"] for c in checks] == [False, True]
+    res = evs[-1]["data"]
+    assert res["status"] == "answered" and "mm²/s" in res["answer"]
