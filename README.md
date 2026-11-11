@@ -101,7 +101,7 @@ Copy `.env.example` to `.env`. Everything is optional:
 Free-tier budget: Gemini 3.8 Flash allows **20 generation requests per day** per project (reset at midnight Pacific).
 A question costs 1 request, or 2 when the first draft fails verification. Live evaluation over the golden questions:
 `cd backend && .venv/Scripts/python -m app.eval.live_llm --ids g01,g13 --report ../docs/LIVE_LLM_EVALUATION_RUN_B.md`
-(results and pending checks in `docs/LIVE_LLM_EVALUATION.md`).
+(results in `docs/LIVE_LLM_EVALUATION.md` and `docs/LIVE_LLM_EVALUATION_RUN_B.md`).
 
 The key stays on the server: it is read from `.env`, sent to Google in the `x-goog-api-key` header, and never returned by
 the API, logged, or bundled into the frontend.

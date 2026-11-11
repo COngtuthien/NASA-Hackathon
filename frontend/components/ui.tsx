@@ -153,6 +153,7 @@ const PROV: Record<string, { label: string; cls: string; tip: string }> = {
   quality_flag: { label: "Quality rule", cls: "border-warn/60 text-warn", tip: "Automated data-quality rule" },
   EXTERNAL: { label: "External", cls: "border-text-2/60 text-text-2", tip: "External publication metadata or abstract" },
   external_paper: { label: "External", cls: "border-text-2/60 text-text-2", tip: "External publication metadata or abstract" },
+  publication_list: { label: "NASA pub. list", cls: "border-link/60 text-link", tip: "NASA PSI's list of publications for the investigation (titles only; papers not read)" },
   HYPOTHESIS: { label: "Hypothesis", cls: "border-dashed border-text-3 text-text-3", tip: "Interpretation, not verified" },
   UNSUPPORTED: { label: "Unsupported", cls: "border-crit/60 text-crit", tip: "Insufficient evidence" },
 };

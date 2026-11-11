@@ -24,7 +24,7 @@ from ..core.config import get_settings
 from ..providers.llm import LLMError, get_llm, llm_status, pause_synthesis, synthesis_paused
 from . import analytics, quality, retrieval
 from .experiments import get_experiment, compare
-from .literature import get_literature
+from .literature import get_literature, investigation_publications
 from .similarity import similar_to
 
 log = logging.getLogger("spacefire.assistant")
@@ -34,6 +34,7 @@ INVESTIGATION_WORDS = {
     "PSI-25": ("bass", "bass-ii", "pmma", "glovebox", "nomex", "sibal strip", "msg"),
     "PSI-98": ("saffire", "cygnus", "large-scale", "spacecraft fire experiment"),
 }
+INV_SHORT = {"PSI-69": "FLEX", "PSI-25": "BASS-II", "PSI-98": "SAFFIRE-I"}
 LITERATURE_RE = re.compile(r"\b(paper|papers|publication|publications|literature|study|studies|article|journal|"
                            r"recent|latest|research on|doi|cited|citation|reference)\b", re.I)
 COUNT_RE = re.compile(r"\b(how many|count|number of|distribution)\b", re.I)
@@ -94,6 +95,9 @@ numeric results come from the deterministic tool outputs.
 - kind: DOC = stated in a NASA document excerpt; COMPUTED = from a deterministic tool output or experiment record; \
 EXTERNAL = what an external paper's abstract/metadata states (never claim results from a paper whose full text was \
 not read; metadata-only records support only bibliographic facts); HYPOTHESIS = your interpretation, clearly marked.
+- A publication_list item is NASA PSI's own list of publications for an investigation (titles, authors, DOIs; the \
+papers were not read). Cite it as DOC for the fact that NASA lists a paper for that investigation, and infer a paper's \
+topic only from its title, saying so.
 - If the evidence does not support an answer, set status to insufficient_evidence and explain what is missing. \
 If sources conflict, say so and cite both rather than choosing silently.
 - The investigations are different physical systems; do not pool or compare their numbers directly.
@@ -401,6 +405,20 @@ def ask(conn: sqlite3.Connection, question: str, source_scope: str = "internal",
                 "examples": [{"experiment": i.get("display_id"), "raw_value": i.get("raw_value")} for i in fl["items"]]},
                 access_level="computed", url=f"/quality?rule_id={rid}")
 
+    # --- NASA PSI publication lists (local metadata) ---------------------------
+    # Literature questions about a named investigation get NASA's own publication list for it, in every scope: without
+    # it the model sees only search-engine hits and can wrongly report that no publication covers the investigation.
+    wants_lit = bool(LITERATURE_RE.search(question))
+    if wants_lit and invs:
+        for inv in invs[:3]:
+            pubs = tool("list_investigation_publications", {"investigation": inv},
+                        lambda inv=inv: investigation_publications(conn, inv))
+            if pubs:
+                pack.add("publication_list", f"NASA PSI publication list for {INV_SHORT.get(inv, inv)} ({inv})", {
+                    "investigation": inv, "source": pubs[0]["source"], "count": len(pubs),
+                    "publications": [{k: p[k] for k in ("title", "authors", "doi", "status")} for p in pubs[:20]]},
+                    access_level="metadata", url="/evidence/literature")
+
     # --- local document evidence --------------------------------------------
     if source_scope in ("internal", "both"):
         inv_filter = invs[0] if len(invs) == 1 else None
@@ -418,7 +436,6 @@ def ask(conn: sqlite3.Connection, question: str, source_scope: str = "internal",
 
     # --- external literature ------------------------------------------------
     external_status = None
-    wants_lit = bool(LITERATURE_RE.search(question))
     if source_scope == "external" or (source_scope == "both" and wants_lit):
         lit = get_literature()
         q_ext = re.sub(r"[^\w\s\-\.]", " ", question)[:200]

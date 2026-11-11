@@ -1,5 +1,33 @@
 # SpaceFire AI — Implementation Status
 
+## Final Gemini validation (on Phase 5, 2026-11-11, 10:20–10:30 UTC): COMPLETE
+This closes the live checks Phase 4 left pending. They ran on branch `feature/spacefire-phase5-scientific-visuals`,
+on top of 8b6dea0. Full report: `docs/LIVE_LLM_EVALUATION_RUN_B.md`.
+
+| Check | Result |
+|---|---|
+| FLEX K unit (g02, g27) | Both **answered** on the first attempt and state K in **mm²/s**, naming the raw header 'Burning rate; mm'. No statement gives K in any other unit |
+| Live sample (g22, g31, g29) | g22 and g31 answered; every number matches the database or analytics service. g29 first returned `insufficient_evidence` because of a retrieval gap (below); after the fix it answered |
+| Citations and numbers | 5/5 answered, 18 claims, 0 rejected, 0 structural issues. Every stated value was checked by hand against `flex_tests`, `bass2_tests`, report Tables 5.1/A.5, `analytics.bass_gases`, `saffire_manifest` and `investigation_publications` |
+| Reasoning review | Sound overall. Two wording weaknesses recorded: g22 opens with "Yes" although the thin-film slope (0.42) does not support it; g27 gives M5's width from Table 5.1 (2.2 cm) without noting that the CSV reads 2 cm |
+| Live browser test | `E2E_LIVE_LLM=1 npx playwright test -g "live Gemini"`: **1 passed** (31 s, production build). The streamed step "Write answer with the model", the Answered status, "Written by gemini" and citation markers all appeared. The server log shows that verification rejected 1 statement and the model regenerated once; the final answer has 4 DOC claims citing 6 NASA document passages |
+| Gemini usage | 8 requests (plus one automatic SDK retry after an HTTP 503), no 429, free tier, billing untouched |
+
+**Retrieval fix (g29).** "Which publications cover SAFFIRE large scale flame spread?" got only external search hits and
+concluded that no paper specifically covers it. SpaceFire's own NASA PSI metadata, however, lists 6 SAFFIRE publications,
+including Urban et al., *Flame spread: Effects of microgravity and scale*.
+- Backend: literature questions that name an investigation now receive NASA PSI's publication list for it as a
+  `publication_list` evidence item, in every source scope (`backend/app/services/assistant.py`).
+- Prompt: the system prompt says these titles are metadata only, so the model infers a paper's topic from its title and
+  says so.
+- Frontend: a "NASA pub. list" source badge and a progress-step label (`ui.tsx`, `AssistantView.tsx`).
+- Tests: golden g29 now requires the item and the Urban et al. title.
+
+Re-run live: answered, citing the 3 most relevant titles with DOIs, all matching the database.
+
+Regression after the fix: backend `pytest` **181 passed**; `tsc --noEmit` and `eslint` (changed files) clean; `next build`
+OK. Servers were started one at a time for the browser test and stopped afterwards. NASA source files are unchanged.
+
 ## Phase 5 status (branch `feature/spacefire-phase5-scientific-visuals`, 2026-11-11): COMPLETE
 Real NASA scientific media woven into the existing experience. Frontend only: backend, data, Gemini integration and
 verification are unchanged. No Gemini request was made during Phase 5.
@@ -35,26 +63,26 @@ contradicts NASA's own caption day, and one session day (214) has no CSV test, s
   Mission Control CLS 0.024.
 - Backend `pytest`: 181 passed (unchanged code). API smoke test: 7/7 passed. NASA source files unchanged.
 
-## Phase 4 status (branch `feature/spacefire-phase4-gemini`, 2026-11-11): PARTIAL — LIVE GEMINI VALIDATION PENDING
+## Phase 4 status (branch `feature/spacefire-phase4-gemini`, 2026-11-11): COMPLETE (live checks closed on the Phase 5 branch, see above)
 Gemini-backed Research Copilot with code-verified citations and units, streamed progress, quota protection, reviewed
 citation links, BASS-II report cross-checks and a redesigned Methodology page. NASA source files unchanged.
 
-**What is pending:** live confirmation of the FLEX unit correction (g02, g27), a final live sample across BASS-II, SAFFIRE-I
-and external literature, and the opt-in live browser test. The Gemini free-tier daily quota was exhausted (probe at 06:54
-UTC: HTTP 429, retry delay 3,773 s). The exact commands and the request budget are in `docs/LIVE_LLM_EVALUATION.md`.
+**Previously pending, now done:** the live confirmation of the FLEX unit correction (g02, g27), a live sample across
+BASS-II, SAFFIRE-I and external literature, and the opt-in live browser test. They waited for the free-tier quota to reset
+(probe at 06:54 UTC: HTTP 429) and passed at 10:20–10:30 UTC; see "Final Gemini validation" above.
 
 | Item | Status | Evidence |
 |---|---|---|
 | 1 Gemini provider | DONE | `GeminiProvider` (`backend/app/providers/llm.py`) on `google-genai==3.1.0`: JSON-schema output, thinking level, header auth, 2 retries on 5xx. 25 adapter tests with a fake SDK client and real SDK error objects |
-| 2–3 Copilot + RAG with real answers | DONE; live revalidation PENDING | Pre-flight: key valid; `gemini-2.5-flash` 404 for new users → `gemini-3.8-flash`. Live (before the unit fix): 15 golden questions, 13 synthesized, all 35 claims cited and number-verified, every cited record resolves; 2 HTTP 503 fell back to evidence. Manual review: 2 answers (g02, g27) stated FLEX K as "mm" instead of mm²/s; reasoning review in `docs/LIVE_LLM_EVALUATION.md` |
-| 2a FLEX unit correction (FLEX-UNIT-K) | DONE (deterministic); live PENDING | Column rules travel with experiment evidence (raw header unchanged); prompt rule; **verifier `UNIT_RULES`** rejects K stated in any unit but mm²/s, regenerates once, then removes the statement and withholds the prose. Same path for `/ask` and `/ask/stream`. 11 regression tests, including the literal g02/g27 live outputs; applied retroactively, it flags exactly those statements |
+| 2–3 Copilot + RAG with real answers | DONE; live revalidation DONE (Run B) | Pre-flight: key valid; `gemini-2.5-flash` 404 for new users → `gemini-3.8-flash`. Live (before the unit fix): 15 golden questions, 13 synthesized, all 35 claims cited and number-verified, every cited record resolves; 2 HTTP 503 fell back to evidence. Manual review: 2 answers (g02, g27) stated FLEX K as "mm" instead of mm²/s; reasoning review in `docs/LIVE_LLM_EVALUATION.md` |
+| 2a FLEX unit correction (FLEX-UNIT-K) | DONE; confirmed live (g02, g27 state mm²/s) | Column rules travel with experiment evidence (raw header unchanged); prompt rule; **verifier `UNIT_RULES`** rejects K stated in any unit but mm²/s, regenerates once, then removes the statement and withholds the prose. Same path for `/ask` and `/ask/stream`. 11 regression tests, including the literal g02/g27 live outputs; applied retroactively, it flags exactly those statements |
 | 4–5 Fallback and error handling | DONE | 429 (per-minute/daily, retry delay parsed), 401/403/invalid key, 404, 408/504/timeouts, 5xx, transport errors, refusals/safety blocks, MAX_TOKENS, empty/non-JSON/non-object output → typed `LLMError` → evidence-only answer with the reason. Quota circuit breaker pauses synthesis until the provider's reset; verified-answer cache (key = model + prompt + full evidence pack) |
 | 6 28 unreviewed citation links | DONE | All reviewed against Appendix A (run #, sample, GMT day): 20 own rows, 5 figure captions, 3 cross-references (`backend/app/curation/link_reviews.json`), applied at ingest as `manually_reviewed`; 0 `auto_unreviewed` remain; stale-review detection |
 | 7 Methodology redesign | DONE | `/methodology`: pipeline, provenance, AI answers, citation-link confidence, safeguards, limitations, sources; live figures from new `GET /api/v1/methodology` |
-| 8 Copilot tool progress | DONE | `POST /api/v1/assistant/ask/stream` (NDJSON): `tool_start`/`tool_end` per tool and model call; verified live through the Next proxy with Gemini (events arrive at 0.03 s, 1.6 s, 2.1 s, 6.4 s, not batched). In the browser the live steps and the quota fallback were seen; a live synthesized answer in the browser is still pending (quota) |
+| 8 Copilot tool progress | DONE | `POST /api/v1/assistant/ask/stream` (NDJSON): `tool_start`/`tool_end` per tool and model call; verified live through the Next proxy with Gemini (events arrive at 0.03 s, 1.6 s, 2.1 s, 6.4 s, not batched). In the browser the live steps and the quota fallback were seen; a live synthesized answer in the browser passed in the final validation |
 | 9 BASS-II limitations / report-only values | DONE | `app/curation/report_consistency.py`: thickness 20/20 agree; width 46/47 (T24 conflict flagged); velocity 28/47 consistent with Air display → new rule `BASS-AIR-DISPLAY-NOT-VELOCITY`; flow direction for T1/T2/T4/T15 from the Table 7.1 title. Shown on the flame-spread page (`#report-trust`) |
 | 10 Phase 3 preserved | DONE | All 29 Phase 1–3 E2E tests pass unchanged |
-| 11 Validation | DONE except live checks | See "Phase 4 verification" |
+| 11 Validation | DONE (live checks in Run B) | See "Phase 4 verification" |
 | 12 Credentials | DONE | Key never in source, logs, API responses or bundle; staged diffs scanned before each commit (configured key and generic key patterns: none); `.env` never committed |
 
 ### Phase 4 verification
@@ -83,7 +111,7 @@ Earlier in the session (not rerun): `next build` OK (17 routes, 06:22 UTC); rout
 4. HTTP 503 "model overloaded" occurs on the free tier; after 2 SDK retries the answer falls back to evidence only.
 5. A 429 can take 20–125 s to arrive, so the first question after the quota runs out is slow; later ones are instant.
 6. The unit rule covers the documented FLEX-UNIT-K correction. A K value written without any unit is not rejected.
-7. Live revalidation of the unit fix, and a live synthesized answer in the browser, are pending the next quota window.
+7. Live revalidation of the unit fix and a live answer in the browser: done (`docs/LIVE_LLM_EVALUATION_RUN_B.md`).
 
 ## Phase 3 status (branch `feature/spacefire-phase3-ui-motion`, 2026-11-11)
 Cinematic product redesign of the frontend only; backend, data, API contracts and NASA files are unchanged.

@@ -30,7 +30,8 @@ type Step = { tool: string; args: unknown; running: boolean; ok?: boolean; ms?: 
 type Turn = { id: number; q: string; scope: string; res?: Answer; err?: ApiError; steps: Step[] };
 
 const SOURCE_LABEL: Record<string, string> = { experiment: "Experiment rows", analysis: "Computed", quality_flag: "Quality rules",
-  local_document: "NASA documents", report_table: "Report tables", external_paper: "External papers" };
+  local_document: "NASA documents", report_table: "Report tables", external_paper: "External papers",
+  publication_list: "NASA publication lists" };
 
 const STATUS: Record<string, { label: string; cls: string; note: string }> = {
   answered: { label: "Answered", cls: "text-ok border-ok/50", note: "All statements passed citation and number checks." },
@@ -91,6 +92,7 @@ const TOOL_LABEL: Record<string, string> = {
   aggregate_experiments: "Aggregate experiment rows", bass_gas_deltas: "BASS-II gas balance", flex_extinction_map: "FLEX extinction map",
   saffire_case: "SAFFIRE-I case data", list_quality_flags: "Check quality flags", get_document_evidence: "Search NASA documents",
   search_literature: "Search external literature", flex_d2_check: "FLEX d²-law check",
+  list_investigation_publications: "Read NASA publication list",
   synthesize_answer: "Write answer with the model", verify_citations: "Verify citations and numbers",
 };
 

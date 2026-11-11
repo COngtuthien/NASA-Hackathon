@@ -4,8 +4,9 @@ Provider `gemini`, model `gemini-3.8-flash` (served as `gemini-3.8-flash`), Goog
 `google-genai` 3.1.0 SDK, thinking level `low`. Real database, real retrieval, real verifier; nothing mocked.
 Harness: `cd backend && .venv/Scripts/python -m app.eval.live_llm --ids <ids> --report ../docs/LIVE_LLM_EVALUATION.md`.
 
-**Status: live revalidation of the FLEX unit correction is PENDING.** All runs below happened on 2026-11-11 before the
-unit fix. The free-tier daily quota (20 generation requests per model per project) was used up at about 06:06 UTC. A
+**Status: live revalidation DONE in Run B** (`docs/LIVE_LLM_EVALUATION_RUN_B.md`, 2026-11-11 10:20–10:30 UTC): g02 and
+g27 state K in mm²/s, g22/g31/g29 answered, and the live browser test passed. All runs below happened on 2026-11-11 before
+the unit fix. The free-tier daily quota (20 generation requests per model per project) was used up at about 06:06 UTC. A
 single probe at 06:54 UTC (g02) returned HTTP 429 `RESOURCE_EXHAUSTED` with a retry delay of 3,773 s, so no further live
 call was made. Not every golden question has been tested live: 15 of 42 have been, and the full set runs on every
 `pytest` with a stand-in model.
@@ -63,7 +64,7 @@ the retrieved sources. Synthesis was not verified in the browser.
 - Reasoning, for the 12 run-A answers: 10 defensible, 1 defensible but incomplete (g13), 1 partly defensible (g11).
   g34 was honestly insufficient. No hallucinated values, ids or papers were found.
 
-## Fix applied after run A (verified deterministically, live pending)
+## Fix applied after run A (verified deterministically, confirmed live in Run B)
 
 1. Experiment evidence now carries the column-level dataset rules for its fields (`column_notes`, e.g.
    `Burning rate; mm` → FLEX-UNIT-K, K in mm²/s). The original CSV header is passed unchanged.
@@ -81,7 +82,7 @@ the retrieved sources. Synthesis was not verified in the browser.
 
 Applied retroactively to run A, the unit rule flags exactly the g02 and g27 statements and nothing else.
 
-## Pending live checks (next quota window, after about 08:00 UTC; a 429 response costs no quota)
+## Live checks planned after run A (all done in Run B with 8 requests; see `LIVE_LLM_EVALUATION_RUN_B.md`)
 
 | Test | Calls | Purpose |
 |---|---|---|

@@ -26,7 +26,7 @@
 {"id": "g26", "category": "comparison", "question": "Compare FLEX tests 20CAL08 and 20CAL10.", "scope": "internal", "expect": {"experiments": ["flex:1", "flex:2"], "source_types": ["analysis"]}}
 {"id": "g27", "category": "comparison", "question": "Compare FLEX test 20CAL08 with BASS test M5.", "scope": "internal", "expect": {"experiments": ["flex:1", "bass2:31"], "data_contains": ["different investigations"]}}
 {"id": "g28", "category": "similar", "question": "Find experiments similar to FLEX test C01M201.", "scope": "internal", "expect": {"experiments": ["flex:145"], "data_contains": ["similarity"]}}
-{"id": "g29", "category": "external", "question": "Which publications cover SAFFIRE large scale flame spread?", "scope": "external", "expect": {"source_types": ["external_paper"]}}
+{"id": "g29", "category": "external", "question": "Which publications cover SAFFIRE large scale flame spread?", "scope": "external", "expect": {"source_types": ["external_paper", "publication_list"], "data_contains": ["Flame spread: Effects of microgravity and scale"]}}
 {"id": "g30", "category": "external", "question": "Find NASA papers about BASS-II flame spread over PMMA.", "scope": "external", "expect": {"source_types": ["external_paper"]}}
 {"id": "g31", "category": "dataset_fact", "question": "How much of the SAFFIRE Sample 2 imagery was received?", "scope": "internal", "expect": {"data_contains": ["Sample2", "received_pct"]}}
 {"id": "g32", "category": "dataset_fact", "question": "How many SAFFIRE-I burns are there and are the image set rows burns?", "scope": "internal", "expect": {"data_contains": ["SAFFIRE-I burn rows", "image-set rows"]}}
