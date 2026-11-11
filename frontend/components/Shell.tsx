@@ -146,7 +146,7 @@ function NavList({ onNavigate, layoutKey }: { onNavigate?: () => void; layoutKey
 }
 
 const HUB_CRUMB: Record<string, string> = {
-  "/intelligence/compare": "Compare", "/intelligence/similar": "Find similar", "/evidence/literature": "External literature",
+  "/intelligence/compare": "Compare", "/intelligence/similar": "Find similar", "/evidence/literature": "External literature", "/evidence/media": "Scientific media",
 };
 
 function Breadcrumbs() {

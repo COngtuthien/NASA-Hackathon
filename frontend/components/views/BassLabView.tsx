@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import Plot, { baseLayout, CAT } from "@/components/Plot";
 import { PhenomenonArt } from "@/components/illustrations";
+import { MediaFigure, OrbitMediaPanel } from "@/components/media";
 import { Callout, Loadable, PageHeader, Panel, Prov, Segmented } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
 import BassReportSection from "@/components/views/BassReportSection";
@@ -56,13 +57,22 @@ export default function BassLabView() {
       <PageHeader kicker="Scientific analysis" title="Flame Spread & Material Behavior"
         lead="Exploring how material properties, oxygen consumption, and airflow influence solid-fuel combustion. Small solid samples burned in a flow duct inside the ISS Microgravity Science Glovebox. Oxygen, CO₂ and CO were read once before and once after each burn for the whole ~250 L chamber: these are endpoints, not time series."
         source={{ source: "BASS-II", inv: "PSI-25" }}
-        art={<PhenomenonArt kind="spread" caption="Illustration of a flame spreading along a solid strip into a forced airflow. Not experimental imagery." />}
+        art={<MediaFigure id="bass2-flame-gmt203" eager compact aspect="4 / 3" sizes="(min-width: 768px) 340px, 92vw"
+          caption="BASS-II flame over an acrylic slab aboard the ISS, 2014 (NASA)." />}
         facts={[
           { value: g.data ? fmt(g.data.summary.n_total) : "…", label: "tests in this selection" },
           { value: g.data ? fmt(g.data.summary.slope_co2_per_o2_above_resolution) : "…", label: "CO₂ produced per O₂ consumed (fitted slope)" },
           { value: g.data ? fmt(g.data.summary.pmma_stoichiometric_reference) : "…", label: "PMMA complete-combustion reference (5/6)" },
         ]}
-        sections={[{ id: "materials", label: "Investigator & material" }, { id: "gas", label: "Gas balance" }, { id: "endpoints", label: "Per-test endpoints" }, { id: "spread", label: "Spread rate (Table 5.1)" }, { id: "outcomes", label: "SIBAL outcomes (Table 7.1)" }, { id: "report", label: "Test matrices" }]} />
+        sections={[{ id: "seen", label: "Seen in orbit" }, { id: "materials", label: "Investigator & material" }, { id: "gas", label: "Gas balance" }, { id: "endpoints", label: "Per-test endpoints" }, { id: "spread", label: "Spread rate (Table 5.1)" }, { id: "outcomes", label: "SIBAL outcomes (Table 7.1)" }, { id: "report", label: "Test matrices" }]} />
+      <OrbitMediaPanel galleryInv="PSI-25" title="Small samples, controlled airflow"
+        lead={<>BASS-II burned small samples, including rods, slabs, thin films and fabric strips, inside a small flow duct in the Microgravity Science Glovebox. A fan pushes air past the sample, against the spreading flame (opposed), with it (concurrent) or, for some rods, head-on (stagnation). The spread rate falls as the opposed flow is reduced, and under some conditions the flame goes out (<a href="/api/v1/documents/bass-ii-summary-report/file#page=27" target="_blank" rel="noreferrer">Summary Report, PDF p.27</a>). The photos show what that looks like; the charts below quantify it.</>}
+        items={[
+          { id: "bass2-msg-operations", caption: "The Microgravity Science Glovebox, where the BASS-II flow duct is installed and operated through glove ports." },
+          { id: "bass2-flame-gmt213", caption: "A dim, mostly blue flame at reduced oxygen: less soot, a weaker flame, closer to extinction." },
+          { id: "bass2-flame-gmt214", caption: "An elongated flame around a rod-shaped sample during a reduced-oxygen session." },
+        ]}
+        schematic={{ node: <PhenomenonArt kind="spread" caption="" />, caption: "Schematic of opposed-flow spread: air (cyan) flows against the flame (orange) moving along the strip. Not to scale; not data." }} />
       <Panel id="materials" tone="feature" title="Investigator and material family" aside="Selection applies to the gas-balance views">
         <div className="flex flex-col gap-3">
           <Segmented label="Principal investigator" value={pi} onChange={(v) => router.replace(`${pathname}${qs({ pi: v })}`, { scroll: false })}

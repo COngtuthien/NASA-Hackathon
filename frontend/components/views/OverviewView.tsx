@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { FlexMapChart, type FlexPoint } from "@/components/charts";
 import { Icon } from "@/components/icons";
-import { PhysicsFigure, ScaleGlyph, SphericalFlame, Starfield } from "@/components/illustrations";
+import { PhysicsFigure, ScaleGlyph, Starfield } from "@/components/illustrations";
+import { Credit, MediaFigure, MediaImage, RelationBadge } from "@/components/media";
 import {
   CountUp, DUR, EASE, motion, Parallax, Reveal, Stagger, StaggerItem, useInView, useRichMotion, useScroll, useTransform, WordReveal,
 } from "@/components/motion";
@@ -15,6 +16,8 @@ import { logX, SCALE_ITEMS, TICKS } from "@/components/ScaleLadder";
 import { Button, inputCls, LinkButton, Loadable, Prov, SourceBadge } from "@/components/ui";
 import { fmt, qs, useApi } from "@/lib/api";
 import { canonical, PHENOMENA, ROUTES } from "@/lib/routes";
+import { MEDIA_BY_ID } from "@/lib/scientific-media";
+import type { MotionValue } from "motion/react";
 
 type Investigation = {
   investigation_id: string; short_name: string; title: string; description: string; scale: string; fuel_system: string;
@@ -59,8 +62,9 @@ function Hero({ ov }: { ov: Overview | null }) {
       <Parallax speed={40} className="absolute inset-[-10%_0] -z-10"><Starfield /></Parallax>
       <div className="tech-grid absolute inset-0 -z-10 opacity-60" aria-hidden />
       <div aria-hidden className="absolute -right-40 top-1/3 -z-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(closest-side,rgba(255,138,61,0.12),transparent)] blur-3xl" />
-      <Container className="grid min-h-[min(88vh,860px)] items-center gap-6 py-14 md:py-20 lg:grid-cols-[1.15fr_1fr]">
-        <motion.div style={rich ? { y: contentY, opacity: contentO } : undefined} className="relative z-10 order-2 lg:order-1">
+      <HeroMedia scale={rich ? flameScale : undefined} />
+      <Container className="grid min-h-[min(88vh,860px)] items-center gap-6 pb-14 pt-4 md:py-20">
+        <motion.div style={rich ? { y: contentY, opacity: contentO } : undefined} className="relative z-10 lg:max-w-[min(62%,760px)]">
           <motion.p className="kicker" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: DUR.slow, delay: 0.05 }}>
             Microgravity combustion research, from NASA&apos;s own records
           </motion.p>
@@ -88,12 +92,6 @@ function Hero({ ov }: { ov: Overview | null }) {
             ))}
           </motion.dl>
         </motion.div>
-        <motion.figure className="relative order-1 mx-auto w-[min(78vw,340px)] lg:order-2 lg:w-full lg:max-w-[520px]"
-          style={rich ? { scale: flameScale } : undefined}
-          initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.6, ease: EASE }}>
-          <SphericalFlame />
-          <figcaption className="mt-2 text-center text-xs text-text-3">Artistic illustration of a spherical droplet flame. Not experimental imagery.</figcaption>
-        </motion.figure>
       </Container>
       <a href="#physics" className="absolute bottom-5 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs text-text-3 no-underline hover:text-text hover:no-underline md:flex">
         Scroll to explore
@@ -105,20 +103,53 @@ function Hero({ ov }: { ov: Overview | null }) {
   );
 }
 
+const HERO_MEDIA = "bass2-flame-gmt214";
+
+/**
+ * Hero visual: a real BASS-II flame photographed aboard the ISS, composited full-bleed. The photograph itself is unaltered
+ * apart from scaling; the fade into the page, the glow and the star field are decorative layers, as the caption says.
+ */
+function HeroMedia({ scale }: { scale?: MotionValue<number> }) {
+  const m = MEDIA_BY_ID[HERO_MEDIA];
+  const fade = "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.55) 22%, #000 46%), linear-gradient(to top, transparent 0%, #000 22%)";
+  const fadeMobile = "linear-gradient(to bottom, #000 55%, transparent 100%)";
+  return (
+    <motion.figure className="relative -z-10 lg:absolute lg:inset-y-0 lg:right-0 lg:w-[68%]"
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.8, ease: EASE }}>
+      <div className="relative h-[42vh] min-h-[240px] overflow-hidden lg:h-full">
+        <motion.div className="h-full w-full [mask-image:var(--fade-m)] lg:[mask-image:var(--fade)] [-webkit-mask-composite:source-in] [mask-composite:intersect]"
+          style={{ ...(scale ? { scale } : {}), ["--fade" as string]: fade, ["--fade-m" as string]: fadeMobile }}>
+          <MediaImage m={m} sizes="(min-width: 1024px) 68vw, 100vw" eager className="h-full w-full object-cover object-[78%_50%]" />
+        </motion.div>
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_45%_at_80%_52%,rgba(255,138,61,0.16),transparent)] mix-blend-screen" />
+      </div>
+      <figcaption className="relative z-10 mx-4 -mt-8 rounded-xl border border-line/60 bg-ink/80 px-3 py-2 text-[12px] leading-snug text-text-3 backdrop-blur-md lg:absolute lg:bottom-6 lg:right-8 lg:mx-0 lg:mt-0 lg:max-w-[440px]">
+        <span className="flex flex-wrap items-center gap-2"><RelationBadge relation={m.relation} />
+          <span className="text-text-2">Real BASS-II flame aboard the ISS, reduced-oxygen session, 2014.</span></span>
+        <span className="mt-1 block">Real flame from NASA&apos;s BASS-II experiment; the fade, glow and star field are decorative. <Credit m={m} /></span>
+      </figcaption>
+    </motion.figure>
+  );
+}
+
 /* ---------------- B. Physics story ---------------- */
 
 const STEPS = [
   { title: "On Earth, hot gas rises", body: "Around a flame on Earth, heated gas is lighter than the air around it and rises. That buoyant flow draws fresh oxygen in and carries heat and combustion products away.",
-    quote: "This flow dominates the species and energy transport in normal gravity fires.", cite: { label: "FLEX Research Requirements Document, PDF p.7", href: doc("flex-eird-v4", 7) } },
+    quote: "This flow dominates the species and energy transport in normal gravity fires.", cite: { label: "FLEX Research Requirements Document, PDF p.7", href: doc("flex-eird-v4", 7) },
+    media: { id: "flex-1g-vs-microgravity", fit: "contain" as const, caption: "NASA's FLEX comparison. Bottom: on Earth (1 g) buoyancy stretches a droplet flame into a bright teardrop. Top: aboard the ISS the same kind of flame stays a dim sphere." } },
   { title: "In orbit, the flame becomes a sphere", body: "Remove buoyancy and an isolated fuel droplet burns inside a nearly spherical flame. That symmetry is what makes the classical d²-law testable: the square of the droplet diameter falls roughly linearly with time.",
     quote: "Schematic of a spherically symmetric droplet flame structure.", cite: { label: "Liu et al., 2G11-070HE-0310, PDF p.2", href: doc("2g11-070he-0310", 2) },
-    action: { label: "Test the d²-law against FLEX data", href: `${ROUTES.extinction}#d2` } },
+    action: { label: "Test the d²-law against FLEX data", href: `${ROUTES.extinction}#d2` },
+    media: { id: "flex-heptane-soot-composite", caption: "A 3 mm heptane droplet burning in FLEX aboard the ISS. NASA's colorized composite of video frames: soot (green) forms near the shrinking droplet and spirals out of the flame zone." } },
   { title: "Slow transport changes how flames go out", body: "Oxygen now reaches the flame mainly by diffusion, and hot gas lingers near it. Radiative heat loss, minor in most small fires on Earth, becomes a real path to extinction.",
     quote: "In most small scale terrestrial fires … radiative quenching plays a relatively minor role in the extinguishment of fires.", cite: { label: "FLEX Research Requirements Document, PDF p.12", href: doc("flex-eird-v4", 12) },
-    action: { label: "See where FLEX flames went out", href: `${ROUTES.extinction}#map` } },
+    action: { label: "See where FLEX flames went out", href: `${ROUTES.extinction}#map` },
+    media: { id: "sofie-gel-extinction", caption: "Related NASA experiment (SoFIE, 2023), not FLEX: as the pressure drops, a sooty yellow flame turns blue, shrinks and goes out. It shows what extinction looks like, not the radiative mechanism itself." } },
   { title: "Airflow decides how fire spreads", body: "On a spacecraft the only flow is the one ventilation makes. A flame spreading against a gentle forced flow slows as that flow weakens, and below some velocity it can go out. BASS-II and SAFFIRE-I burned samples in controlled opposed and concurrent flows.",
     quote: "The spread rate is known to decrease as the opposed flow is reduced. Under certain conditions, this can lead to flame extinguishment.", cite: { label: "BASS-II Summary Report, PDF p.27", href: doc("bass-ii-summary-report", 27) },
-    action: { label: "Explore flame spread versus airflow", href: `${ROUTES.spread}#spread` } },
+    action: { label: "Explore flame spread versus airflow", href: `${ROUTES.spread}#spread` },
+    media: { id: "bass2-flame-gmt203", caption: "BASS-II aboard the ISS: an acrylic slab burned at several flow speeds. NASA's caption notes the flame was long and sooty at high flow and stabilized when the flow was reduced." } },
 ];
 
 function StoryStep({ i, onActive }: { i: number; onActive: (i: number) => void }) {
@@ -141,6 +172,10 @@ function StoryStep({ i, onActive }: { i: number; onActive: (i: number) => void }
         </blockquote>
         {s.action && <Link href={s.action.href} className="mt-5 inline-flex items-center gap-1.5 text-[15px]">{s.action.label}<Icon name="chevron" size={14} /></Link>}
       </Reveal>
+      {s.media && (
+        <MediaFigure id={s.media.id} className={`mt-7 max-w-[560px] ${i % 2 ? "lg:ml-10" : ""}`} aspect="16 / 10" fit={s.media.fit ?? "cover"}
+          sizes="(min-width: 1024px) 34vw, 92vw" caption={s.media.caption} />
+      )}
     </div>
   );
 }
@@ -152,7 +187,7 @@ function PhysicsStory() {
     <section id="physics" aria-labelledby="physics-title" className="scroll-mt-16 py-20 md:py-28">
       <Container>
         <SectionTitle id="physics-title" kicker="The physics" title="The physics of fire without gravity"
-          lead="Four ideas explain why NASA burns fuel in orbit. Each is quoted from a NASA document in this workspace; the figures are schematics, not data." />
+          lead="Four ideas explain why NASA burns fuel in orbit. Each is quoted from a NASA document in this workspace and shown with real NASA imagery; the sticky figure is a schematic, not data." />
         <div className="mt-6 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
           <div className="hidden lg:block">
             <div className="sticky top-[calc(var(--hdr,57px)+6vh)] flex h-[78vh] flex-col items-center justify-center">
@@ -178,6 +213,11 @@ function PhysicsStory() {
 /* ---------------- C. Three scales ---------------- */
 
 const GLYPH = ["droplet", "sample", "sheet"] as const;
+const SCALE_MEDIA = [
+  { id: "flex-1g-vs-microgravity", position: "50% 8%", note: "FLEX droplet flame aboard the ISS" },
+  { id: "bass2-flame-gmt213", position: "60% 50%", note: "BASS-II flame aboard the ISS" },
+  { id: "saffire1-hardware-cygnus", position: "50% 55%", note: "SAFFIRE-I flight hardware in Cygnus" },
+];
 
 function Scales({ ov }: { ov: Overview }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -212,7 +252,8 @@ function Scales({ ov }: { ov: Overview }) {
               const it = SCALE_ITEMS[k];
               const i = inv[p.inv];
               return (
-                <StaggerItem as="article" key={p.inv} className="lift group relative flex flex-col rounded-2xl border border-line/80 bg-panel/70 p-5 hover:border-data/40">
+                <StaggerItem as="article" key={p.inv} className="lift group relative flex flex-col overflow-hidden rounded-2xl border border-line/80 bg-panel/70 p-5 pt-0 hover:border-data/40">
+                  <ScaleMedia k={k} />
                   <div className="flex items-start justify-between gap-3">
                     <ScaleGlyph kind={GLYPH[k]} />
                     <span className="mt-1 text-right text-[13px] text-text-3">{p.scale}<span className="block text-text-2">{it.label.split(",")[0]}</span></span>
@@ -239,9 +280,30 @@ function Scales({ ov }: { ov: Overview }) {
   );
 }
 
+function ScaleMedia({ k }: { k: number }) {
+  const sm = SCALE_MEDIA[k];
+  const m = MEDIA_BY_ID[sm.id];
+  const rich = useRichMotion();
+  return (
+    <div className="-mx-5 mb-4">
+      <div className="relative h-44 overflow-hidden bg-black md:h-52">
+        <MediaImage m={m} sizes="(min-width: 768px) 30vw, 92vw" className={`h-full w-full object-cover transition-transform duration-700 ${rich ? "group-hover:scale-[1.06]" : ""}`}
+          style={{ objectPosition: sm.position }} />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-panel via-panel/10 to-transparent" />
+        <span className="absolute left-3 top-3"><RelationBadge relation={m.relation} onMedia /></span>
+      </div>
+      <p className="relative z-10 px-5 pt-1.5 text-[11.5px] text-text-3">{sm.note}. <Credit m={m} /></p>
+    </div>
+  );
+}
+
 /* ---------------- D. Discovery highlights ---------------- */
 
+// Context per investigation, chosen so no image repeats elsewhere on Mission Control.
+const INSIGHT_MEDIA: Record<string, string> = { "PSI-69": "flex2-mdca-apparatus", "PSI-25": "bass1-flame-2013", "PSI-98": "saffire1-preflight-ceit" };
+
 function InsightCard({ x, big }: { x: Insight; big?: boolean }) {
+  const mid = INSIGHT_MEDIA[x.investigation_id];
   return (
     <StaggerItem as="article" className={`hairline-top flex flex-col rounded-2xl border p-5 md:p-6 ${big
       ? "border-electric/25 bg-[linear-gradient(155deg,rgba(91,140,255,0.10),rgba(16,30,51,0.85)_50%)] lg:col-span-2 lg:grid lg:grid-cols-[1fr_1.1fr] lg:gap-x-10" : "border-line/80 bg-panel/70"}`}>
@@ -251,6 +313,10 @@ function InsightCard({ x, big }: { x: Insight; big?: boolean }) {
         <span className="text-xs text-text-3">{PH[x.investigation_id]?.short ?? x.investigation_id} · {PH[x.investigation_id]?.source}{x.n ? `, n = ${x.n}` : ""}</span>
       </div>
       <h3 className={`subhead mt-3 leading-tight ${big ? "text-[28px] md:text-[36px]" : "text-[18px]"}`}>{x.title}</h3>
+      {big && mid && (
+        <MediaFigure id={mid} className="mt-5" aspect="16 / 10" compact sizes="(min-width: 1024px) 34vw, 92vw"
+          caption={<>Context: {MEDIA_BY_ID[mid].title.charAt(0).toLowerCase() + MEDIA_BY_ID[mid].title.slice(1)} ({MEDIA_BY_ID[mid].investigation}). The finding comes from the data, not from this image.</>} />
+      )}
       </div>
       <div className="flex flex-col">
       <p className={`mt-3 ${big ? "text-[17px] lg:mt-0" : "text-[14.5px]"} text-text`}>{x.text}</p>
@@ -277,6 +343,32 @@ function Insights({ ov }: { ov: Overview }) {
           {first && <InsightCard x={first} big />}
           {rest.map((x) => <InsightCard key={x.id} x={x} />)}
         </Stagger>
+      </Container>
+    </section>
+  );
+}
+
+/* ---------------- D2. Recorded in orbit ---------------- */
+
+const ORBIT_MEDIA = ["bass-iss40-20140627", "saffire1-burn-animation", "bass2-flame-gmt213", "cfi-g-cool-flame-video", "bass2-msg-operations"];
+
+function OrbitMedia() {
+  return (
+    <section aria-labelledby="orbit-title" className="relative overflow-hidden border-t border-line/60 py-20 md:py-28">
+      <div aria-hidden className="absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(60%_60%_at_50%_0%,rgba(91,140,255,0.10),transparent)]" />
+      <Container>
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionTitle id="orbit-title" kicker="Recorded in orbit" title="What these fires actually looked like"
+            lead="Photographs and footage NASA published from the three investigations. Each says whether it is real experiment media or related context, and links to its original record. Images give context; the numbers come from the data." />
+          <Reveal><LinkButton href={ROUTES.media} variant="secondary">Open the media gallery<Icon name="chevron" size={14} /></LinkButton></Reveal>
+        </div>
+        <div className="mt-12 grid gap-5 md:grid-cols-6">
+          <MediaFigure id={ORBIT_MEDIA[0]} className="md:col-span-4" aspect="16 / 9" sizes="(min-width: 768px) 62vw, 92vw" />
+          <MediaFigure id={ORBIT_MEDIA[1]} className="md:col-span-2" aspect="4 / 5" fit="contain" sizes="(min-width: 768px) 30vw, 92vw" />
+          <MediaFigure id={ORBIT_MEDIA[2]} className="md:col-span-2" aspect="4 / 3" sizes="(min-width: 768px) 30vw, 92vw" />
+          <MediaFigure id={ORBIT_MEDIA[3]} className="md:col-span-2" aspect="16 / 9" sizes="(min-width: 768px) 30vw, 92vw" />
+          <MediaFigure id={ORBIT_MEDIA[4]} className="md:col-span-2" aspect="4 / 3" sizes="(min-width: 768px) 30vw, 92vw" />
+        </div>
       </Container>
     </section>
   );
@@ -434,6 +526,7 @@ export default function OverviewView() {
           <Insights ov={ov.data} />
         </>
       )}
+      <OrbitMedia />
       <Preview />
       <Workflow ov={ov.data} />
       <CopilotBand />

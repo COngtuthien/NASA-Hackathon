@@ -4,6 +4,11 @@ import Link from "next/link";
 import { PHENOMENA } from "@/lib/routes";
 import { useParams } from "next/navigation";
 import { Callout, Empty, Kind, LinkButton, Loadable, PageHeader, Panel, Prov, Severity } from "@/components/ui";
+import { MediaFigure } from "@/components/media";
+import { MEDIA_BY_ID } from "@/lib/scientific-media";
+
+/** Apparatus (not flame) photos, so no reader takes an investigation image for a picture of the selected test. */
+const APPARATUS: Record<string, string> = { flex: "flex2-mdca-apparatus", bass2: "bass2-msg-operations", saffire1: "saffire1-hardware-cygnus" };
 import { expHref, fmt, qs, useApi } from "@/lib/api";
 import { LinkLevel, ReportRecordCard, type ReportRecord } from "@/components/report";
 
@@ -145,6 +150,12 @@ export default function DetailView() {
             </div>
 
             <div className="flex flex-col gap-5">
+              {APPARATUS[d.dataset] && (
+                <Panel title="Investigation imagery" aside={<Link href={`/evidence/media?phenomenon=${d.investigation_id}`}>All media</Link>}>
+                  <MediaFigure id={APPARATUS[d.dataset]} aspect="16 / 10" compact sizes="(min-width: 1280px) 340px, 92vw"
+                    caption={<>Investigation-level photograph: {MEDIA_BY_ID[APPARATUS[d.dataset]].title.charAt(0).toLowerCase() + MEDIA_BY_ID[APPARATUS[d.dataset]].title.slice(1)}. <b className="text-text">It does not show test {d.display_id}</b>: NASA&apos;s captions identify no individual test.</>} />
+                </Panel>
+              )}
               <Panel title="Quality flags" aside={`${d.quality_flags.length} on this row`}>
                 {d.quality_flags.length === 0 ? <p className="text-sm text-text-2">No row-level flags.</p> : (
                   <ul className="flex flex-col gap-3">

@@ -17,7 +17,9 @@ items were verified and which candidates were rejected. Last verified 2026-11-11
   article captions, and the Wikimedia Commons file page. Nothing was invented; unknown dates are left blank.
 - Usage: NASA media is generally not subject to U.S. copyright and may be used on educational web pages with NASA
   credited, without implying endorsement (<https://www.nasa.gov/nasa-brand-center/images-and-media/>). The NASA
-  insignia is not public domain, so images showing it were excluded.
+  insignia is not public domain: images that use it as a graphic element were excluded, while insignia that appear
+  incidentally on hardware in NASA's documentary photos (e.g. a sticker on a crate in jsc2016e017570) are left as
+  photographed. SpaceFire uses no NASA logo of its own.
 
 ## Registry
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import Plot, { baseLayout, CAT } from "@/components/Plot";
 import { PhenomenonArt } from "@/components/illustrations";
+import { MediaFigure, MediaPanelBlock, SchematicFigure } from "@/components/media";
 import { usePauseOffscreen } from "@/components/motion";
 import { Callout, Field, inputCls, Loadable, PageHeader, Panel, Prov, Severity } from "@/components/ui";
 import { expHref, fmt, useApi } from "@/lib/api";
@@ -51,6 +52,35 @@ function FlowCard({ burn }: { burn: Record<string, unknown> }) {
 
 const SET_LABEL: Record<string, string> = { BIT: "Built-in test", PreFlowVis: "F1 flow visualization", Sample1: "S1 burn (concurrent)", Sample2: "S2 burn (opposed)", PostFlowVis: "F2 flow visualization" };
 
+/** NASA's public Saffire-I footage. It is not derived from the local manifest, which holds file names and times only. */
+function SaffireFootage() {
+  return (
+    <section id="footage" aria-labelledby="footage-title" className="hairline-top scroll-mt-36 rounded-2xl border border-line/80 bg-[linear-gradient(170deg,rgba(255,138,61,0.07),rgba(16,30,51,0.92)_45%)] p-4 md:p-6">
+      <p className="kicker">NASA footage</p>
+      <h2 id="footage-title" className="subhead mt-2 text-[22px] md:text-[26px]">The first large-scale fire in a spacecraft, as NASA filmed it</h2>
+      <p className="mt-2 max-w-[80ch] text-[15px] leading-relaxed text-text-2">
+        On 14 June 2016, after Cygnus left the space station, a hot wire ignited the fabric sample inside a closed enclosure while cameras recorded the burn
+        and later downlinked the images. Nothing plays until you press play; the YouTube video loads only then.
+      </p>
+      <div className="mt-5 grid gap-6 lg:grid-cols-2">
+        <MediaPanelBlock id="saffire1-burn-animation">
+          <p className="text-xs text-text-3">What it shows: a flame front moving along the sample. It cannot tell you the spread rate: the frames are NASA&apos;s selection, played faster than real time, with no scale.</p>
+        </MediaPanelBlock>
+        <MediaPanelBlock id="saffire1-youtube" />
+      </div>
+      <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <MediaFigure id="saffire1-preflight-ceit" aspect="4 / 3" compact sizes="(min-width: 1280px) 30vw, (min-width: 640px) 45vw, 92vw"
+          caption="Saffire-I before flight, during the OA-6 crew equipment interface test at Kennedy Space Center." />
+        <MediaFigure id="saffire1-hardware-cygnus" aspect="4 / 3" compact sizes="(min-width: 1280px) 30vw, (min-width: 640px) 45vw, 92vw"
+          caption="The flight unit in Cygnus. The sheet burned inside this box, not in the open cabin." />
+        <SchematicFigure caption="Schematic of the sample sheet with airflow (cyan) and a spreading flame (orange). Not to scale; S1 burned in concurrent and S2 in opposed flow (CSV).">
+          <PhenomenonArt kind="spacecraft" caption="" />
+        </SchematicFigure>
+      </div>
+    </section>
+  );
+}
+
 export default function SaffireView() {
   const cs = useApi<Case>("/analytics/saffire/case");
   const [bin, setBin] = useState(30);
@@ -80,7 +110,8 @@ export default function SaffireView() {
       <PageHeader kicker="Scientific analysis" title="Spacecraft Fire Dynamics"
         lead="Examining large-scale fire behavior and airflow conditions in spacecraft environments. A ~0.4 m × 0.94 m SIBAL cotton/fiberglass sheet burned aboard an uncrewed Cygnus vehicle in June 2016, the first large-scale fire experiment in microgravity. The local data holds two burn records and a manifest of image files: no images, flame measurements or sensor time series."
         source={{ source: "SAFFIRE-I", inv: "PSI-98" }}
-        art={<PhenomenonArt kind="spacecraft" caption="Illustration of a fabric sheet burning in a flow duct. Not NASA footage." />}
+        art={<MediaFigure id="saffire1-hardware-cygnus" eager compact aspect="4 / 3" sizes="(min-width: 768px) 340px, 92vw"
+          caption="The Saffire-I flight unit strapped inside the Cygnus cargo module (NASA)." />}
         facts={cs.data ? (() => {
           const sm = cs.data.manifest.filter((m) => m.set_label.startsWith("Sample"));
           const listed = sm.reduce((a, m) => a + m.frames, 0);
@@ -91,11 +122,12 @@ export default function SaffireView() {
             { value: `${fmt((got / listed) * 100)} %`, label: "of those frames marked received on the ground" },
           ];
         })() : undefined}
-        sections={[{ id: "airflow", label: "Airflow" }, { id: "compare", label: "S1 vs S2" }, { id: "timeline", label: "Downlink timeline" }, { id: "manifest", label: "Manifest summary" }, { id: "sets", label: "Image sets & papers" }]} />
+        sections={[{ id: "footage", label: "NASA footage" }, { id: "airflow", label: "Airflow" }, { id: "compare", label: "S1 vs S2" }, { id: "timeline", label: "Downlink timeline" }, { id: "manifest", label: "Manifest summary" }, { id: "sets", label: "Image sets & papers" }]} />
       <Loadable state={cs} rows={10}>
         {(c) => (
           <div className="flex flex-col gap-5">
-            <Callout tone="warn">{c.statements.find((s) => s.kind === "UNSUPPORTED")?.text} No image thumbnails are shown because no image bytes exist locally.</Callout>
+            <Callout tone="warn">{c.statements.find((s) => s.kind === "UNSUPPORTED")?.text} The manifest lists image files, but their pixels are not in the local data, so no manifest frame is shown or reconstructed. The footage below is NASA&apos;s public release.</Callout>
+            <SaffireFootage />
             <Panel id="airflow" tone="feature" title="Airflow and flame-spread direction" aside="Direction and speed as recorded in the CSV">
               <div className="grid gap-5 md:grid-cols-2">
                 {c.burns.map((bn) => <FlowCard key={String(bn.experiment_uid)} burn={bn} />)}

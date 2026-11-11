@@ -13,6 +13,7 @@ export const ROUTES = {
   compare: "/intelligence/compare",
   documents: "/evidence",
   literature: "/evidence/literature",
+  media: "/evidence/media",
   modeling: "/modeling",
   reliability: "/reliability",
   methodology: "/methodology",

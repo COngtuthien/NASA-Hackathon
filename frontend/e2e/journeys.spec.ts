@@ -125,7 +125,7 @@ test.describe("SpaceFire AI user journeys", () => {
 
   test("SAFFIRE-I timeline comes from the real manifest; no images", async ({ page }) => {
     await page.goto("/physics/saffire-i");
-    await expect(page.getByText(/No image thumbnails are shown/)).toBeVisible();
+    await expect(page.getByText(/no manifest frame is shown or reconstructed/)).toBeVisible();
     await expect(page.locator("tr", { hasText: "S1 burn (concurrent)" }).filter({ hasText: "S1C1" })).toContainText("18,124");
     await page.getByLabel("Image set").selectOption("Sample2");
     await expect(page.locator("#timeline .js-plotly-plot")).toBeVisible();

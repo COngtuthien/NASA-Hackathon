@@ -11,7 +11,8 @@
  *
  * Usage: NASA content is generally not subject to copyright in the United States and may be used for educational
  * web pages with NASA credited, without implying endorsement (nasa.gov/nasa-brand-center/images-and-media).
- * Media showing the NASA insignia were excluded.
+ * Images that use the NASA insignia as a graphic element (e.g. a print layout) were excluded; insignia that appear
+ * incidentally on hardware in NASA's own documentary photos are left as photographed.
  */
 
 export type Relation = "experimental" | "related" | "illustration";

@@ -36,7 +36,7 @@ test.describe("Phase 3: phenomenon-first navigation, motion, preserved functions
 
   test("Mission Control tells the physics story with NASA document citations and real counts", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByText("Not experimental imagery")).toBeVisible();
+    await expect(page.getByText(/Real flame from NASA.s BASS-II experiment/)).toBeVisible();  // hero says what it shows
     const story = page.locator("#physics");
     await story.scrollIntoViewIfNeeded();
     const cites = story.locator("blockquote a");
@@ -64,7 +64,7 @@ test.describe("Phase 3: phenomenon-first navigation, motion, preserved functions
     await page.goto("/phenomena/spacecraft-fire");
     await expect(page.locator("#airflow")).toContainText("Concurrent");
     await expect(page.locator("#airflow")).toContainText("Opposed");
-    await expect(page.getByText(/No image thumbnails are shown/)).toBeVisible();
+    await expect(page.getByText(/no manifest frame is shown or reconstructed/)).toBeVisible();
   });
 
   test("hubs keep both workflows reachable", async ({ page }) => {
@@ -83,7 +83,7 @@ test.describe("Phase 3: phenomenon-first navigation, motion, preserved functions
     const counts = await (await page.request.get("/api/v1/overview")).json();
     await expect(page.getByLabel("What is in the database").locator("dd").first()).toHaveText(
       new RegExp(String(counts.counts.total_burn_rows).replace(/\B(?=(\d{3})+(?!\d))/g, ",")));
-    const loops = await page.evaluate(() => getComputedStyle(document.querySelector(".anim-orbit")!).animationIterationCount);
+    const loops = await page.evaluate(() => getComputedStyle(document.querySelector(".anim-twinkle")!).animationIterationCount);  // hero star field
     expect(loops).toBe("1");
     await ctx.close();
   });

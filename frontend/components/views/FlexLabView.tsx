@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { FlexMapChart, type FlexPoint } from "@/components/charts";
 import { PhenomenonArt } from "@/components/illustrations";
+import { MediaFigure, OrbitMediaPanel } from "@/components/media";
 import Plot, { baseLayout, CAT, OUTCOME_COLOR } from "@/components/Plot";
 import { Callout, Field, inputCls, Loadable, PageHeader, Panel, Prov, Segmented } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
@@ -98,13 +99,23 @@ export default function FlexLabView() {
       <PageHeader kicker="Scientific analysis" title="Flame Extinction & Burning Dynamics"
         lead="Investigating droplet combustion, oxygen availability, burning rates, and extinction behavior in microgravity. Isolated methanol and n-heptane droplets burned aboard the ISS in O₂/N₂ atmospheres diluted with CO₂ or helium. Charts use only rows with the required values; excluded rows are listed with the reason."
         source={{ source: "FLEX", inv: "PSI-69" }}
-        art={<PhenomenonArt kind="droplet" caption="Illustration of an isolated droplet inside a spherical flame. Not experimental imagery." />}
+        art={<MediaFigure id="flex-heptane-soot-composite" eager compact aspect="4 / 3" sizes="(min-width: 768px) 340px, 92vw"
+          caption="A burning 3 mm heptane droplet in FLEX aboard the ISS (NASA colorized composite of video frames)." />}
         facts={[
           { value: map.data ? fmt(map.data.n_total) : "…", label: "test rows match these conditions" },
           { value: map.data ? fmt(map.data.n_plotted) : "…", label: "with numeric O₂ and D₀ (plotted)" },
           { value: d2.data ? fmt(d2.data.summary.median_ratio) : "…", label: "median reported ÷ d²-law burn time" },
         ]}
-        sections={[{ id: "conditions", label: "Conditions" }, { id: "map", label: "Extinction map" }, { id: "d2", label: "d²-law check" }, { id: "ratio", label: "Extinction diameter" }]} />
+        sections={[{ id: "seen", label: "Seen in orbit" }, { id: "conditions", label: "Conditions" }, { id: "map", label: "Extinction map" }, { id: "d2", label: "d²-law check" }, { id: "ratio", label: "Extinction diameter" }]} />
+      <OrbitMediaPanel galleryInv="PSI-69" title="A droplet flame without gravity"
+        lead={<>On Earth a droplet flame is pulled upward into a teardrop; aboard the ISS it wraps the droplet in a near-spherical shell. That symmetry is what makes the d²-law check below testable (<a href="/api/v1/documents/2g11-070he-0310/file#page=2" target="_blank" rel="noreferrer">Liu et al., PDF p.2</a>). In FLEX a hot-flame extinction could be followed by low-temperature, &ldquo;cool-flame&rdquo; burning, observed for the first time (<a href="/api/v1/documents/cool-flames-in-space-a-hot-prospect-on-earth/file#page=23" target="_blank" rel="noreferrer">Cool Flames in Space, PDF p.23</a>), one reason a FLEX outcome is not a single number.</>}
+        items={[
+          { id: "flex-1g-vs-microgravity", fit: "contain", caption: "NASA FLEX comparison: top, the ISS flame (near-spherical, dim blue); bottom, the same kind of flame in 1 g (yellow teardrop)." },
+          { id: "flex-heptane-soot-composite", caption: "Soot (green, false colour) forms near the shrinking heptane droplet and spirals out of the flame zone." },
+          { id: "flex2-mdca-apparatus", caption: "The droplet apparatus (MDCA) inside the Combustion Integrated Rack, photographed for FLEX-2: the hardware family behind these tests." },
+          { id: "cfi-g-cool-flame-video", caption: "Related experiment: a hot flame that dies out and leaves a cool flame too faint to see, the behaviour FLEX found in heptane droplets." },
+        ]}
+        schematic={{ node: <PhenomenonArt kind="droplet" caption="" />, caption: "Schematic of the idealized geometry the d²-law assumes: a droplet (orange) inside a spherical flame shell. Not to scale; not data." }} />
       <Panel id="conditions" tone="feature" title="Experimental conditions" aside="Every chart and value below follows these selectors">
         <div className="grid gap-4 xl:grid-cols-[auto_auto_1fr]">
           <Segmented label="Fuel" value={filters.fuel ?? ""} onChange={(v) => set("fuel", v)}

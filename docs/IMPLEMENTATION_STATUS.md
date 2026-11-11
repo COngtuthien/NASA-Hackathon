@@ -1,5 +1,40 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 5 status (branch `feature/spacefire-phase5-scientific-visuals`, 2026-11-11): COMPLETE
+Real NASA scientific media woven into the existing experience. Frontend only: backend, data, Gemini integration and
+verification are unchanged. No Gemini request was made during Phase 5.
+
+| Milestone | Status | Evidence |
+|---|---|---|
+| M1 Media research + provenance registry | DONE | `frontend/lib/scientific-media.ts`: 15 items (FLEX, BASS-II, SAFFIRE-I + related CFI-G, FLEX-2, BASS (I), SoFIE). Each has source URL, credit, date, NASA ID, relation (real experimental / related / illustration), relation reason, alt text and caveat. Metadata from the NASA Image and Video Library API, nasa.gov / science.nasa.gov captions and Wikimedia Commons; all 14 source URLs returned HTTP 200. No item claims a test ID |
+| M2 Acquisition + optimization | DONE | WebP 480/960/1600 px with explicit dimensions; Saffire-I GIF 12.9 MB → 756 KB animated WebP (all 574 frames); 1.6 MB silent NASA clip; 3.0 MB total. Rejected: a lab photo with the NASA insignia as a print element, Saffire-II/V/VI media, a Cygnus record whose date and caption disagree (`docs/SCIENTIFIC_MEDIA_SOURCES.md`) |
+| M3 Mission Control | DONE | Full-bleed hero with a real BASS-II flame (fade, glow and star field labelled decorative); each of the 4 physics steps paired with matching NASA media (document citations kept); three-scales cards with investigation imagery; context image on the lead finding; new "Recorded in orbit" band; no image repeats on the page |
+| M4 Phenomenon pages | DONE | Real media as header art on all three pages; "Seen in orbit" panels show real media and a labelled schematic side by side. SAFFIRE-I: NASA burn animation (plays only on request), click-to-load NASA YouTube video (youtube-nocookie), hardware photos; the callout now separates NASA's public footage from the local manifest (no frame reconstructed) |
+| M5 Experiment + Evidence media | DONE | Detail pages show an investigation-level **apparatus** photo with "It does not show test {ID}". New `/evidence/media` gallery tab (filters: phenomenon, investigation, type, relation; URL-synced; accessible `<dialog>` lightbox with full provenance) |
+| M6 Visual polish + motion | DONE | Mask reveals, hover depth and scroll zoom only with rich motion (off for reduced motion and narrow screens); opaque badges on bright photos; no autoplay, no audio, no video backgrounds |
+| M7 Validation | DONE | See below |
+
+Photo-to-test analysis: NASA's BASS-II captions give session days but no test numbers. One possible match (iss040e072900 ↔ M10)
+contradicts NASA's own caption day, and one session day (214) has no CSV test, so no image is attached to a test.
+
+### Phase 5 verification (2026-11-11)
+- Frontend: `tsc --noEmit` clean; `eslint .` clean; `next build` OK (18 routes, new `/evidence/media`).
+- Playwright on the production build (model disabled): **42 passed, 1 skipped** (opt-in live Gemini). Includes 7 new
+  Phase 5 tests:
+  - every registry file is served and every item fully attributed;
+  - every image decodes with reserved size, and every media figure links its source;
+  - lightbox: keyboard open, focus on Close, Esc closes, focus returns;
+  - gallery filters;
+  - no YouTube request and no animation before a click;
+  - the detail-page disclaimer;
+  - reduced motion.
+
+  Two Phase 1/3 assertions were reworded with unchanged intent: the SAFFIRE callout text, and the hero label check (the
+  hero is now labelled real media).
+- Route sweep: 18 routes × 1440/768/390 px: 0 console errors, 0 failed API or media requests, 0 horizontal overflow.
+  Mission Control CLS 0.024.
+- Backend `pytest`: 181 passed (unchanged code). API smoke test: 7/7 passed. NASA source files unchanged.
+
 ## Phase 4 status (branch `feature/spacefire-phase4-gemini`, 2026-11-11): PARTIAL — LIVE GEMINI VALIDATION PENDING
 Gemini-backed Research Copilot with code-verified citations and units, streamed progress, quota protection, reviewed
 citation links, BASS-II report cross-checks and a redesigned Methodology page. NASA source files unchanged.
