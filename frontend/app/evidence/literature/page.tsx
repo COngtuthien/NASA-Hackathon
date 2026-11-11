@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui";
-import View from "@/components/views/FlexLabView";
+import View from "@/components/views/ResearchView";
 
-export const metadata: Metadata = { title: "FLEX physics lab" };
+export const metadata: Metadata = { title: "External literature" };
 
 export default function Page() {
   return (

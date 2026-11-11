@@ -93,7 +93,7 @@ export default function BassReportSection() {
           </Panel>
           <Panel id="report" title="Test matrices (Appendix A)">
             <p className="text-sm">{d.appendix_a.verified} of 126 rows verified against the CSV. Flow direction from the report: {Object.entries(d.appendix_a.flow_direction_counts).map(([k, v]) => `${k === "None" ? "not stated" : k} ${v}`).join(", ")}.
-              {d.appendix_a.needs_review.length > 0 && <> Rows that disagree with the CSV: {d.appendix_a.needs_review.map((t) => <Link key={t} className="mx-1" href={`/quality?rule_id=BASS-REPORT-CSV-CONFLICT`}>{t}</Link>)}.</>}</p>
+              {d.appendix_a.needs_review.length > 0 && <> Rows that disagree with the CSV: {d.appendix_a.needs_review.map((t) => <Link key={t} className="mx-1" href={`/reliability?rule_id=BASS-REPORT-CSV-CONFLICT`}>{t}</Link>)}.</>}</p>
             <p className="mt-1 text-xs text-text-3">{d.method}</p>
           </Panel>
         </div>

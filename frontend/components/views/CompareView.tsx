@@ -96,7 +96,7 @@ export default function CompareView() {
 
         <div className="min-w-0">
           {uids.length < 2 ? (
-            <Empty title="Select at least two tests">Example: <Link href="/compare?uids=bass2:31,bass2:30">BASS-II M5 vs M4</Link> or <Link href="/compare?uids=saffire1:S1,saffire1:S2">SAFFIRE-I S1 vs S2</Link>.</Empty>
+            <Empty title="Select at least two tests">Example: <Link href="/intelligence/compare?uids=bass2:31,bass2:30">BASS-II M5 vs M4</Link> or <Link href="/intelligence/compare?uids=saffire1:S1,saffire1:S2">SAFFIRE-I S1 vs S2</Link>.</Empty>
           ) : error ? <ErrorState error={error} onRetry={cmp.reload} /> : loading && !data ? <Skeleton rows={10} /> : data && (
             data.mode !== "same_investigation" ? (
               <div className="flex flex-col gap-4">

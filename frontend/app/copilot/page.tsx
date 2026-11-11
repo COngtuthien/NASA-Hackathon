@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui";
-import View from "@/components/views/ResearchView";
+import View from "@/components/views/AssistantView";
 
-export const metadata: Metadata = { title: "External research" };
+export const metadata: Metadata = { title: "Research Copilot" };
 
 export default function Page() {
   return (

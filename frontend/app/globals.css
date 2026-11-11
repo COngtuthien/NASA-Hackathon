@@ -1,19 +1,24 @@
 @import "tailwindcss";
 
-/* SpaceFire AI tokens. Dark aerospace: navy ink, flame orange = action, cyan = data, violet = links.
-   Categorical chart slots validated (dataviz validator, dark mode, surface #101E33): all checks pass. */
+/* SpaceFire AI design tokens (Phase 3).
+   Space is the ground (void → ink → panel); cyan = measured data; electric blue = structure and focus of
+   attention; flame orange = action and combustion; amber = warm highlight; violet = links.
+   Categorical chart slots validated with the dataviz validator (dark mode, surface #101E33): all checks pass. */
 :root {
+  --void: #050a14;
   --ink: #0a1424;
   --panel: #101e33;
   --raised: #16273f;
-  --line: #233654;
+  --line: #1f3150;
   --line-strong: #31496d;
   --text: #e6edf7;
   --text-2: #a9b8cd;
-  --text-3: #7f92ad;
+  --text-3: #8194ae;
   --flame: #ff8a3d;
+  --ember: #ffb547;
   --flame-ink: #1b0d03;
   --data: #4fd1e8;
+  --electric: #5b8cff;
   --link: #b39dff;
   --crit: #ff6b6b;
   --warn: #f5c451;
@@ -23,10 +28,18 @@
   --cat-2: #d87830;
   --cat-3: #a07ceb;
   --cat-4: #56a93b;
+
+  /* motion tokens (mirror components/motion.tsx) */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 600ms;
   color-scheme: dark;
 }
 
 @theme inline {
+  --color-void: var(--void);
   --color-ink: var(--ink);
   --color-panel: var(--panel);
   --color-raised: var(--raised);
@@ -36,8 +49,10 @@
   --color-text-2: var(--text-2);
   --color-text-3: var(--text-3);
   --color-flame: var(--flame);
+  --color-ember: var(--ember);
   --color-flame-ink: var(--flame-ink);
   --color-data: var(--data);
+  --color-electric: var(--electric);
   --color-link: var(--link);
   --color-crit: var(--crit);
   --color-warn: var(--warn);
@@ -45,53 +60,131 @@
   --color-ok: var(--ok);
   --font-sans: var(--font-archivo), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --ease-out-expo: var(--ease-out);
 }
 
 @layer base {
-html,
-body {
-  background: var(--ink);
-  color: var(--text);
+  html {
+    scroll-behavior: smooth;
+  }
+  html,
+  body {
+    background: var(--void);
+    color: var(--text);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Display type: Archivo's width axis carries the voice */
+  .display {
+    font-stretch: 125%;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.05;
+  }
+  .subhead {
+    font-stretch: 112%;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+
+  a {
+    color: var(--link);
+    text-underline-offset: 3px;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--flame);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: rgba(255, 138, 61, 0.35);
+  }
 }
 
-body {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.55;
-  font-variant-numeric: tabular-nums;
-  -webkit-font-smoothing: antialiased;
+/* ---------- atmosphere ---------- */
+
+/* Page-wide sky: two faint light sources (cold data light top-left, warm combustion light far right). */
+.sky {
+  background:
+    radial-gradient(1100px 600px at 12% -8%, rgba(91, 140, 255, 0.09), transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, rgba(255, 138, 61, 0.05), transparent 60%),
+    var(--ink);
 }
 
-/* Display type: Archivo's width axis carries the voice */
-.display {
-  font-stretch: 125%;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-}
-.subhead {
-  font-stretch: 112%;
-  font-weight: 600;
-  letter-spacing: -0.005em;
+/* Fine technical grid, faded out toward the edges. Decorative only. */
+.tech-grid {
+  background-image:
+    linear-gradient(to right, rgba(127, 167, 217, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(127, 167, 217, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 75%);
 }
 
-a {
-  color: var(--link);
-  text-underline-offset: 3px;
-}
-a:hover {
-  text-decoration: underline;
+.hairline-top {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
 }
 
-:focus-visible {
-  outline: 2px solid var(--flame);
-  outline-offset: 2px;
-  border-radius: 4px;
+/* Section kicker: a short rule plus sentence-case label (not an all-caps eyebrow). */
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 13.5px;
+  color: var(--text-2);
+}
+.kicker::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--flame), var(--ember));
 }
 
+/* ---------- ambient loops (paused off-screen via [data-paused], removed for reduced motion) ---------- */
+@keyframes orbit {
+  to { transform: rotate(360deg); }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.025); opacity: 1; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}
+@keyframes drift-x {
+  from { transform: translateX(-6%); }
+  to { transform: translateX(6%); }
+}
+@keyframes flow-dash {
+  to { stroke-dashoffset: -24; }
+}
+.anim-orbit { animation: orbit 60s linear infinite; transform-origin: 50% 50%; }
+.anim-orbit-rev { animation: orbit 90s linear infinite reverse; transform-origin: 50% 50%; }
+.anim-breathe { animation: breathe 6s var(--ease-in-out) infinite; transform-origin: 50% 50%; }
+.anim-twinkle { animation: twinkle 5s ease-in-out infinite; }
+.anim-flow { animation: flow-dash 1.6s linear infinite; }
+[data-paused] .anim-orbit,
+[data-paused] .anim-orbit-rev,
+[data-paused] .anim-breathe,
+[data-paused] .anim-twinkle,
+[data-paused] .anim-flow {
+  animation-play-state: paused;
 }
 
-/* Verbatim source text: mono means "exactly as recorded by NASA" */
+/* ---------- verbatim source text: mono means "exactly as recorded by NASA" ---------- */
 .raw {
   font-family: var(--font-mono);
   font-size: 0.85em;
@@ -138,20 +231,108 @@ table.data td {
   font-size: 14px;
   vertical-align: top;
 }
+table.data tbody tr {
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
 table.data tbody tr:hover td {
   background: #132540;
 }
 td.num, th.num {
   text-align: right;
 }
+table.data.nowrap td {
+  white-space: nowrap;
+}
+
+/* ---------- microinteractions ---------- */
+.press {
+  transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+.press:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+}
+.lift {
+  transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+.lift:hover {
+  transform: translateY(-2px);
+}
+.glow-flame:hover {
+  box-shadow: 0 8px 28px -10px rgba(255, 138, 61, 0.55);
+}
+.glow-data:hover {
+  box-shadow: 0 10px 32px -14px rgba(79, 209, 232, 0.45);
+}
+select, input, textarea {
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+select:focus, input:focus, textarea:focus {
+  box-shadow: 0 0 0 3px rgba(255, 138, 61, 0.16);
+}
+details > summary {
+  transition: color var(--dur-fast) var(--ease-out);
+}
+details[open] > summary {
+  color: var(--text);
+}
+
+/* Chart container refresh after a filter change: opacity only, numbers are never tweened. */
+@keyframes chart-refresh {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
+}
+.chart-refresh {
+  animation: chart-refresh 380ms var(--ease-out);
+}
+
+/* ---------- page transitions (React <ViewTransition>, see components/Shell.tsx) ---------- */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(.page-exit) {
+  animation: 140ms var(--ease-in-out) both vt-fade-out;
+}
+::view-transition-new(.page-enter) {
+  animation: 340ms var(--ease-out) 90ms both vt-rise-in;
+}
+@keyframes vt-fade-out {
+  to { opacity: 0; }
+}
+@keyframes vt-rise-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+  .lift:hover {
+    transform: none;
   }
 }
 
-table.data.nowrap td {
-  white-space: nowrap;
+/* The header stays put while page content transitions underneath it. */
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
 }

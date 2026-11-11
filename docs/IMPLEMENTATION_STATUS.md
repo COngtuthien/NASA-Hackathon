@@ -1,5 +1,20 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 3 status (branch `feature/spacefire-phase3-ui-motion`, 2026-11-11)
+Cinematic product redesign of the frontend only; backend, data, API contracts and NASA files are unchanged.
+
+| Milestone | Status | Notes |
+|---|---|---|
+| M1 IA + design system + motion system | DONE | Navigation grouped as Discover / Scientific analysis / Research intelligence / Trust & methods. Pages renamed by phenomenon; NASA investigations shown as source badges. Old URLs redirect (`next.config.ts` → `LEGACY_REDIRECTS`, mirrored in `lib/routes.ts`). Motion: `components/motion.tsx` (Motion 14.7.1: reveals, stagger, word reveal, parallax, count-up, off-screen pause), React `<ViewTransition>` page transitions, CSS tokens in `app/globals.css`; reduced motion respected |
+| M2 Mission Control | DONE | Hero (labelled illustration, parallax, live counts), scroll story with 4 cited NASA passages, three-scales section, recomputed findings, interactive FLEX preview, workflow tabs, Copilot band |
+| M3 Phenomenon pages | DONE | Flame Extinction & Burning Dynamics (FLEX), Flame Spread & Material Behavior (BASS-II), Spacecraft Fire Dynamics (SAFFIRE-I): phenomenon headers with computed facts, condition consoles, outcome bars, airflow schematics from CSV fields, fixed SAFFIRE timeline bar widths |
+| M4 Research / exploration pages | IN PROGRESS | Copilot, Explorer, Intelligence hub, Evidence & Literature hub, Modeling, Reliability |
+| M5 Validation | PENDING | |
+
+Route map (old → new): `/assistant` → `/copilot`; `/physics/flex` → `/phenomena/flame-extinction`; `/physics/bass-ii` → `/phenomena/flame-spread`;
+`/physics/saffire-i` → `/phenomena/spacecraft-fire`; `/similar` → `/intelligence/similar`; `/compare` → `/intelligence/compare`;
+`/research` → `/evidence/literature`; `/ml/flex` → `/modeling`; `/quality` → `/reliability`. Unchanged: `/`, `/experiments`, `/experiments/{dataset}/{uid}`, `/evidence`, `/methodology`.
+
 ## Phase 2 status (branch `feature/spacefire-phase2`, 2026-11-11)
 | Priority | Status | Evidence |
 |---|---|---|

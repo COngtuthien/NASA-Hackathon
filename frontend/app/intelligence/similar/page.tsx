@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui";
-import View from "@/components/views/BassLabView";
+import View from "@/components/views/SimilarView";
 
-export const metadata: Metadata = { title: "BASS-II physics lab" };
+export const metadata: Metadata = { title: "Find similar experiments" };
 
 export default function Page() {
   return (

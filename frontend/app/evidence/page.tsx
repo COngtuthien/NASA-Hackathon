@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { Skeleton } from "@/components/ui";
 import View from "@/components/views/EvidenceView";
 
-export const metadata: Metadata = { title: "NASA document evidence" };
+export const metadata: Metadata = { title: "NASA documents" };
 
 export default function Page() {
   return (

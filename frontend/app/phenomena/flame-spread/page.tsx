@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui";
-import View from "@/components/views/SaffireView";
+import View from "@/components/views/BassLabView";
 
-export const metadata: Metadata = { title: "SAFFIRE-I case study" };
+export const metadata: Metadata = { title: "Flame Spread & Material Behavior" };
 
 export default function Page() {
   return (

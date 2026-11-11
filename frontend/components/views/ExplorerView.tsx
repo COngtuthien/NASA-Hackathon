@@ -192,7 +192,7 @@ export default function ExplorerView() {
                 {selected.length > 0 && (
                   <div className="mb-3 flex flex-wrap items-center gap-3 rounded-md border border-flame/40 bg-flame/10 px-3 py-2 text-sm">
                     <span>{selected.length} selected (max 5)</span>
-                    <Link href={`/compare?uids=${selected.join(",")}`} className="font-semibold">Compare selected</Link>
+                    <Link href={`/intelligence/compare?uids=${selected.join(",")}`} className="font-semibold">Compare selected</Link>
                     <button className="text-text-2 hover:text-text" onClick={() => setSelected(() => [])}>Clear</button>
                   </div>
                 )}

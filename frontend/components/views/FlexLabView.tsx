@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { FlexMapChart, type FlexPoint } from "@/components/charts";
-import Plot, { baseLayout, CAT } from "@/components/Plot";
-import { Callout, Field, inputCls, Loadable, PageHeader, Panel, Prov } from "@/components/ui";
+import { PhenomenonArt } from "@/components/illustrations";
+import Plot, { baseLayout, CAT, OUTCOME_COLOR } from "@/components/Plot";
+import { Callout, Field, inputCls, Loadable, PageHeader, Panel, Prov, Segmented } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
 
 type MapResp = { points: FlexPoint[]; excluded: { experiment_uid: string; identifier: string; reason: string }[]; n_total: number;
@@ -16,6 +17,35 @@ type D2Rec = { experiment_uid: string; identifier: string; fuel: string; test_en
   t_est_s?: number; ratio?: number; outlier?: boolean };
 type D2Resp = { formula: string; label: string; summary: Record<string, number | null>; by_fuel: { fuel: string; n: number; median_ratio: number; q10: number; q90: number }[];
   exclusion_reasons: Record<string, number>; records: D2Rec[]; assumptions: string[] };
+
+const OUTCOMES = ["Extinction", "Disruption", "Completion"] as const;
+
+/** Stacked share of recorded outcomes per oxygen band. Segment width = count / n for that band; counts are printed. */
+function OutcomeBands({ bands }: { bands: { fuel: string; o2_band: string; n: number; outcomes: Record<string, number> }[] }) {
+  return (
+    <div className="mt-2">
+      <ul className="flex flex-col gap-2.5">
+        {bands.map((b) => (
+          <li key={b.fuel + b.o2_band}>
+            <div className="flex items-baseline justify-between gap-2 text-[13px]">
+              <span>{b.fuel} <span className="text-text-3">{b.o2_band}</span></span><span className="text-text-3">n = {b.n}</span>
+            </div>
+            <div className="mt-1 flex h-2.5 gap-[2px] overflow-hidden rounded-full bg-ink" role="img"
+              aria-label={`${b.fuel}, ${b.o2_band}: ${OUTCOMES.map((o) => `${o} ${b.outcomes[o] ?? 0}`).join(", ")} of ${b.n}`}>
+              {OUTCOMES.map((o) => (b.outcomes[o] ?? 0) > 0 && (
+                <span key={o} title={`${o}: ${b.outcomes[o]}`} className="h-full transition-[flex-grow] duration-500"
+                  style={{ flexGrow: b.outcomes[o], flexBasis: 0, background: OUTCOME_COLOR[o] }} />
+              ))}
+            </div>
+            <p className="mt-0.5 text-[12px] text-text-3">{OUTCOMES.map((o) => `${o} ${b.outcomes[o] ?? 0}`).join(", ")}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 flex flex-wrap gap-3 text-[12px] text-text-2">{OUTCOMES.map((o) => (
+        <span key={o} className="inline-flex items-center gap-1.5"><span aria-hidden className="h-2 w-2 rounded-full" style={{ background: OUTCOME_COLOR[o] }} />{o}</span>))}</p>
+    </div>
+  );
+}
 
 export default function FlexLabView() {
   const sp = useSearchParams();
@@ -65,19 +95,31 @@ export default function FlexLabView() {
 
   return (
     <>
-      <PageHeader title="FLEX droplet physics lab"
-        lead="Isolated methanol and n-heptane droplets burned on the ISS in O₂/N₂ atmospheres diluted with CO₂ or helium. Charts use only rows with the required values; excluded rows are listed with the reason."
-        sections={[{ id: "map", label: "Extinction map" }, { id: "d2", label: "d²-law check" }, { id: "ratio", label: "Extinction diameter" }]} />
-      <div className="mb-5 grid gap-3 rounded-lg border border-line bg-panel p-4 sm:grid-cols-2 lg:grid-cols-5">
-        <Field label="Fuel" htmlFor="ff"><select id="ff" className={inputCls} value={filters.fuel ?? ""} onChange={(e) => set("fuel", e.target.value)}>
-          <option value="">Both</option><option>Methanol</option><option>Heptane</option></select></Field>
-        <Field label="Diluent" htmlFor="fd"><select id="fd" className={inputCls} value={filters.diluent ?? ""} onChange={(e) => set("diluent", e.target.value)}>
-          <option value="">All</option><option value="CO2">CO₂ (header &apos;CO&apos;)</option><option value="He">Helium</option><option value="N2-only">N₂ only</option></select></Field>
-        <Field label="Pressure band" htmlFor="fp"><select id="fp" className={inputCls} value={filters.pressure_band ?? ""} onChange={(e) => set("pressure_band", e.target.value)}>
-          <option value="">All</option><option>~0.7 atm</option><option>~1.0 atm</option><option>~2.0 atm</option><option>2.7-3.1 atm</option></select></Field>
-        <Field label="Min initial O₂ (mole fraction)" htmlFor="fo1"><input id="fo1" type="number" step="0.01" className={inputCls} defaultValue={filters.o2_min ?? ""} key={`a${filters.o2_min}`} onBlur={(e) => set("o2_min", e.target.value)} /></Field>
-        <Field label="Max initial O₂ (mole fraction)" htmlFor="fo2"><input id="fo2" type="number" step="0.01" className={inputCls} defaultValue={filters.o2_max ?? ""} key={`b${filters.o2_max}`} onBlur={(e) => set("o2_max", e.target.value)} /></Field>
-      </div>
+      <PageHeader kicker="Scientific analysis" title="Flame Extinction & Burning Dynamics"
+        lead="Investigating droplet combustion, oxygen availability, burning rates, and extinction behavior in microgravity. Isolated methanol and n-heptane droplets burned aboard the ISS in O₂/N₂ atmospheres diluted with CO₂ or helium. Charts use only rows with the required values; excluded rows are listed with the reason."
+        source={{ source: "FLEX", inv: "PSI-69" }}
+        art={<PhenomenonArt kind="droplet" caption="Illustration of an isolated droplet inside a spherical flame. Not experimental imagery." />}
+        facts={[
+          { value: map.data ? fmt(map.data.n_total) : "…", label: "test rows match these conditions" },
+          { value: map.data ? fmt(map.data.n_plotted) : "…", label: "with numeric O₂ and D₀ (plotted)" },
+          { value: d2.data ? fmt(d2.data.summary.median_ratio) : "…", label: "median reported ÷ d²-law burn time" },
+        ]}
+        sections={[{ id: "conditions", label: "Conditions" }, { id: "map", label: "Extinction map" }, { id: "d2", label: "d²-law check" }, { id: "ratio", label: "Extinction diameter" }]} />
+      <Panel id="conditions" tone="feature" title="Experimental conditions" aside="Every chart and value below follows these selectors">
+        <div className="grid gap-4 xl:grid-cols-[auto_auto_1fr]">
+          <Segmented label="Fuel" value={filters.fuel ?? ""} onChange={(v) => set("fuel", v)}
+            options={[["", "Both fuels"], ["Methanol", "Methanol"], ["Heptane", "n-Heptane"]]} />
+          <Segmented label="Diluent" value={filters.diluent ?? ""} onChange={(v) => set("diluent", v)}
+            options={[["", "All"], ["CO2", "CO₂ (header 'CO')"], ["He", "Helium"], ["N2-only", "N₂ only"]]} />
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Field label="Pressure band" htmlFor="fp"><select id="fp" className={inputCls} value={filters.pressure_band ?? ""} onChange={(e) => set("pressure_band", e.target.value)}>
+              <option value="">All</option><option>~0.7 atm</option><option>~1.0 atm</option><option>~2.0 atm</option><option>2.7-3.1 atm</option></select></Field>
+            <Field label="Min initial O₂ (mole fraction)" htmlFor="fo1"><input id="fo1" type="number" step="0.01" className={inputCls} defaultValue={filters.o2_min ?? ""} key={`a${filters.o2_min}`} onBlur={(e) => set("o2_min", e.target.value)} /></Field>
+            <Field label="Max initial O₂ (mole fraction)" htmlFor="fo2"><input id="fo2" type="number" step="0.01" className={inputCls} defaultValue={filters.o2_max ?? ""} key={`b${filters.o2_max}`} onBlur={(e) => set("o2_max", e.target.value)} /></Field>
+          </div>
+        </div>
+      </Panel>
+      <div className="h-5" />
 
       <div className="flex flex-col gap-5">
         <Panel id="map" title="Extinction map: initial O₂ vs droplet size" aside={map.data ? `n = ${map.data.n_plotted} plotted of ${map.data.n_total} rows matching filters` : undefined}>
@@ -90,10 +132,7 @@ export default function FlexLabView() {
                 </div>
                 <div className="text-sm">
                   <h3 className="subhead text-[15px]">Outcomes by initial O₂ band <Prov kind="COMPUTED" /></h3>
-                  <table className="data mt-2"><thead><tr><th>Fuel, band</th><th className="num">n</th><th>Ext / Disr / Comp</th></tr></thead>
-                    <tbody>{m.outcome_by_o2_band.filter((b) => b.n).map((b) => (
-                      <tr key={b.fuel + b.o2_band}><td>{b.fuel}<span className="block text-xs text-text-3">{b.o2_band}</span></td><td className="num">{b.n}</td>
-                        <td>{b.outcomes.Extinction ?? 0} / {b.outcomes.Disruption ?? 0} / {b.outcomes.Completion ?? 0}</td></tr>))}</tbody></table>
+                  <OutcomeBands bands={m.outcome_by_o2_band.filter((b) => b.n)} />
                   <h3 className="subhead mt-4 text-[15px]">K vs initial O₂ <Prov kind="COMPUTED" /></h3>
                   <ul className="mt-1">{m.correlations.map((c) => <li key={c.fuel}>{c.fuel}: Pearson r = {fmt(c.pearson_r)} (n = {c.n})</li>)}</ul>
                   <p className="mt-1 text-xs text-text-3">Descriptive correlation; adaptive test design, not a random sample. No limiting oxygen index is derived here.</p>

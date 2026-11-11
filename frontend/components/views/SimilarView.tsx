@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Fragment, useState, type FormEvent } from "react";
 import { Button, Callout, Empty, Field, inputCls, Loadable, PageHeader, Panel } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
+import { canonical } from "@/lib/routes";
 
 type Part = { field: string; a: unknown; b: unknown; weight: number; distance: number | null; used: boolean; contribution?: number };
 type Res = { experiment_uid: string; display_id: string; similarity: number; fields_compared: number; parts: Part[];
@@ -88,10 +89,10 @@ export default function SimilarView() {
           </Panel>
         </div>
         <div className="min-w-0">
-          {!path ? <Empty title="Pick a test or enter conditions">Example: <Link href="/similar?uid=flex:145&mode=uid">tests similar to FLEX C01M201</Link>.</Empty> : (
+          {!path ? <Empty title="Pick a test or enter conditions">Example: <Link href="/intelligence/similar?uid=flex:145&mode=uid">tests similar to FLEX C01M201</Link>.</Empty> : (
             <Loadable state={res} rows={8}>
               {(d) => !d.supported ? (
-                <Callout tone="warn">{d.explanation} <Link href={d.compare_url ?? "/compare"}>Open the comparison</Link>.</Callout>
+                <Callout tone="warn">{d.explanation} <Link href={canonical(d.compare_url ?? "/intelligence/compare")}>Open the comparison</Link>.</Callout>
               ) : (
                 <div className="flex flex-col gap-5">
                   <Panel title={mode === "uid" ? <>Closest to <Link href={expHref(uid!)}>{uid}</Link></> : "Closest to your conditions"} aside={`${d.results.length} results`}>

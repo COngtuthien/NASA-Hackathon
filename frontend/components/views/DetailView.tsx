@@ -51,9 +51,9 @@ export default function DetailView() {
             lead={<>Canonical record <span className="raw">{d.experiment_uid}</span>, a {d.experiment_kind} row from investigation {d.investigation_id}.</>}
             actions={
               <>
-                <LinkButton href={`/compare${qs({ uids: d.experiment_uid })}`}>Compare with others</LinkButton>
-                <LinkButton href={`/similar${qs({ uid: d.experiment_uid })}`}>Find similar tests</LinkButton>
-                <LinkButton variant="primary" href={`/assistant${qs({ q: `Explain ${d.investigation} test ${d.display_id}`, uid: d.experiment_uid })}`}>Ask about this test</LinkButton>
+                <LinkButton href={`/intelligence/compare${qs({ uids: d.experiment_uid })}`}>Compare with others</LinkButton>
+                <LinkButton href={`/intelligence/similar${qs({ uid: d.experiment_uid })}`}>Find similar tests</LinkButton>
+                <LinkButton variant="primary" href={`/copilot${qs({ q: `Explain ${d.investigation} test ${d.display_id}`, uid: d.experiment_uid })}`}>Ask about this test</LinkButton>
               </>
             } />
 
@@ -107,7 +107,7 @@ export default function DetailView() {
                         {s.csv_role !== s.documented_role && <span className="ml-1 text-warn">Conflict flagged.</span>}</li>
                     ))}
                   </ul>
-                  <p className="mt-2 text-sm"><Link href="/physics/saffire-i">Open the SAFFIRE-I case study and frame timeline</Link></p>
+                  <p className="mt-2 text-sm"><Link href="/phenomena/spacecraft-fire">Open the SAFFIRE-I case study and frame timeline</Link></p>
                 </Panel>
               )}
 
@@ -148,7 +148,7 @@ export default function DetailView() {
                     {d.quality_flags.map((f) => (
                       <li key={f.flag_id} className="text-sm">
                         <div className="flex flex-wrap items-center gap-2"><Severity level={f.severity} />
-                          <Link href={`/quality?rule_id=${f.rule_id}`} className="font-semibold">{f.rule_id}</Link>
+                          <Link href={`/reliability?rule_id=${f.rule_id}`} className="font-semibold">{f.rule_id}</Link>
                           <span className="text-xs text-text-3">{f.status}</span></div>
                         <p className="mt-1 text-text-2">{f.description}</p>
                         {f.raw_value !== null && f.raw_field && <p className="mt-1 text-xs text-text-3">Cell <span className="raw">{f.raw_field}</span> = <span className="raw">{f.raw_value}</span></p>}
@@ -182,7 +182,7 @@ export default function DetailView() {
                         ))}
                       </ul>
                       <p className="mt-2 text-xs text-text-3">These are citations listed by NASA for the whole investigation; their contents were not read. {p.items.length} listed.</p>
-                      <Link className="text-sm" href={`/research${qs({ q: d.investigation === "FLEX" ? "droplet flame extinction microgravity" : d.investigation === "BASS-II" ? "BASS-II flame spread solid microgravity" : "Saffire spacecraft fire experiment" })}`}>Search external research</Link>
+                      <Link className="text-sm" href={`/evidence/literature${qs({ q: d.investigation === "FLEX" ? "droplet flame extinction microgravity" : d.investigation === "BASS-II" ? "BASS-II flame spread solid microgravity" : "Saffire spacecraft fire experiment" })}`}>Search external research</Link>
                     </>
                   )}
                 </Loadable>

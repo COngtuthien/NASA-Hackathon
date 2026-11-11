@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import Plot, { baseLayout, CAT } from "@/components/Plot";
-import { Callout, Field, inputCls, Loadable, PageHeader, Panel, Prov } from "@/components/ui";
+import { PhenomenonArt } from "@/components/illustrations";
+import { Callout, Loadable, PageHeader, Panel, Prov, Segmented } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
 import BassReportSection from "@/components/views/BassReportSection";
 
@@ -52,17 +53,33 @@ export default function BassLabView() {
 
   return (
     <>
-      <PageHeader title="BASS-II solid-fuel lab"
-        lead="Small solid samples burned in a flow duct inside the ISS Microgravity Science Glovebox. Oxygen, CO₂ and CO were read once before and once after each burn, for the whole ~250 L chamber. These are endpoints, not time series."
-        sections={[{ id: "gas", label: "Gas balance" }, { id: "endpoints", label: "Per-test endpoints" }, { id: "spread", label: "Spread rate (Table 5.1)" }, { id: "outcomes", label: "SIBAL outcomes (Table 7.1)" }, { id: "report", label: "Test matrices" }]} />
-      <div className="mb-5 flex flex-wrap items-end gap-3 rounded-lg border border-line bg-panel p-4">
-        <Field label="Principal investigator" htmlFor="bpi">
-          <select id="bpi" className={inputCls} value={pi} onChange={(e) => router.replace(`${pathname}${qs({ pi: e.target.value })}`, { scroll: false })}>
-            <option value="">All PIs</option>{["Bhattacharjee", "Ferkul", "Miller", "Olson", "Fernandez-Pello", "T'ien"].map((p) => <option key={p}>{p}</option>)}
-          </select>
-        </Field>
-        <p className="max-w-[60ch] text-sm text-text-3">Each PI used one material family, geometry and flow direction, so differences between PIs are confounded. Compare within a PI where possible.</p>
-      </div>
+      <PageHeader kicker="Scientific analysis" title="Flame Spread & Material Behavior"
+        lead="Exploring how material properties, oxygen consumption, and airflow influence solid-fuel combustion. Small solid samples burned in a flow duct inside the ISS Microgravity Science Glovebox. Oxygen, CO₂ and CO were read once before and once after each burn for the whole ~250 L chamber: these are endpoints, not time series."
+        source={{ source: "BASS-II", inv: "PSI-25" }}
+        art={<PhenomenonArt kind="spread" caption="Illustration of a flame spreading along a solid strip into a forced airflow. Not experimental imagery." />}
+        facts={[
+          { value: g.data ? fmt(g.data.summary.n_total) : "…", label: "tests in this selection" },
+          { value: g.data ? fmt(g.data.summary.slope_co2_per_o2_above_resolution) : "…", label: "CO₂ produced per O₂ consumed (fitted slope)" },
+          { value: g.data ? fmt(g.data.summary.pmma_stoichiometric_reference) : "…", label: "PMMA complete-combustion reference (5/6)" },
+        ]}
+        sections={[{ id: "materials", label: "Investigator & material" }, { id: "gas", label: "Gas balance" }, { id: "endpoints", label: "Per-test endpoints" }, { id: "spread", label: "Spread rate (Table 5.1)" }, { id: "outcomes", label: "SIBAL outcomes (Table 7.1)" }, { id: "report", label: "Test matrices" }]} />
+      <Panel id="materials" tone="feature" title="Investigator and material family" aside="Selection applies to the gas-balance views">
+        <div className="flex flex-col gap-3">
+          <Segmented label="Principal investigator" value={pi} onChange={(v) => router.replace(`${pathname}${qs({ pi: v })}`, { scroll: false })}
+            options={[["", "All PIs"], ...["Bhattacharjee", "Ferkul", "Miller", "Olson", "Fernandez-Pello", "T'ien"].map((p) => [p, p] as [string, string])]} />
+          <p className="max-w-[80ch] text-sm text-text-3">Each PI used one material family, geometry and flow direction, so differences between PIs are confounded. Compare within a PI where possible.</p>
+          {g.data && (
+            <ul className="flex flex-wrap gap-2" aria-label="Material classes in this selection">
+              {g.data.by_material_class.map((m) => (
+                <li key={m.material_class} className="rounded-full border border-line-strong/80 bg-ink/60 px-3 py-1 text-[13px]">
+                  {m.material_class} <span className="text-text-3">n = {m.n}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Panel>
+      <div className="h-5" />
       <Loadable state={g} rows={10}>
         {(d) => (
           <div className="flex flex-col gap-5">

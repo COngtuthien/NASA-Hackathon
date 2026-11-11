@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Button, Callout, ErrorState, inputCls, PageHeader, Panel, Prov } from "@/components/ui";
 import { apiFetch, ApiError, expHref, fmt } from "@/lib/api";
+import { canonical } from "@/lib/routes";
 
 type Citation = {
   citation_id: string; source_type: string; title: string; url: string | null; document_id: string | null;
@@ -59,7 +60,7 @@ function DataPreview({ data }: { data: unknown }) {
 function CitationCard({ c, highlight }: { c: Citation; highlight: boolean }) {
   const link = c.source_type === "experiment" && c.experiment_uid ? expHref(c.experiment_uid)
     : (c.source_type === "local_document" || c.source_type === "report_table") && c.document_id ? `/api/v1/documents/${c.document_id}/file${c.page_pdf ? `#page=${c.page_pdf}` : ""}`
-      : c.url;
+      : c.url ? canonical(c.url) : null;
   const external = c.source_type === "external_paper" || c.source_type === "local_document";
   return (
     <li id={`c-${c.citation_id}`} className={`rounded-md border p-3 ${highlight ? "border-flame" : "border-line"}`}>
