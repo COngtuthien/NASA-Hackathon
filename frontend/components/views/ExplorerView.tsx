@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { DUR, EASE, motion } from "@/components/motion";
+import { PHENOMENA, ROUTES } from "@/lib/routes";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Button, Empty, Field, FilterChips, inputCls, Kind, Loadable, PageHeader, Pager, Panel, Severity } from "@/components/ui";
@@ -25,6 +27,36 @@ const FILTERS: Record<string, { cats: string[]; nums: string[]; has?: { field: s
   saffire1: { cats: ["flow_direction"], nums: [] },
 };
 const CONTROL_KEYS = new Set(["dataset", "q", "sort", "order", "page", "page_size"]);
+
+const STEPS = [
+  { label: "Discover", note: "pick an investigation" }, { label: "Filter", note: "conditions and outcomes" },
+  { label: "Inspect", note: "open a row: raw and parsed values" }, { label: "Compare", note: "tick 2–5 rows" },
+  { label: "Find similar", note: "nearest initial conditions" },
+];
+
+/** The explore workflow, shown as a sequence; the last two steps link to their tools. */
+function WorkflowStrip() {
+  return (
+    <ol className="mb-5 flex flex-wrap items-center gap-x-1 gap-y-2 text-[13px]" aria-label="Exploration workflow">
+      {STEPS.map((st, i) => {
+        const href = st.label === "Compare" ? ROUTES.compare : st.label === "Find similar" ? ROUTES.similar : null;
+        const inner = (
+          <>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-line-strong text-[11px] text-text-2">{i + 1}</span>
+            <span className="text-text">{st.label}</span><span className="hidden text-text-3 2xl:inline">{st.note}</span>
+          </>
+        );
+        return (
+          <li key={st.label} className="flex items-center gap-1">
+            {i > 0 && <span aria-hidden className="mx-1 h-px w-5 bg-line-strong" />}
+            {href ? <Link href={href} className="flex items-center gap-1.5 rounded-full px-2 py-1 no-underline hover:bg-raised/60 hover:no-underline">{inner}</Link>
+              : <span className="flex items-center gap-1.5 px-2 py-1">{inner}</span>}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
 
 export default function ExplorerView() {
   const sp = useSearchParams();
@@ -78,7 +110,7 @@ export default function ExplorerView() {
 
   return (
     <>
-      <PageHeader title="Experiment explorer"
+      <PageHeader kicker="Discover" title="Combustion Explorer"
         lead="Every row of the three NASA experiment tables, with the original cell text kept beside the parsed value. Filters, sorting and paging run on the server."
         actions={
           <>
@@ -89,13 +121,21 @@ export default function ExplorerView() {
           </>
         } />
 
-      <div role="tablist" aria-label="Investigation" className="mb-4 flex flex-wrap gap-2">
-        {DATASETS.map((d) => (
-          <button key={d.key} role="tab" aria-selected={dataset === d.key} onClick={() => switchDataset(d.key)}
-            className={`rounded-md border px-3 py-1.5 text-sm ${dataset === d.key ? "border-flame bg-flame/15 text-text" : "border-line-strong text-text-2 hover:text-text"}`}>
-            <span className="font-semibold">{d.label}</span> <span className="text-text-3">{d.inv}, {d.system.toLowerCase()}</span>
-          </button>
-        ))}
+      <WorkflowStrip />
+      <div role="tablist" aria-label="Investigation" className="mb-5 grid gap-2 sm:grid-cols-3">
+        {DATASETS.map((d) => {
+          const ph = PHENOMENA.find((p) => p.dataset === d.key);
+          const on = dataset === d.key;
+          return (
+            <button key={d.key} role="tab" aria-selected={on} onClick={() => switchDataset(d.key)}
+              className={`press relative rounded-xl border px-4 py-3 text-left ${on ? "border-flame/70 text-text" : "border-line-strong/70 text-text-2 hover:border-line-strong hover:text-text"}`}>
+              {on && <motion.span layoutId="explorer-ds" aria-hidden className="absolute inset-0 rounded-xl bg-[linear-gradient(135deg,rgba(255,138,61,0.14),rgba(22,39,63,0.6))]"
+                transition={{ duration: DUR.base, ease: EASE }} />}
+              <span className="relative block text-[15px] font-semibold">{ph?.title ?? d.system}</span>
+              <span className="relative mt-0.5 block text-[12.5px] text-text-3">{d.system} · source {d.label} ({d.inv})</span>
+            </button>
+          );
+        })}
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[260px_1fr]">

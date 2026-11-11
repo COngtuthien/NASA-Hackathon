@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { Button, Callout, ErrorState, inputCls, PageHeader, Panel, Prov } from "@/components/ui";
-import { apiFetch, ApiError, expHref, fmt } from "@/lib/api";
-import { canonical } from "@/lib/routes";
+import { Icon } from "@/components/icons";
+import { DUR, EASE, motion } from "@/components/motion";
+import { Button, Callout, ErrorState, inputCls, PageHeader, Panel, Prov, Segmented } from "@/components/ui";
+import { apiFetch, ApiError, expHref, fmt, useApi } from "@/lib/api";
+import { canonical, PHENOMENA } from "@/lib/routes";
 
 type Citation = {
   citation_id: string; source_type: string; title: string; url: string | null; document_id: string | null;
@@ -81,6 +83,35 @@ function CitationCard({ c, highlight }: { c: Citation; highlight: boolean }) {
   );
 }
 
+const TOOL_LABEL: Record<string, string> = {
+  get_experiment: "Read experiment record", compare_experiments: "Compare tests", get_similar_experiments: "Find similar tests",
+  aggregate_experiments: "Aggregate experiment rows", bass_gas_deltas: "BASS-II gas balance", flex_extinction_map: "FLEX extinction map",
+  saffire_case: "SAFFIRE-I case data", list_quality_flags: "Check quality flags", get_document_evidence: "Search NASA documents",
+  search_literature: "Search external literature", flex_d2_check: "FLEX d²-law check",
+};
+
+/** What actually ran for this answer, in order, with status and duration as reported by the backend. */
+function ToolTrace({ calls }: { calls: Answer["tool_calls"] }) {
+  if (!calls.length) return null;
+  return (
+    <ol className="flex flex-wrap items-center gap-1.5" aria-label="Tools that ran for this answer">
+      {calls.map((t, i) => (
+        <motion.li key={i} className="flex items-center gap-1.5" initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: DUR.base, ease: EASE, delay: i * 0.06 }}>
+          {i > 0 && <span aria-hidden className="h-px w-3 bg-line-strong" />}
+          <span title={JSON.stringify(t.args).slice(0, 200)}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[12.5px] ${t.ok ? "border-ok/35 text-text-2" : "border-crit/50 text-crit"}`}>
+            <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${t.ok ? "bg-ok" : "bg-crit"}`} />
+            {TOOL_LABEL[t.tool] ?? t.tool.replace(/_/g, " ")}
+            {typeof t.ms === "number" && <span className="text-text-3">{fmt(t.ms)} ms</span>}
+            <span className="sr-only">{t.ok ? "succeeded" : `failed${t.error ? `: ${t.error}` : ""}`}</span>
+          </span>
+        </motion.li>
+      ))}
+    </ol>
+  );
+}
+
 function AnswerBlock({ a }: { a: Answer }) {
   const [hl, setHl] = useState<string | null>(null);
   const [kind, setKind] = useState<string>("all");
@@ -98,6 +129,7 @@ function AnswerBlock({ a }: { a: Answer }) {
         <span className={`rounded border px-2 py-0.5 text-sm font-semibold ${st.cls}`}>{st.label}</span>
         <span className="text-sm text-text-3">{st.note}</span>
       </div>
+      <ToolTrace calls={a.tool_calls} />
       {a.answer && <p className="max-w-[78ch] text-[16px] leading-relaxed">{withMarkers(a.answer, cite)}</p>}
       {a.claims.length > 0 && (
         <ul className="flex flex-col gap-2">
@@ -156,6 +188,50 @@ function AnswerBlock({ a }: { a: Answer }) {
   );
 }
 
+type Health = { llm: { configured: boolean; mode: string }; retrieval: { mode: string } };
+
+function ModeBanner() {
+  const h = useApi<Health>("/health");
+  if (!h.data) return null;
+  const on = h.data.llm.configured;
+  return (
+    <div className={`rounded-xl border px-4 py-3 text-sm ${on ? "border-ok/35 bg-ok/[0.05]" : "border-warn/35 bg-warn/[0.05]"}`}>
+      <p className={`font-semibold ${on ? "text-ok" : "text-warn"}`}>{on ? "AI synthesis on" : "Evidence-only mode"}</p>
+      <p className="mt-0.5 text-text-2">{on
+        ? "A language model writes the answer; a verifier removes statements whose citations or numbers do not check out."
+        : "No language model is configured. You get the retrieved passages and computed tool results themselves, never AI-written prose."}</p>
+      <p className="mt-1 text-xs text-text-3">Retrieval: {h.data.retrieval.mode}</p>
+    </div>
+  );
+}
+
+const STARTERS: { label: string; q: string }[] = [
+  { label: "Flame extinction", q: "Which FLEX methanol tests extinguished below 17.5 % O2?" },
+  { label: "Burning rate", q: "Is the d²-law consistent with the reported FLEX burn times?" },
+  { label: "Gas balance", q: "How much CO2 is produced per O2 consumed in BASS-II PMMA tests?" },
+  { label: "Data meaning", q: "Does 'Disruption' mean extinction in FLEX?" },
+];
+
+function EmptyWorkspace({ onPick }: { onPick: (q: string) => void }) {
+  return (
+    <div className="hairline-top relative overflow-hidden rounded-2xl border border-line/80 bg-panel/70 p-6 md:p-8">
+      <div aria-hidden className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(91,140,255,0.16),transparent)]" />
+      <h2 className="display relative text-[26px]">Start with a question</h2>
+      <p className="relative mt-2 max-w-[60ch] text-text-2">Answers show their sources, the tools that ran, and what could not be determined. Pick a starting point:</p>
+      <ul className="relative mt-5 grid gap-3 sm:grid-cols-2">
+        {STARTERS.map((s) => (
+          <li key={s.q}>
+            <button onClick={() => onPick(s.q)} className="lift press w-full rounded-xl border border-line-strong/70 bg-ink/50 p-4 text-left hover:border-flame/60">
+              <span className="text-xs text-flame">{s.label}</span>
+              <span className="mt-1 block text-[14.5px] text-text">{s.q}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export default function AssistantView() {
   const sp = useSearchParams();
   const [q, setQ] = useState(sp.get("q") ?? "");
@@ -208,46 +284,61 @@ export default function AssistantView() {
 
   return (
     <>
-      <PageHeader title="Research assistant"
-        lead="Ask about the three NASA investigations. The assistant runs fixed data tools and searches the documents (and, if you choose, external literature). Every statement must cite a source, and every number must appear in that source." />
-      <div className="grid gap-5 xl:grid-cols-[340px_1fr]">
-        <Panel title="Question">
-          <form onSubmit={submit} className="flex flex-col gap-3">
-            <label htmlFor="aq" className="sr-only">Your question</label>
-            <textarea id="aq" rows={4} className={`${inputCls} resize-y`} value={q} onChange={(e) => setQ(e.target.value)}
-              placeholder="e.g. Is the d²-law consistent with the reported FLEX burn times?" />
-            <fieldset className="text-sm">
-              <legend className="text-text-2">Sources</legend>
-              {[["internal", "NASA data and documents"], ["both", "NASA + external literature"], ["external", "External literature only"]].map(([v, l]) => (
-                <label key={v} className="mt-1 flex items-center gap-2"><input type="radio" name="scope" value={v} checked={scope === v} onChange={() => setScope(v)} />{l}</label>
+      <PageHeader kicker="Discover" title="Research Copilot"
+        lead="Ask about microgravity combustion in the three NASA investigations. The Copilot runs fixed data tools and searches the documents (and, if you choose, external literature). Every statement must cite a source, and every number must appear in that source." />
+      <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
+        <div className="flex flex-col gap-4 xl:sticky xl:top-[calc(var(--hdr,57px)+1.5rem)] xl:self-start">
+          <ModeBanner />
+          <Panel tone="feature">
+            <form onSubmit={submit} className="flex flex-col gap-4">
+              <label htmlFor="aq" className="subhead text-[16px]">Your scientific question</label>
+              <textarea id="aq" rows={5} className={`${inputCls} resize-y text-[15px] leading-relaxed`} value={q} onChange={(e) => setQ(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); void ask(q); } }}
+                placeholder="e.g. Is the d²-law consistent with the reported FLEX burn times?" />
+              <Segmented label="Sources" value={scope} onChange={setScope}
+                options={[["internal", "NASA data + documents"], ["both", "+ external papers"], ["external", "External only"]]} />
+              <fieldset className="text-sm">
+                <legend className="text-text-2">Limit to phenomena (optional)</legend>
+                <div className="mt-1.5 flex flex-col gap-1.5">
+                  {PHENOMENA.map((p) => {
+                    const on = invs.includes(p.inv);
+                    return (
+                      <label key={p.inv} className={`press flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2 ${on ? "border-flame/60 bg-flame/[0.08]" : "border-line-strong/70 hover:border-line-strong"}`}>
+                        <input type="checkbox" className="accent-[var(--flame)]" checked={on}
+                          onChange={() => setInvs((s) => s.includes(p.inv) ? s.filter((x) => x !== p.inv) : [...s, p.inv])} />
+                        <span className="flex-1">{p.short}</span>
+                        <span className="text-xs text-text-3">{p.source}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+              {ctxUid && <p className="text-xs text-text-3">Context: experiment <Link href={expHref(ctxUid)}>{ctxUid}</Link></p>}
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs text-text-3">Ctrl + Enter to ask</span>
+                <Button type="submit" variant="primary" disabled={busy || !q.trim()}>{busy ? `Working… ${elapsed}s` : <>Ask<Icon name="chevron" size={14} /></>}</Button>
+              </div>
+            </form>
+          </Panel>
+          <div className="px-1">
+            <p className="text-sm text-text-3">Try a question it should decline</p>
+            <ul className="mt-1.5 flex flex-col gap-1.5 text-sm">
+              {["What is the exact safe O2 threshold for an occupied spacecraft?", "Does the SAFFIRE workbook contain flame-front measurements?"].map((x) => (
+                <li key={x}><button className="text-left text-link hover:underline" onClick={() => { setQ(x); void ask(x); }}>{x}</button></li>
               ))}
-            </fieldset>
-            <fieldset className="text-sm">
-              <legend className="text-text-2">Limit to investigations (optional)</legend>
-              {[["PSI-69", "FLEX"], ["PSI-25", "BASS-II"], ["PSI-98", "SAFFIRE-I"]].map(([v, l]) => (
-                <label key={v} className="mr-3 mt-1 inline-flex items-center gap-1.5">
-                  <input type="checkbox" checked={invs.includes(v)} onChange={() => setInvs((s) => s.includes(v) ? s.filter((x) => x !== v) : [...s, v])} />{l}
-                </label>
-              ))}
-            </fieldset>
-            {ctxUid && <p className="text-xs text-text-3">Context: experiment <Link href={expHref(ctxUid)}>{ctxUid}</Link></p>}
-            <Button type="submit" variant="primary" disabled={busy || !q.trim()}>{busy ? `Working… ${elapsed}s` : "Ask"}</Button>
-          </form>
-          <p className="mt-4 text-sm text-text-3">Questions it should decline</p>
-          <ul className="mt-1 flex flex-col gap-1 text-sm">
-            {["What is the exact safe O2 threshold for an occupied spacecraft?", "Does the SAFFIRE workbook contain flame-front measurements?"].map((x) => (
-              <li key={x}><button className="text-left text-link hover:underline" onClick={() => { setQ(x); void ask(x); }}>{x}</button></li>
-            ))}
-          </ul>
-        </Panel>
+            </ul>
+          </div>
+        </div>
         <div className="flex min-w-0 flex-col gap-5" aria-live="polite">
-          {turns.length === 0 && (
-            <Panel><p className="text-text-2">Ask a question to begin. Answers show their sources, the tools that ran, and what could not be determined.</p></Panel>
-          )}
+          {turns.length === 0 && <EmptyWorkspace onPick={(x) => { setQ(x); void ask(x); }} />}
           {turns.map((t, i) => (
             <Panel key={i} title={t.q} aside={t.scope === "internal" ? "NASA sources" : t.scope === "both" ? "NASA + external" : "External only"}>
               {t.err ? <ErrorState error={t.err} onRetry={() => void ask(t.q)} /> : t.res ? <AnswerBlock a={t.res} /> : (
-                <p className="text-sm text-text-2">Running data tools and searching sources… {fmt(elapsed)} s</p>
+                <div className="flex items-center gap-3 text-sm text-text-2" role="status">
+                  <span aria-hidden className="relative flex h-3 w-3"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-flame/60" /><span className="relative inline-flex h-3 w-3 rounded-full bg-flame" /></span>
+                  Running data tools and searching sources… {fmt(elapsed)} s
+                  <span className="text-text-3">(the tool list appears when the response arrives)</span>
+                </div>
               )}
             </Panel>
           ))}

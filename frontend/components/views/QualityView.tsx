@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { BarChart } from "@/components/charts";
 import { Field, inputCls, Loadable, PageHeader, Pager, Panel, Severity } from "@/components/ui";
+import { PHENOMENA } from "@/lib/routes";
 import { expHref, INV_LABEL, qs, useApi } from "@/lib/api";
 
 type Flag = { flag_id: string; investigation_id: string; experiment_uid: string | null; display_id: string | null; source_path: string | null;
@@ -12,10 +13,90 @@ type Flag = { flag_id: string; investigation_id: string; experiment_uid: string 
   description: string; derived_value: string | null; evidence_ref: string | null; proposed_correction: string | null; status: string };
 type List = { total: number; page: number; pages: number; items: Flag[] };
 type Summary = { total: number; policy: string; per_investigation: Record<string, { flags: number; experiments_affected: number }>;
+  by_category: Record<string, number>;
   by_investigation_severity: Record<string, number>; rules: { investigation_id: string; rule_id: string; category: string; severity: string;
     status: string; n: number; experiments: number; example: string }[] };
 
 const KEYS = ["investigation", "severity", "category", "rule_id", "status", "q"];
+
+// What each rule category means for a reader judging reliability. Counts come from /quality/summary.
+const CATEGORY: { key: string; title: string; note: string }[] = [
+  { key: "missing", title: "Missing values", note: "Blank or placeholder cells; data completeness" },
+  { key: "document_conflict", title: "Source mismatches", note: "CSV disagrees with a NASA document or report table" },
+  { key: "source_warning", title: "Ambiguous fields", note: "Headers or cells whose meaning needs a caveat" },
+  { key: "unit", title: "Unit questions", note: "Unit missing, mislabelled or inferred" },
+  { key: "inconsistent", title: "Internal inconsistencies", note: "Values that disagree within the dataset" },
+  { key: "duplicate", title: "Duplicates", note: "Repeated IDs or reused samples" },
+  { key: "suspicious", title: "Physically implausible", note: "Values outside what the physics allows" },
+  { key: "invalid", title: "Invalid", note: "Impossible values, excluded from analyses" },
+];
+const STATUS_NOTE: Record<string, string> = {
+  reported: "flagged by a rule, no further review", unresolved: "needs information not in the repository",
+  confirmed: "checked against a second source", disputed: "two NASA sources disagree; both values kept",
+};
+
+type Inv = { items: { investigation_id: string; burns: number }[] };
+
+function Completeness({ s }: { s: Summary }) {
+  const inv = useApi<Inv>("/investigations");
+  const burns = Object.fromEntries((inv.data?.items ?? []).map((i) => [i.investigation_id, i.burns]));
+  const status = s.rules.reduce<Record<string, number>>((m, r) => ({ ...m, [r.status]: (m[r.status] ?? 0) + r.n }), {});
+  const catMax = Math.max(1, ...Object.values(s.by_category));
+  return (
+    <div className="grid gap-5 xl:grid-cols-[1.1fr_1fr]">
+      <Panel title="Rows carrying at least one flag" aside="any severity, including informational">
+        <ul className="flex flex-col gap-4">
+          {PHENOMENA.map((p) => {
+            const n = burns[p.inv];
+            const hit = s.per_investigation[p.inv]?.experiments_affected ?? 0;
+            const pct = n ? (hit / n) * 100 : null;
+            return (
+              <li key={p.inv}>
+                <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
+                  <span><span className="text-text">{p.short}</span> <span className="text-text-3">{p.source}</span></span>
+                  <span className="text-text-2">{hit} of {n ?? "…"} rows{pct !== null ? ` (${pct.toFixed(0)} %)` : ""}</span>
+                </div>
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-ink" role="img" aria-label={`${p.short}: ${hit} of ${n ?? "unknown"} rows have at least one flag`}>
+                  <div className="h-full rounded-full bg-[linear-gradient(90deg,var(--info),var(--warn))] transition-[width] duration-700" style={{ width: pct === null ? 0 : `${pct}%` }} />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-3 text-xs text-text-3">A flagged row is not a bad row: most flags are informational (a blank optional cell, a multi-stage value kept as text). Filter by severity below to see what affects analyses.</p>
+      </Panel>
+      <Panel title="Review status of all flags" aside={`n = ${s.total}`}>
+        <ul className="flex flex-col gap-2.5 text-sm">
+          {["reported", "unresolved", "disputed", "confirmed"].map((k) => (
+            <li key={k} className="flex items-baseline gap-3">
+              <span className="w-14 text-right text-[18px] font-semibold text-data [font-stretch:115%]">{status[k] ?? 0}</span>
+              <span><span className="capitalize text-text">{k}</span> <span className="text-text-3">{STATUS_NOTE[k]}</span></span>
+            </li>
+          ))}
+        </ul>
+      </Panel>
+      <div className="xl:col-span-2">
+        <Panel title="What kind of problems" aside="flags by rule category; select one to filter the list">
+          <ul className="grid gap-x-8 gap-y-3 md:grid-cols-2">
+            {CATEGORY.filter((c) => s.by_category[c.key]).map((c) => (
+              <li key={c.key}>
+                <Link href={`/reliability?category=${c.key}#flags`} scroll={false} className="group block no-underline hover:no-underline">
+                  <div className="flex items-baseline justify-between gap-2 text-sm">
+                    <span className="text-text group-hover:text-flame">{c.title}</span><span className="text-text-2">{s.by_category[c.key]}</span>
+                  </div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink" aria-hidden>
+                    <div className="h-full rounded-full bg-data/70" style={{ width: `${(s.by_category[c.key] / catMax) * 100}%` }} />
+                  </div>
+                  <p className="mt-0.5 text-xs text-text-3">{c.note}</p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      </div>
+    </div>
+  );
+}
 
 export default function QualityView() {
   const sp = useSearchParams();
@@ -39,22 +120,24 @@ export default function QualityView() {
 
   return (
     <>
-      <PageHeader title="Data quality and validation"
+      <PageHeader kicker="Trust & methods" title="Data Reliability"
+        sections={[{ id: "overview", label: "Reliability overview" }, { id: "flags", label: "Flags" }, { id: "rules", label: "Rules" }]}
         lead="Automated rules that flag missing, ambiguous, duplicated, inconsistent or physically implausible values, and conflicts between the CSVs and the NASA documents. Flags annotate the data; nothing in the original files is changed."
         actions={<a className="inline-flex min-h-9 items-center rounded-md border border-line-strong bg-raised px-3 text-sm text-text no-underline hover:border-flame/70"
           href={`/api/v1/quality/flags.csv${qs(f)}`}>Export these flags (CSV)</a>} />
       <Loadable state={sum} rows={4}>
         {(s) => (
-          <div className="mb-5 grid gap-4 md:grid-cols-3">
+          <div id="overview" className="mb-5 grid scroll-mt-36 gap-4 md:grid-cols-3">
             {["PSI-69", "PSI-25", "PSI-98"].map((inv) => (
               <button key={inv} onClick={() => set({ investigation: f.investigation === inv ? null : inv })} aria-pressed={f.investigation === inv}
-                className={`rounded-lg border bg-panel p-4 text-left ${f.investigation === inv ? "border-flame" : "border-line hover:border-line-strong"}`}>
-                <span className="subhead text-[17px]">{INV_LABEL[inv]}</span>
+                className={`lift press hairline-top rounded-xl border bg-panel/80 p-4 text-left ${f.investigation === inv ? "border-flame shadow-[0_0_0_1px_var(--flame)]" : "border-line hover:border-line-strong"}`}>
+                <span className="subhead text-[17px]">{PHENOMENA.find((p) => p.inv === inv)?.short}</span> <span className="text-sm text-text-3">{INV_LABEL[inv]}</span>
                 <span className="block text-sm text-text-2">{s.per_investigation[inv]?.flags ?? 0} flags on {s.per_investigation[inv]?.experiments_affected ?? 0} rows</span>
                 <span className="mt-2 flex flex-wrap gap-1.5">{["critical", "warning", "info"].map((sv) => s.by_investigation_severity[`${inv}|${sv}`] ?
                   <Severity key={sv} level={sv} count={s.by_investigation_severity[`${inv}|${sv}`]} /> : null)}</span>
               </button>
             ))}
+            <div className="md:col-span-3"><Completeness s={s} /></div>
             <div className="md:col-span-3">
               <Panel title="Flags by investigation and severity" aside={`n = ${s.total} flags`}>
                 <BarChart x={["FLEX", "BASS-II", "SAFFIRE-I"]} stack xTitle="Investigation" yTitle="Flags (count)" height={260}
@@ -72,7 +155,7 @@ export default function QualityView() {
       </Loadable>
 
       <div className="grid gap-5 xl:grid-cols-[1fr_420px]">
-        <Panel title="Flags" aside={list.data ? `${list.data.total} matching` : undefined}>
+        <Panel id="flags" title="Flags" aside={list.data ? `${list.data.total} matching` : undefined}>
           <div className="mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <Field label="Severity" htmlFor="qs"><select id="qs" className={inputCls} value={f.severity ?? ""} onChange={(e) => set({ severity: e.target.value || null })}>
               <option value="">All</option><option>critical</option><option>warning</option><option>info</option></select></Field>
@@ -110,7 +193,7 @@ export default function QualityView() {
             )}
           </Loadable>
         </Panel>
-        <Panel title="Rules">
+        <Panel id="rules" title="Rules">
           <Loadable state={sum} rows={8}>
             {(s) => (
               <>

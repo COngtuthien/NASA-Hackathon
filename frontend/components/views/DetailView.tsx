@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PHENOMENA } from "@/lib/routes";
 import { useParams } from "next/navigation";
 import { Callout, Empty, Kind, LinkButton, Loadable, PageHeader, Panel, Prov, Severity } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
@@ -47,7 +48,8 @@ export default function DetailView() {
       {(d) => (
         <>
           <p className="mb-2 text-sm"><Link href={`/experiments?dataset=${d.dataset}`}>← {d.investigation} experiments</Link></p>
-          <PageHeader title={`${d.investigation} ${d.display_id}`}
+          <PageHeader kicker={PHENOMENA.find((p) => p.inv === d.investigation_id)?.title ?? "Experiment record"} title={`${d.investigation} ${d.display_id}`}
+            source={{ source: d.investigation, inv: d.investigation_id }}
             lead={<>Canonical record <span className="raw">{d.experiment_uid}</span>, a {d.experiment_kind} row from investigation {d.investigation_id}.</>}
             actions={
               <>

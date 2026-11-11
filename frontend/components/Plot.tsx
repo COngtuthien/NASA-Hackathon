@@ -21,7 +21,7 @@ export function baseLayout(xTitle: string, yTitle: string, extra: Record<string,
     automargin: true,
   });
   return {
-    paper_bgcolor: "#101E33", plot_bgcolor: "#101E33", font: { family: "Archivo, sans-serif", color: "#E6EDF7" },
+    paper_bgcolor: "#101E33", plot_bgcolor: "#101E33", font: { family: "var(--font-archivo), Archivo, sans-serif", color: "#E6EDF7" },
     margin: { l: 56, r: 16, t: 16, b: 52 }, xaxis: axis(xTitle), yaxis: axis(yTitle),
     legend: { orientation: "h", y: -0.22, font: { color: "#E6EDF7", size: 12 } },
     hoverlabel: { bgcolor: "#16273F", bordercolor: "#31496D", font: { color: "#E6EDF7", family: "Archivo" } },
@@ -36,6 +36,7 @@ export default function Plot({ data, layout, height = 380, onPointClick, ariaLab
   const ref = useRef<PlotEl>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const clickRef = useRef(onPointClick);
+  const drawn = useRef(false);
   useEffect(() => {
     clickRef.current = onPointClick;
   }, [onPointClick]);
@@ -50,6 +51,14 @@ export default function Plot({ data, layout, height = 380, onPointClick, ariaLab
         const Plotly = (mod as unknown as { default?: PlotlyLike }).default ?? (mod as unknown as PlotlyLike);
         return Plotly.react(el, data, { ...layout, height, autosize: true },
           { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"] }).then(() => {
+          // Data changed (e.g. a filter): a short opacity pulse marks the redraw. Values are never tweened,
+          // so no intermediate, non-existent observations are ever drawn.
+          if (drawn.current && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            el.classList.remove("chart-refresh");
+            void el.offsetWidth;
+            el.classList.add("chart-refresh");
+          }
+          drawn.current = true;
           if (el.removeAllListeners) el.removeAllListeners("plotly_click");
           el.on?.("plotly_click", (e) => {
             const cd = e.points?.[0]?.customdata;

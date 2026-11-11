@@ -56,7 +56,7 @@ export default function EvidenceView() {
 
   return (
     <>
-      <PageHeader title="NASA document evidence"
+      <PageHeader kicker="Evidence & Literature" title="NASA document evidence"
         lead="Hybrid search over 20 NASA source documents: keyword ranking (BM25) fused with a local semantic index. Every hit is a verbatim passage with its PDF page; rank labels describe retrieval relevance, not whether a claim is true." />
       <form onSubmit={submit} className="mb-4 grid gap-3 rounded-lg border border-line bg-panel p-4 md:grid-cols-[1fr_180px_180px_auto] md:items-end">
         <Field label="Search" htmlFor="eq"><input id="eq" className={inputCls} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="e.g. M5, BASS-II Table 5.1, FLEX d²-law, SIBAL" /></Field>

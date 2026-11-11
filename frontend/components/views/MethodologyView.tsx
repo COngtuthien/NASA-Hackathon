@@ -13,7 +13,7 @@ export default function MethodologyView() {
   const docs = useApi<{ items: Doc[] }>("/documents");
   return (
     <>
-      <PageHeader title="Methodology and sources"
+      <PageHeader kicker="Trust & methods" title="Methodology"
         lead="How SpaceFire turns NASA files into searchable, citable evidence, and the rules it follows so that nothing is invented." />
       <div className="grid gap-5 xl:grid-cols-2">
         <Panel title="Provenance labels">

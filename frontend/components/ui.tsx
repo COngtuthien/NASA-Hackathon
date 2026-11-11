@@ -128,7 +128,7 @@ export function Panel({ title, children, aside, className = "", id, tone = "defa
     ? "border-electric/25 bg-[linear-gradient(160deg,rgba(91,140,255,0.08),rgba(16,30,51,0.92)_45%)]"
     : "border-line/80 bg-panel/90";
   return (
-    <motion.section id={id} className={`hairline-top scroll-mt-36 rounded-xl border ${bg} ${className}`}
+    <motion.section id={id} className={`hairline-top min-w-0 scroll-mt-36 rounded-xl border ${bg} ${className}`}
       initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.05 }}
       transition={{ duration: DUR.slow, ease: EASE }}>
       {(title || aside) && (

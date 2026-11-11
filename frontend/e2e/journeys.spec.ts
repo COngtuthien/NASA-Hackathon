@@ -58,7 +58,7 @@ test.describe("SpaceFire AI user journeys", () => {
 
   test("assistant without an LLM key returns evidence only, never a fabricated answer", async ({ page }) => {
     await page.goto("/assistant");
-    await page.getByLabel("Your question").fill("Does Disruption definitively mean extinction in FLEX?");
+    await page.getByLabel("Your scientific question").fill("Does Disruption definitively mean extinction in FLEX?");
     await page.getByRole("button", { name: "Ask", exact: true }).click();
     const health = await (await page.request.get("/api/v1/health")).json();
     if (!health.llm.configured) {
@@ -93,7 +93,7 @@ test.describe("SpaceFire AI user journeys", () => {
       body: JSON.stringify({ error: { code: "unavailable", message: "External providers unreachable", request_id: "e2e" } }) }));
     await page.goto(`/research?q=${encodeURIComponent("anything")}`);
     await expect(page.locator("[role=alert]", { hasText: "External providers unreachable" })).toBeVisible();
-    await page.getByRole("link", { name: "Experiment explorer" }).first().click();
+    await page.getByRole("link", { name: "Combustion Explorer" }).first().click();
     await expect(page.getByRole("heading", { name: /\d+ rows/ })).toBeVisible();
   });
 
