@@ -16,7 +16,7 @@ from pathlib import Path
 
 from ..core.config import get_settings
 from ..db.database import connect, init_schema, jdumps, transaction
-from ..curation import bass_report
+from ..curation import bass_report, report_consistency
 from . import bass2, documents, flex, linking, saffire
 from .common import Flag, now_iso, sha256_file
 
@@ -137,8 +137,9 @@ SAF_COLS = ["experiment_uid", "sample", "material", "thickness_cm", "length_cm",
             "o2_kind", "o2_low", "o2_high", "ignition_power_w", "ignition_time_s", "burn_time_s", "flow_direction",
             "camera_1", "camera_2"]
 
-def _apply_curation(b2_records, b2_flags, curated: dict) -> None:
-    """Attach verified report facts to BASS-II rows and turn report/CSV disagreements into flags."""
+def _apply_curation(b2_records, b2_flags, curated: dict) -> dict:
+    """Attach verified report facts to BASS-II rows and turn report/CSV disagreements into flags.
+    Returns the report-internal consistency summary (report-only values checked against each other)."""
     appx = {r["test_id"]: r for r in curated.get("A", {}).get("rows", [])}
     by_uid = {r.experiment_uid: r for r in b2_records}
     for rec in b2_records:
@@ -161,6 +162,7 @@ def _apply_curation(b2_records, b2_flags, curated: dict) -> None:
                     + "; ".join(real) + ". Both values are preserved; neither is corrected.",
                     r["experiment_uid"], rec.source_row, evidence_ref=f"{bass_report.REPORT} PDF p.{r['page_pdf']}",
                     status="disputed"))
+    consistency = _report_consistency(b2_records, b2_flags, curated) if curated else {}
     if appx:
         missing = sorted({r.display_id for r in b2_records} - set(appx))
         for f in b2_flags:
@@ -169,6 +171,45 @@ def _apply_curation(b2_records, b2_flags, curated: dict) -> None:
                                  f"tests and omit {', '.join(missing)} (the 2016 runs), which explains the CSV's 129 rows.")
                 f.evidence_ref = f"{bass_report.REPORT} Appendix A, PDF pp.111-121"
                 f.status = "confirmed"
+    return consistency
+
+
+def _report_consistency(b2_records, b2_flags, curated: dict) -> dict:
+    """Cross-check report-only values (thickness, width, velocity, direction) between report tables, the Appendix A
+    log and the CSV material text; fill a missing flow direction only where Table 7.1's title states it."""
+    by_tid = {r.display_id: r for r in b2_records}
+    res = report_consistency.check(curated, {k: r.normalized.get("material_raw") or "" for k, r in by_tid.items()})
+    for d in res["direction_from_table_7_1"]:
+        rec = by_tid.get(d["test_id"])
+        if rec and not rec.normalized.get("flow_direction"):
+            rec.normalized["flow_direction"] = "Concurrent"
+            rec.normalized["flow_direction_source"] = (
+                f"Summary Report Table 7.1 (PDF p.{d['page_pdf']}), titled 'flat SIBAL fabrics in concurrent flow'; "
+                "the Appendix A direction cell for this test is not a direction")
+    for c in res["conflicts"]:
+        rec = by_tid.get(c["test_id"])
+        b2_flags.append(Flag(
+            "BASS-REPORT-INTERNAL-CONFLICT", "document_conflict", "warning",
+            f"The Summary Report disagrees with itself on {c['field']}: {c['detail']}. Both printed values are kept; "
+            "neither is corrected.", rec.experiment_uid if rec else None, rec.source_row if rec else None,
+            raw_field=c["field"], evidence_ref=f"{bass_report.REPORT} {c['where']}", status="disputed"))
+    sm = res["summary"]
+    if sm["velocity_checked"]:
+        ex = "; ".join(f"{x['test_id']}: report {', '.join(f'{v:g}' for v in x['report_velocity_cm_s'])} cm/s, "
+                       f"display '{x['air_display']}'" for x in sm["low_flow_examples"][:4])
+        b2_flags.append(Flag(
+            "BASS-AIR-DISPLAY-NOT-VELOCITY", "source_warning", "warning",
+            f"'Air display' is the facility readout logged during the test, not the flow velocity the Summary Report "
+            f"analyses. For the {sm['velocity_checked']} tests that appear in Tables 5.1/7.1 and the Appendix A log, "
+            f"only {sm['velocity_all_in_display']} have every report velocity among the logged display readings. At "
+            f"low flow the report gives larger velocities than the display ({ex})"
+            + "".join(f"; {x['test_id']}'s display reads '{x['air_display']}' while Table {x['table']} reports "
+                      f"{', '.join(f'{v:g}' for v in x['report_velocity_cm_s'])} cm/s" for x in sm["display_near_zero"])
+            + ". Use report-table velocities where they exist; treat "
+            "Air display as an approximate setting.", raw_field="Air display",
+            evidence_ref=f"{bass_report.REPORT} Tables 5.1 (PDF p.65), 7.1 and Appendix A (PDF pp.111-121)",
+            status="confirmed"))
+    return res
 
 
 def write_flags(conn, flags: list[Flag], investigation_id: str, source_id_by_uid: dict, default_source: str):
@@ -219,7 +260,7 @@ def run(dry_run: bool = False) -> dict:
         curated = {}
         report["warnings"].append(f"BASS-II report curation failed: {exc!r}")
     curated_rows = [r for t in curated.values() for r in t["rows"]]
-    _apply_curation(b2_records, b2_flags, curated)
+    report["report_consistency"] = _apply_curation(b2_records, b2_flags, curated)
 
     # documents
     doc_rows, chunk_rows, pubs, isa_meta = [], [], [], {}

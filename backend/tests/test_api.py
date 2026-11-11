@@ -246,3 +246,10 @@ def test_ml_gate(client):
         assert mix.status_code == 400
     else:
         assert p.status_code == 501
+
+
+def test_methodology_endpoint(client):
+    m = client.get("/api/v1/methodology").json()
+    assert m["links"]["by_level"]["manually_reviewed"] == 28 and "auto_unreviewed" not in m["links"]["by_level"]
+    assert m["report_consistency"]["thickness_agree"] == 20 and m["quality"]["rules"] > 30
+    assert m["assistant"]["golden_questions"] >= 42 and "llm_api_key" not in str(m).lower()

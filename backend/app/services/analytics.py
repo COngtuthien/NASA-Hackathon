@@ -381,7 +381,22 @@ def bass_report(conn: sqlite3.Connection) -> dict:
                                                         if r["table_id"].startswith("A") and r["verification"] == "verified"])},
         "method": "PyMuPDF table detection + character-level cell reconstruction; each row cross-checked against the "
                   "independent BASS-II CSV (test ID and gas readings). Disagreements are kept and flagged.",
+        "consistency": _report_consistency(conn),
     }
+
+
+def _report_consistency(conn: sqlite3.Connection) -> dict | None:
+    """Report-only values checked against each other at ingestion (app/curation/report_consistency.py)."""
+    row = conn.execute("SELECT value FROM meta WHERE key='ingest_report'").fetchone()
+    rc = (json.loads(row[0]) if row else {}).get("report_consistency") or None
+    if not rc:
+        return None
+    return {"summary": rc["summary"], "conflicts": rc["conflicts"], "velocity": rc["velocity"],
+            "direction_from_table_7_1": rc["direction_from_table_7_1"],
+            "method": "Report-only values (not in the CSV's numeric columns) compared where the report prints them twice "
+                      "or the CSV material text repeats them: thickness (Table 5.1 vs Appendix A vs CSV), width (Tables "
+                      "5.1/7.1 actual 2.2/1.2 cm vs nominal 2/1 cm in Appendix A), velocity (report tables vs the "
+                      "Air display readings logged in Appendix A)."}
 
 
 def _count(vals: list) -> dict:

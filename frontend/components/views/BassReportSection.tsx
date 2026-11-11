@@ -15,7 +15,59 @@ type Resp = {
   table_7_1: { rows: ReportRecord[]; page_pdf: number };
   appendix_a: { verified: number; needs_review: string[]; flow_direction_counts: Record<string, number> };
   method: string;
+  consistency: Consistency | null;
 };
+type VelocityCheck = { test_id: string; table: string; report_velocity_cm_s: number[]; air_display: string; all_in_display: boolean; not_in_display: number[] };
+type Consistency = {
+  summary: { thickness_checked: number; thickness_agree: number; width_checked: number; width_agree: number; velocity_checked: number;
+    velocity_all_in_display: number; low_flow_examples: VelocityCheck[]; display_near_zero: VelocityCheck[]; conflicts: number };
+  conflicts: { test_id: string; field: string; where: string; detail: string }[];
+  direction_from_table_7_1: { test_id: string; page_pdf: number }[];
+  method: string;
+};
+
+function Agreement({ label, n, ok, note, children }: { label: string; n: number; ok: number; note: string; children?: React.ReactNode }) {
+  const pct = n ? (ok / n) * 100 : 0;
+  return (
+    <li className="rounded-lg border border-line p-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <span className="font-semibold text-text">{label}</span>
+        <span className="text-sm text-text-2"><span className={ok === n ? "text-ok" : "text-warn"}>{ok} of {n}</span> consistent</span>
+      </div>
+      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-ink" role="img" aria-label={`${label}: ${ok} of ${n} consistent`}>
+        <div className={`h-full rounded-full ${ok === n ? "bg-ok" : "bg-warn"}`} style={{ width: `${pct}%` }} />
+      </div>
+      <p className="mt-1.5 text-xs text-text-3">{note}</p>
+      {children}
+    </li>
+  );
+}
+
+function ReportTrust({ c }: { c: Consistency }) {
+  const s = c.summary;
+  const v = (x: VelocityCheck) => `${x.test_id}: report ${x.report_velocity_cm_s.join(", ")} cm/s, display “${x.air_display}”`;
+  return (
+    <Panel id="report-trust" title="How far the report-only values can be trusted" aside="cross-checks within the report and against the CSV text">
+      <p className="max-w-[80ch] text-sm text-text-2">Thickness, width, flow velocity and flow direction in Tables 5.1 and 7.1 are not numeric CSV columns, so the CSV cannot verify them directly. Where the report prints a value twice, or the CSV&apos;s material text repeats it, SpaceFire compares the copies. Nothing is corrected; disagreements become flags.</p>
+      <ul className="mt-3 grid gap-3 lg:grid-cols-3">
+        <Agreement label="Sample thickness" n={s.thickness_checked} ok={s.thickness_agree} note="Table 5.1 vs the Appendix A log vs the CSV material text." />
+        <Agreement label="Sample width" n={s.width_checked} ok={s.width_agree} note="Tables print actual widths (2.2 / 1.2 cm); the log and CSV give nominal 2 / 1 cm.">
+          {c.conflicts.filter((x) => x.field === "width_cm").map((x) => (
+            <p key={x.test_id} className="mt-1.5 text-xs text-warn"><Link href={`/reliability?rule_id=BASS-REPORT-INTERNAL-CONFLICT`}>{x.test_id}</Link>: {x.detail}.</p>))}
+        </Agreement>
+        <Agreement label="Flow velocity vs Air display" n={s.velocity_checked} ok={s.velocity_all_in_display}
+          note="Report velocities found among the Air display readings logged for the same test.">
+          <p className="mt-1.5 text-xs text-text-2">The display is a facility readout, not the analysed velocity: at low flow the report gives more than the display ({s.low_flow_examples.slice(0, 2).map(v).join("; ")}){s.display_near_zero.length > 0 && <>, and {s.display_near_zero.map(v).join("; ")}</>}.
+            {" "}<Link href="/reliability?rule_id=BASS-AIR-DISPLAY-NOT-VELOCITY">Read the flag</Link></p>
+        </Agreement>
+      </ul>
+      {c.direction_from_table_7_1.length > 0 && (
+        <p className="mt-3 text-sm text-text-2"><Prov kind="DOC" /> Flow direction for {c.direction_from_table_7_1.map((d) => d.test_id).join(", ")} is taken from the title of Table 7.1 (“flat SIBAL fabrics in concurrent flow”, PDF p.{c.direction_from_table_7_1[0].page_pdf}); their Appendix A direction cell holds another column&apos;s value.</p>
+      )}
+      <p className="mt-2 text-xs text-text-3">Still unverifiable: spread rates, burn times and outcomes are printed once only; figures in the report are not digitized.</p>
+    </Panel>
+  );
+}
 
 const OUTCOME_LABEL: Record<string, string> = { quenched: "Quenched", no_ignition: "No ignition", blowoff: "Blow-off",
   no_blowoff: "No blow-off", ignited: "Ignited (reused)", ignited_one_sided: "One-sided flame (reused)" };
@@ -71,6 +123,7 @@ export default function BassReportSection() {
                   <p className="mt-2 text-text-3">Not plotted: {d.table_5_1.unpaired_tests.map((t) => <Link key={t} className="mr-1.5" href={`/experiments?dataset=bass2&q=${t}`}>{t}</Link>)} (spread rate not tracked, or stage lists of different length).</p>
                 )}
                 <p className="mt-2 text-xs text-text-3">Different tests also differ in O₂ and sides burned; this is a descriptive view of the printed table, not a fitted model.</p>
+                <p className="mt-2 text-xs text-text-3">Velocities are the report&apos;s analysis velocities. The CSV&apos;s “Air display” is a readout and often differs (<a href="#report-trust">see the cross-checks</a>).</p>
               </div>
             </div>
           </Panel>
@@ -96,6 +149,7 @@ export default function BassReportSection() {
               {d.appendix_a.needs_review.length > 0 && <> Rows that disagree with the CSV: {d.appendix_a.needs_review.map((t) => <Link key={t} className="mx-1" href={`/reliability?rule_id=BASS-REPORT-CSV-CONFLICT`}>{t}</Link>)}.</>}</p>
             <p className="mt-1 text-xs text-text-3">{d.method}</p>
           </Panel>
+          {d.consistency && <ReportTrust c={d.consistency} />}
         </div>
       )}
     </Loadable>

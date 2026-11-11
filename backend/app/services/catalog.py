@@ -93,9 +93,12 @@ BASS2 = DatasetDef(
         FieldDef("flow_restrictor", "Flow restrictor", "category", None, "input", "Flow restrictor",
                  "0 = highest flow, 2 = lowest."),
         FieldDef("flow_direction", "Flow direction (report)", "category", None, "input", None,
-                 "From Summary Report Appendix A rows verified against the CSV; not in the CSV itself."),
+                 "From Summary Report Appendix A rows verified against the CSV; for T1, T2, T4 and T15 from the title "
+                 "of Table 7.1 (concurrent flow). Not in the CSV itself."),
         FieldDef("air_single_cm_s", "Air display (single reading)", "numeric", "cm/s", "instrument", "Air display",
-                 "Only when the cell is one number; multi-stage cells are not reduced to one value."),
+                 "Only when the cell is one number; multi-stage cells are not reduced to one value. A facility readout, "
+                 "not the analysed flow velocity: it often differs from the Summary Report's velocities, most at low "
+                 "flow (rule BASS-AIR-DISPLAY-NOT-VELOCITY)."),
         FieldDef("o2_initial", "Initial O2", "numeric", "%vol", "input", "Calibrated  initial O2 % by vol ",
                  kind_col="o2_initial_kind"),
         FieldDef("o2_final", "Final O2", "numeric", "%vol", "output", "Calibrated final O2 % by vol",

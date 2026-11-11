@@ -14,7 +14,8 @@ files at ingestion time; none are copied from the research reports. Values quote
 | FLEX duplicates | `193F001` appears on rows 70 and 73 with different values; canonical key is the source row | CSV |
 | BASS-II `GMT` | **Day of year**, not clock time | BASS-II data FAQ |
 | BASS-II `Fan display` | Fan voltage ×10 mixed with pot settings; **never a velocity** | BASS-II data FAQ |
-| BASS-II `Air display` | Duct probe reading (cm/s, ~1 min response); multi-stage text kept verbatim; single numbers only are exposed numerically | BASS-II data FAQ |
+| BASS-II `Air display` | Duct probe reading (cm/s, ~1 min response); multi-stage text kept verbatim; single numbers only are exposed numerically. **Not the analysed velocity**: for 19 of 47 tests a report-table velocity is absent from the logged readings, most at low flow (flag `BASS-AIR-DISPLAY-NOT-VELOCITY`, §9) | BASS-II data FAQ; Summary Report Tables 5.1/7.1 vs Appendix A |
+| BASS-II flow direction | From verified Appendix A rows; for T1, T2, T4, T15 (whose Appendix A cell holds another column) from the title of Table 7.1, "flat SIBAL fabrics in concurrent flow" | Summary Report PDF p.104 and §7.1.3 |
 | BASS-II gases | Single before/after readings of the ~250 L chamber; not time series | Summary Report; Procedure |
 | SAFFIRE-I rows | 2 burns (S1, S2); F1/F2 rows are image-set descriptors, not burns | CSV; DoD |
 | SAFFIRE-I F2 | CSV says pre-test; DoD says post-flow; manifest timing (F2 starts after S2 ends) supports DoD; kept as **disputed** | DoD; workbook timestamps |
@@ -56,6 +57,14 @@ untrusted data. Each claim must cite existing evidence IDs and every number in i
 claims trigger one corrective retry, then are removed (status `partial` or `insufficient_evidence`). Operational safety
 thresholds are explicitly out of scope.
 
+Provider: Google Gemini (`gemini-3.8-flash`, official `google-genai` SDK) with JSON-schema output and a low thinking level.
+Experiment evidence carries the column-level dataset rules for its fields (e.g. FLEX `Burning rate; mm` is K in mm²/s), and
+the system prompt requires corrected units, because in live testing the model otherwise repeated the raw header unit.
+The verifier checks citations and numbers, not reasoning: a claim can cite the right passage and still over-generalize,
+which is why claims carry a kind and the evidence is shown beside them. Model outputs for an identical evidence pack are
+cached (re-verified on use); after a quota error synthesis pauses until the provider's reset time. Live results:
+`docs/LIVE_LLM_EVALUATION.md`.
+
 ## 7. FLEX ML (P2)
 
 Target log(burn time) for Extinction/Completion rows with exact times (n = 204, 71 atmosphere groups). Features: fuel, X_O₂,
@@ -66,5 +75,33 @@ useful as a sanity check, not as a scientific result. Extinction-vs-Completion c
 
 ## 8. What the local data cannot support
 
-Flame spread rates, flame area, temperatures or gas time series for SAFFIRE-I; BASS-II spread rates or extinction velocities
-(only in report figures); a defensible limiting oxygen index for FLEX; any spacecraft safety threshold.
+Flame spread rates, flame area, temperatures or gas time series for SAFFIRE-I; BASS-II spread rates beyond the Table 5.1
+values, and extinction velocities (only in report figures); a defensible limiting oxygen index for FLEX; any spacecraft
+safety threshold.
+
+## 9. BASS-II report-only values (cross-checked, not re-measured)
+
+The CSV verifies curated report rows by test ID and gas readings. Thickness, width, flow velocity, flow direction, spread
+rate, burn time and outcome are printed only in the Summary Report. Where the report prints a value twice, or the CSV's
+free-text material column repeats it, `app/curation/report_consistency.py` compares the copies at ingestion
+(observed 2026-11-11):
+
+| Value | Compared | Result |
+|---|---|---|
+| Thickness | Table 5.1 vs Appendix A material text vs CSV material text | 20 / 20 agree |
+| Width | Tables 5.1 and 7.1 (actual 2.2 / 1.2 cm) vs nominal 2 / 1 cm in Appendix A and the CSV | 46 / 47 agree; **T24**: Table 7.1 prints 2.2 cm, Appendix A and CSV say "1 cm SIBAL" → flag `BASS-REPORT-INTERNAL-CONFLICT` (both kept) |
+| Velocity | Tables 5.1 / 7.1 velocities vs the Air display readings logged in Appendix A | 28 / 47 tests have every report velocity among the readings. At low flow the report gives larger values (T4: 10 → 2.2 cm/s vs display 9, 1; T13: 4 → 2.2 vs 5, 1); M12's display reads "<1" while Table 5.1 reports 12 and 10 cm/s → flag `BASS-AIR-DISPLAY-NOT-VELOCITY` |
+| Direction | Appendix A (verified rows); Table 7.1 title for 4 SIBAL tests | filled for T1, T2, T4, T15 with the source stated; O1, O2 stay unknown |
+
+Spread rates, burn times and outcomes are printed once and remain faithful transcriptions; plotted values in report
+figures are not digitized. The three report-vs-CSV conflicts (F3, P3a, P22b) remain flagged as disputed, never corrected.
+
+## 10. Test-ID citation links
+
+Links from a passage to a test carry a level: `verified_table_row` (170), `exact_context` (7), `manually_reviewed` (28),
+`auto_unreviewed` (0). The 28 bare BASS-II mentions were each read in context and checked against the curated Appendix A row
+(as-run number, sample, GMT day; `backend/app/curation/link_reviews.json`): 20 are the test's own log row split across text
+chunks, 5 are figure captions about the test (Fig. 5.3 for M17; flight images of B4, B11, B13 on PDF p.49), and 3 are
+cross-references inside another test's notes ("Repeat of B2" in B5's row, "Repeat of clear rod O8b" in O11's, "repeat of
+P22b" in P25's), which the UI labels as not this test's data. Reviews that stop matching after re-chunking are reported as
+stale at ingestion. 551 ID-like mentions remain excluded (oxygen, camera labels, table labels, BASS (I) collisions).

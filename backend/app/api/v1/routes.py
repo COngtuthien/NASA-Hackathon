@@ -24,6 +24,7 @@ from ...services import analytics, assistant, experiments, ml, overview, quality
 from ...services.literature import get_literature, investigation_publications
 
 router = APIRouter(prefix="/api/v1")
+BACKEND_TESTS = Path(__file__).resolve().parents[3] / "tests"
 
 
 def get_conn() -> Iterator[sqlite3.Connection]:
@@ -61,6 +62,32 @@ def health():
             "retrieval": {"lexical": db_ok, "semantic_lsa": vec,
                           "mode": "hybrid (BM25 + LSA)" if vec else "lexical-only (BM25)"},
             "llm": llm_status(), "external": s.public_status()}
+
+
+@router.get("/methodology", tags=["system"])
+def methodology(conn=Depends(get_conn)):
+    """Live figures for the Methodology page: link confidence, report cross-checks, rules, answer verification."""
+    row = conn.execute("SELECT value FROM meta WHERE key='ingest_report'").fetchone()
+    rep = jloads(row[0], {}) if row else {}
+    links = dict(conn.execute("SELECT review_status, count(*) FROM evidence_links GROUP BY 1").fetchall())
+    reviewed = dict(conn.execute("SELECT relation_type, count(*) FROM evidence_links WHERE review_status="
+                                 "'manually_reviewed' GROUP BY 1").fetchall())
+    rules = conn.execute("SELECT count(DISTINCT rule_id), count(*) FROM quality_flags").fetchone()
+    try:
+        cached = conn.execute("SELECT count(*) FROM llm_answer_cache").fetchone()[0]
+    except sqlite3.Error:
+        cached = 0
+    rc = rep.get("report_consistency") or {}
+    golden = BACKEND_TESTS / "golden_questions.jsonl"
+    return {
+        "links": {"by_level": links, "manually_reviewed_by_relation": reviewed,
+                  "excluded": (rep.get("linking") or {}).get("links_by_level", {}).get("excluded")},
+        "report_consistency": rc.get("summary"),
+        "quality": {"rules": rules[0], "flags": rules[1]},
+        "assistant": {"llm": llm_status(), "cached_answers": cached,
+                      "golden_questions": sum(1 for x in golden.read_text(encoding="utf-8").splitlines() if x.strip())
+                      if golden.exists() else None},
+    }
 
 
 # ---------------------------------------------------------------- overview ---
