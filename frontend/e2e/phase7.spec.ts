@@ -81,8 +81,8 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
     await openSection(page, "map");   // Phase 8: the map is an explore-level section
     const map = page.locator("#map");
     await map.scrollIntoViewIfNeeded();
-    await expect(map.getByText("Selected in the 3D studio: C02H101")).toBeVisible({ timeout: 30_000 });
-    await expect(map.getByText("The ringed point is the test selected in the 3D studio.")).toBeVisible();
+    await expect(map.getByText("Selected test: C02H101").first()).toBeVisible({ timeout: 30_000 });   // Phase 9: chart legend + spotlight
+    await expect(map.getByText("The ringed point is the selected test (also shown in the 3D studio).")).toBeVisible();
   });
 
   test("camera: drag rotates, buttons and keys rotate and zoom, reset returns home", async ({ page }) => {

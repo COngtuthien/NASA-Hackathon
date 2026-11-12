@@ -21,12 +21,12 @@ source badge. Old Phase 1–2 URLs (`/physics/flex`, `/assistant`, `/quality`, .
 
 | Group | Page | Route | Notes |
 |---|---|---|---|
-| Discover | Home | `/` | A calm start: hero with a real BASS-II flame photographed on the ISS, the three phenomena, the 3D studios, the Research Copilot (example questions only pre-fill) and how the evidence is checked |
+| Discover | Home | `/` | A calm start: "Why does fire behave differently in space?" with a real BASS-II flame photographed on the ISS; **Start exploring** opens the optional seven-step Discover SpaceFire journey, **Explore on my own** goes to the three phenomena; then the 3D studios, the Research Copilot (example questions only pre-fill) and how the evidence is checked |
 | | Research Copilot | `/copilot` | Gemini-written answers (or evidence only) from whitelisted data tools, hybrid document search and optional external literature; every claim's citations and numbers verified in code; live step-by-step progress streamed from the backend; quota-aware fallback |
 | | Combustion Explorer | `/experiments`, `/experiments/{dataset}/{uid}` | Server-side filters/sort/paging, CSV export (normalized or original cells), raw vs parsed values, provenance, flags, report pages |
-| Scientific analysis | Flame Extinction & Burning Dynamics (FLEX) | `/phenomena/flame-extinction` | **Interactive Science Studio** (3D droplet flame: fuel comparison, Earth vs microgravity, burn timeline, layers, idealized d²-law calculation, guided tour), condition console, extinction map, outcome bars by O₂ band, d²-law consistency check, Dext/D₀ vs O₂, conclusions, literature |
-| | Flame Spread & Material Behavior (BASS-II) | `/phenomena/flame-spread` | **Interactive Science Studio** (3D flow duct: sample types, opposed/concurrent/stagnation flow, spread timeline, two-test material comparison, guided tour), gas balance vs PMMA 5/6 stoichiometry, per-test endpoints, curated Summary Report Tables 5.1, 7.1 and Appendix A, cross-checks, conclusions, literature |
-| | Spacecraft Fire Dynamics (SAFFIRE-I) | `/phenomena/spacecraft-fire` | **Interactive Science Studio** (conceptual 3D duct with camera presets, isolation, S1/S2, NASA footage view, guided tour), airflow/spread-direction schematics, S1/S2 comparison, manifest-derived downlink timeline (no fabricated media), conclusions, literature |
+| Scientific analysis | Flame Extinction & Burning Dynamics (FLEX) | `/phenomena/flame-extinction` | **Interactive Science Studio** (3D droplet flame: fuel comparison, Earth vs microgravity, **Compare with NASA** imagery and recorded values, burn timeline, layers, idealized d²-law calculation, guided tour), clickable charts that select a test (record spotlight), condition console, extinction map, outcome bars by O₂ band, d²-law consistency check, Dext/D₀ vs O₂, conclusions, literature |
+| | Flame Spread & Material Behavior (BASS-II) | `/phenomena/flame-spread` | **Interactive Science Studio** (3D flow duct: sample types, opposed/concurrent/stagnation flow, **Compare with NASA** photographs and recorded geometry, spread timeline, two-test material comparison, guided tour), gas balance vs PMMA 5/6 stoichiometry, per-test endpoints, curated Summary Report Tables 5.1, 7.1 and Appendix A, cross-checks, conclusions, literature |
+| | Spacecraft Fire Dynamics (SAFFIRE-I) | `/phenomena/spacecraft-fire` | **Interactive Science Studio** (conceptual 3D duct with camera presets, isolation, S1/S2, **Compare with NASA** hardware and footage, NASA footage view, guided tour), airflow/spread-direction schematics, S1/S2 comparison, manifest-derived downlink timeline (no fabricated media), conclusions, literature |
 | Research intelligence | Experiment Intelligence | `/intelligence/similar`, `/intelligence/compare` | Gower similarity on initial conditions only; 2–5 test comparison within one investigation |
 | | Evidence & Literature | `/evidence`, `/evidence/literature`, `/evidence/media` | FTS5 BM25 + local LSA with rank reasons and PDF pages; NASA NTRS + OpenAlex search, Crossref DOI verification; scientific media gallery (verified NASA photos, footage and animation with provenance and filters) |
 | | Prediction & Modeling | `/modeling` | Model card, leakage-safe GroupKFold metrics, gated exploratory FLEX burn-time estimate with interval and OOD refusal |
@@ -116,7 +116,7 @@ the API, logged, or bundled into the frontend.
 ```bash
 cd backend && .venv/Scripts/python -m pytest          # 181 tests: unit, providers (Gemini mocked), API, streaming, quota/cache,
                                                        # FLEX unit guard, 42 golden questions, curation, link reviews, report cross-checks
-cd frontend && npx playwright test                     # 75 browser E2E tests (74 run + 1 opt-in; desktop + 390 px mobile); the model is never called
+cd frontend && npx playwright test                     # 94 tests (93 run + 1 opt-in live test; browser tests at 1440 and 390 px plus 6 logic tests); the model is never called
 E2E_LIVE_LLM=1 npx playwright test -g "live Gemini"    # opt-in: one real Gemini request end to end
 backend/.venv/Scripts/python scripts/smoke_test.py     # against a running backend
 cd frontend && npx tsc --noEmit && npx eslint . && npx next build
@@ -148,7 +148,9 @@ never downloaded or analyzed. The original dataset folders are never modified (t
 
 ## Demo script (3–4 minutes)
 
-1. Home: read the three phenomena, then open Flame Extinction; on its page, open "Explore the extinction map" and filter to Methanol.
+1. Home: press "Start exploring" and follow the journey for droplet flames: select a part, switch Earth vs microgravity, then
+   "Compare with NASA" with an example test (K shown in mm²/s with its raw ‘mm’ header). Or, on Flame Extinction, open
+   "Explore the extinction map", filter to Methanol and click a point to inspect that test.
 2. Flame Extinction & Burning Dynamics: press "Start guided exploration" in the 3D studio, switch to Earth 1 g and to methanol when asked,
    then open a real test in NASA Evidence mode and read its idealized d²-law line; below, check the d²-law (median ratio ≈ 1.05).
 3. Flame Spread & Material Behavior: in the studio, play the opposed vs concurrent timeline and compare tests M1 and M2; then gas balance and Table 5.1.

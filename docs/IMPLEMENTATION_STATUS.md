@@ -1,5 +1,45 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 9 status (branch `feature/spacefire-phase9-discovery-experience`, 2026-11-12): COMPLETE
+A scientific discovery layer on top of Phase 8: an optional guided journey, compact but truthful scientific notices,
+a "Compare with NASA" view in every studio, chart points that select real tests, contextual Copilot drafts and a small
+glossary. Frontend only: no backend, data, algorithm, flag severity, Gemini or verifier change. No Gemini request was
+made; the API ran with `LLM_API_KEY=` blank (health `llm.mode = retrieval_only`) and the opt-in live test was not run.
+Design and rules: `docs/SCIENTIFIC_DISCOVERY_UX_V1.md`.
+
+| Milestone | Status | Evidence |
+|---|---|---|
+| M1 Audit and component design | DONE | Reused Disclosure/hash-open, MediaFigure/lightbox, the studio's URL state (`record`, `mode`, `view`, `component`) and the media registry; no new dependency or global state |
+| M2 Smart scientific notices | DONE | `components/scientific-notice.tsx`, `lib/scientific-notices.ts`: severity in text, summary, one visible sentence naming the issue, details on request (original vs interpreted, why, affects, flag rules, sources), `#notice-*` deep links. Contextual warnings beside values via `lib/record-facts.ts` (FLEX K unit and header, BASS-II nominal vs actual width, warning/critical flags) |
+| M3 Discovery journey | DONE | `lib/journey.ts`, `components/journey.tsx`: 7 steps in the URL (`journey`, `topic`), inline card (no overlay), progressbar, Back/Next/End, Escape, focus to heading, optional "do it for me" tasks; Home hero "Start exploring" / "Explore on my own"; Copilot step drafts only |
+| M4 Visual evidence comparison | DONE | Studio view `view=nasa` on all three pages, same canvas; `lib/evidence-compare.ts` offers only experimental media of the same investigation (never BASS (I)), captions state the relation to the selection, recorded values with warnings, "what differs", click-to-play footage |
+| M5 Connected exploration | DONE | FLEX map, d² and ratio charts and the BASS-II gas chart select into `record` (ring + `components/record-spotlight.tsx` with a keyboard select); studio follows, mode kept; record pages link "Show this test on the … chart"; shared record cache; studio no longer steals deep links to other sections |
+| M6 Contextual Copilot and glossary | DONE | `lib/copilot-suggestions.ts` (draft-only links naming the investigation, record UID only); shared local health for AI availability and "AI paused" status; `lib/glossary.ts`, `components/glossary.tsx` (11 terms, popover, Methodology list) |
+| M7 Polish and validation | DONE | Studio stacking isolated (camera toolbar no longer draws over the sticky header); Plotly charts resize when a hidden chart opens (fixed a 390 px overflow); Home kept static (journey part in its own Suspense boundary) |
+| M8 Documentation and delivery | DONE | This section, `docs/SCIENTIFIC_DISCOVERY_UX_V1.md`, README |
+
+Presentation mode was considered and deferred (see the design document, section 13).
+
+### Phase 9 verification (2026-11-12)
+- `tsc --noEmit` clean; `eslint .` clean; `next build` OK (18 routes; Home still static).
+- Playwright on the production build, model disabled: **93 passed, 1 skipped** (opt-in live Gemini, not run).
+  New: `e2e/phase9-unit.spec.ts` (6 logic tests), `e2e/phase9.spec.ts` (11), `e2e/phase9-mobile.spec.ts` (2, 390 px).
+  Assistant requests are counted in the journey, chart and suggestion tests and must be zero.
+- Updated tests (intent unchanged): `phase3` (hero links are now "Start exploring" / "Explore on my own"), `phase7`
+  (ring legend reads "Selected test: …"), `journeys` (the FLEX-P-ZERO check is scoped to the flag browser; with
+  `severity=critical` the top-warnings list also names that rule, which made `.first()` order-dependent).
+- Backend `pytest`: **181 passed**. Smoke: 9 pages 200, `/lab` 307, 8 API endpoints 200.
+- No horizontal overflow at 390 and 768 px on 12 Phase 9 views; screenshots reviewed at 1440, 768 and 390 px.
+  Production console on the new flows: no errors (three.js's existing `THREE.Clock` deprecation warning only).
+- Density at 1440 px (visible words): Home 499, FLEX 890, BASS-II 827, SAFFIRE-I 728, record 300
+  (`docs/ux-audit-phase9-1440.json`), inside the Phase 8 budgets.
+
+### Phase 9 known limitations
+- Plotly points are not keyboard-focusable; the spotlight's labelled select is the keyboard path.
+- Some sample types have no verified NASA image (BASS-II spheres and films, methanol FLEX droplets); the comparison
+  says so rather than substituting.
+- AI availability reflects the health check at page load.
+
 ## Phase 8 status (branch `feature/spacefire-phase8-ux-simplification`, 2026-11-12): COMPLETE
 A human-centred simplification pass: progressive disclosure across the site, "Mission Control" renamed **Home**,
 shorter defaults, and scientific warnings kept visible. Frontend only: no backend, data, algorithm, Gemini or verifier

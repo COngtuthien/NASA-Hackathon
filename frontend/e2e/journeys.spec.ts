@@ -145,7 +145,7 @@ test.describe("SpaceFire AI user journeys", () => {
 
   test("data quality: flag leads to the exact source record", async ({ page }) => {
     await page.goto("/quality?severity=critical");
-    const item = page.locator("li", { hasText: "FLEX-P-ZERO" }).first();
+    const item = page.locator("section#flags li", { hasText: "FLEX-P-ZERO" }).first();   // the flag browser, not the top-warnings summary
     await expect(item).toContainText("row 114");
     await item.getByRole("link", { name: /C11M201/ }).click();
     await expect(page.getByRole("heading", { name: "FLEX C11M201" })).toBeVisible();

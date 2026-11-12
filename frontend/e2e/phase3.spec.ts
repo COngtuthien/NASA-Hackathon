@@ -41,8 +41,9 @@ test.describe("Phase 3: phenomenon-first navigation, motion, preserved functions
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Understanding Fire Beyond Earth", level: 1 })).toBeVisible();
     await expect(page.getByText(/Real flame from NASA.s BASS-II experiment/)).toBeVisible();  // hero says what it shows
-    await expect(page.getByRole("link", { name: "Explore the science" })).toHaveAttribute("href", "#explore");
-    await expect(page.getByRole("link", { name: /Ask Research Copilot/ })).toHaveAttribute("href", "/copilot");
+    // Phase 9: the hero offers the optional guided journey or free exploration (the Copilot has its own section)
+    await expect(page.getByRole("link", { name: "Start exploring" })).toHaveAttribute("href", "/?journey=choose#explore");
+    await expect(page.getByRole("link", { name: "Explore on my own" })).toHaveAttribute("href", "#explore");
     await expect(page.getByLabel("What is in the database")).toHaveCount(0);           // no KPI counters
     const cards = page.getByTestId("phenomenon-card");
     await expect(cards).toHaveCount(3);

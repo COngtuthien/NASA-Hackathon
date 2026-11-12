@@ -125,6 +125,9 @@ including the 11 new tests in `frontend/e2e/phase8.spec.ts`; backend `pytest` **
 (`frontend/scripts/ux-audit.mjs`) records visible words, numbers, badge pills, first-viewport words and page height
 for 15 pages, before and after: `docs/ux-audit-before-1440.json` and `docs/ux-audit-after-1440.json` (plus `docs/ux-audit-after-390.json`).
 
+Phase 9 builds on these conventions (smart notices, journey, NASA comparison, glossary): see
+`docs/SCIENTIFIC_DISCOVERY_UX_V1.md`.
+
 ## 9. Known limitations
 - The audit measures density, not comprehension; no study with real users was run.
 - Long tables (BASS-II endpoints, the SAFFIRE-I manifest, the flag browser) are still dense when opened; they are
