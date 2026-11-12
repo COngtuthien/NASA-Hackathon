@@ -7,6 +7,7 @@ import { Icon } from "@/components/icons";
 import { DUR, EASE, motion } from "@/components/motion";
 import { Button, Callout, ErrorState, inputCls, PageHeader, Panel, Prov, Segmented } from "@/components/ui";
 import { apiFetch, ApiError, apiStream, expHref, fmt, useApi } from "@/lib/api";
+import { JourneyCard, JourneyFinish, useJourney } from "@/components/journey";
 import { canonical, PHENOMENA } from "@/lib/routes";
 
 type Citation = {
@@ -323,6 +324,7 @@ export default function AssistantView() {
     return inv && PHENOMENA.some((p) => p.inv === inv) ? [inv] : [];
   });
   const fromLab = sp.get("from") === "lab";
+  const journey = useJourney();
   const labTopic = sp.get("topic");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
@@ -396,6 +398,12 @@ export default function AssistantView() {
     <>
       <PageHeader kicker="Discover" title="Research Copilot"
         lead="Ask about fire in microgravity. Every statement in the answer cites a NASA source, and every number must appear in that source." />
+      {journey.step === "ask" && (
+        <JourneyCard step="ask" topic={journey.topic} title="Ask a scientific question" className="mb-6">
+          <p>The question below is drafted for you. Edit it if you like. AI generation begins only when you press Ask; nothing has been sent.</p>
+        </JourneyCard>
+      )}
+      {journey.step === "next" && <div className="mb-6"><JourneyFinish topic={journey.topic} /></div>}
       <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
         <div className="flex flex-col gap-4 xl:sticky xl:top-[calc(var(--hdr,57px)+1.5rem)] xl:self-start">
           <ModeBanner />
@@ -428,6 +436,11 @@ export default function AssistantView() {
                   <p className="font-medium text-text">From the Interactive Combustion Lab</p>
                   <p className="mt-0.5">Draft question only: edit it, then press Ask. Sent with it: {invs.length ? `investigation filter ${invs.join(", ")}` : "no investigation filter"}{ctxUid ? ` and experiment ${ctxUid}` : ""}.{labTopic ? ` “${labTopic.slice(0, 60)}” is a conceptual component and appears only in the question text.` : ""} Lab slider positions are never sent.</p>
                 </div>
+              )}
+              {!fromLab && sp.get("draft") && (
+                <p className="rounded-lg border border-electric/40 bg-electric/[0.06] px-3 py-2 text-[12.5px] text-text-2" data-testid="draft-context">
+                  Draft question only: nothing has been sent. Edit it if you like; AI generation begins only when you press Ask.
+                </p>
               )}
               {ctxUid && <p className="text-xs text-text-3">Context: experiment <Link href={expHref(ctxUid)}>{ctxUid}</Link></p>}
               <div className="flex items-center justify-between gap-3">

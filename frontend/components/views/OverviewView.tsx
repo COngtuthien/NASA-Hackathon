@@ -5,13 +5,15 @@
 // workflow tabs now live on the pages they belong to (phenomenon pages, Methodology), not here.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { Suspense, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Icon } from "@/components/icons";
+import { JourneyCard, useJourney } from "@/components/journey";
 import { Credit, MediaImage, RelationBadge } from "@/components/media";
 import { DUR, EASE, motion, Parallax, Reveal, Stagger, StaggerItem, useRichMotion, useScroll, useTransform, WordReveal } from "@/components/motion";
 import { Starfield } from "@/components/illustrations";
 import { Button, inputCls, LinkButton } from "@/components/ui";
 import { qs, useApi } from "@/lib/api";
+import { journeyHref, type Topic } from "@/lib/journey";
 import { ROUTES } from "@/lib/routes";
 import { MEDIA_BY_ID } from "@/lib/scientific-media";
 import type { MotionValue } from "motion/react";
@@ -76,13 +78,16 @@ function Hero() {
           <WordReveal text="Understanding Fire Beyond Earth" className="display text-[clamp(34px,9.4vw,56px)] leading-[1] xl:text-[68px]" />
           <motion.p className="mt-6 max-w-[46ch] text-[18px] leading-relaxed text-text-2" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: DUR.slow, ease: EASE, delay: 0.5 }}>
-            Explore how flames behave in space through real NASA experiments, interactive 3D models and an AI research assistant that cites its sources.
+            Why does fire behave differently in space? Explore real NASA experiments, interactive 3D models and an AI research assistant that cites its sources.
           </motion.p>
           <motion.div className="mt-8 flex flex-wrap gap-3" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: DUR.slow, ease: EASE, delay: 0.65 }}>
-            <LinkButton href="#explore" variant="primary" size="lg">Explore the science</LinkButton>
-            <LinkButton href={ROUTES.copilot} variant="quiet" size="lg"><Icon name="assistant" />Ask Research Copilot</LinkButton>
+            <LinkButton href={journeyHref("choose", null)} variant="primary" size="lg">Start exploring</LinkButton>
+            <LinkButton href="#explore" variant="quiet" size="lg">Explore on my own</LinkButton>
           </motion.div>
+          <motion.p className="mt-3 text-[13px] text-text-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: DUR.slow, delay: 0.8 }}>
+            “Start exploring” is an optional seven-step guided journey; you can leave it at any time.
+          </motion.p>
         </motion.div>
       </Container>
     </section>
@@ -91,28 +96,54 @@ function Hero() {
 
 /* ---------------- B. Three phenomena ---------------- */
 
-const PHENOMENA_CARDS = [
-  { href: ROUTES.extinction, media: "flex-heptane-soot-composite", position: "50% 45%", source: "FLEX", title: "Droplet flames",
+const PHENOMENA_CARDS: { topic: Topic; href: string; media: string; position: string; source: string; title: string; question: string }[] = [
+  { topic: "flex", href: ROUTES.extinction, media: "flex-heptane-soot-composite", position: "50% 45%", source: "FLEX", title: "Droplet flames",
     question: "Why does a burning fuel droplet make a sphere of flame in orbit, and when does it go out?" },
-  { href: ROUTES.spread, media: "bass2-flame-gmt203", position: "55% 50%", source: "BASS-II", title: "Flame spread",
+  { topic: "bass", href: ROUTES.spread, media: "bass2-flame-gmt203", position: "55% 50%", source: "BASS-II", title: "Flame spread",
     question: "How does a flame creep across a solid when there is no gravity to carry heat upward?" },
-  { href: ROUTES.spacecraft, media: "saffire1-hardware-cygnus", position: "50% 55%", source: "SAFFIRE-I", title: "Spacecraft fire",
+  { topic: "saffire", href: ROUTES.spacecraft, media: "saffire1-hardware-cygnus", position: "50% 55%", source: "SAFFIRE-I", title: "Spacecraft fire",
     question: "What happens when a large fire is lit inside a real spacecraft?" },
-] as const;
+];
+
+/** The journey card and journey-aware links. Only this part reads the URL, so the rest of Home stays static. */
+function JourneyExplore() {
+  const journey = useJourney();
+  const choosing = journey.step === "choose";
+  return (
+    <>
+      {choosing && (
+        <JourneyCard step="choose" topic={null} title="Choose a phenomenon" hideNext className="mt-8 max-w-3xl">
+          <p>Pick one of the three experiments below. Each opens its 3D model, and the journey continues there.</p>
+        </JourneyCard>
+      )}
+      <PhenomenaGrid choosing={choosing} />
+    </>
+  );
+}
 
 function ExplorePhenomena() {
-  const rich = useRichMotion();
   return (
     <section id="explore" aria-labelledby="explore-title" className="scroll-mt-16 py-20 md:py-28">
       <Container>
         <SectionTitle id="explore-title" kicker="Explore" title="Three ways fire behaves in space"
           lead="Each investigation burned something different aboard a spacecraft. Pick one to see it in 3D, with NASA's own data." />
+        <Suspense fallback={<PhenomenaGrid choosing={false} />}>
+          <JourneyExplore />
+        </Suspense>
+      </Container>
+    </section>
+  );
+}
+
+function PhenomenaGrid({ choosing }: { choosing: boolean }) {
+  const rich = useRichMotion();
+  return (
         <Stagger className="mt-12 grid gap-5 md:grid-cols-3">
           {PHENOMENA_CARDS.map((c) => {
             const m = MEDIA_BY_ID[c.media];
             return (
               <StaggerItem key={c.href} as="article">
-                <Link href={c.href} className="lift group flex h-full flex-col overflow-hidden rounded-2xl border border-line/60 bg-panel/60 text-text no-underline hover:border-flame/50 hover:no-underline" data-testid="phenomenon-card">
+                <Link href={choosing ? journeyHref("model", c.topic) : c.href} className="lift group flex h-full flex-col overflow-hidden rounded-2xl border border-line/60 bg-panel/60 text-text no-underline hover:border-flame/50 hover:no-underline" data-testid="phenomenon-card">
                   <div className="relative h-52 overflow-hidden bg-black">
                     <MediaImage m={m} sizes="(min-width: 768px) 30vw, 92vw" className={`h-full w-full object-cover transition-transform duration-700 ${rich ? "group-hover:scale-[1.05]" : ""}`}
                       style={{ objectPosition: c.position }} />
@@ -130,8 +161,6 @@ function ExplorePhenomena() {
             );
           })}
         </Stagger>
-      </Container>
-    </section>
   );
 }
 

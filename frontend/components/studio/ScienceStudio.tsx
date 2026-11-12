@@ -15,14 +15,18 @@ import { MediaFigure, MediaPanelBlock } from "@/components/media";
 import { useMedia } from "@/components/motion";
 import BassCompare from "@/components/studio/BassCompare";
 import ControlPanel, { type FlexCoverage } from "@/components/studio/ControlPanel";
+import EvidenceCompare from "@/components/studio/EvidenceCompare";
 import EvidencePanel, { SaffireEvidence, type Detail } from "@/components/studio/EvidencePanel";
 import FuelCompare from "@/components/studio/FuelCompare";
 import GuidedTour from "@/components/studio/GuidedTour";
 import LayerInspector from "@/components/studio/LayerInspector";
 import type { AnySceneProps } from "@/components/studio/StudioViewport";
 import TimelineBar from "@/components/studio/TimelineBar";
+import { Term } from "@/components/glossary";
+import { JourneyCard, useJourney } from "@/components/journey";
 import { Segmented } from "@/components/ui";
-import { fmt, useApi } from "@/lib/api";
+import { fmt, useApi, useCachedApi } from "@/lib/api";
+import { EXAMPLE_RECORD, STEP_COPY, type Topic } from "@/lib/journey";
 import { FUELS, type FuelId } from "@/lib/flex-fuels";
 import { SCENE_BY_ID, type SceneId } from "@/lib/lab-models";
 import {
@@ -56,11 +60,13 @@ class ViewportBoundary extends Component<{ children: ReactNode; fallback: ReactN
   render() { return this.state.failed ? this.props.fallback : this.props.children; }
 }
 
+// "nasa" (Phase 9) keeps the single scene and puts verified NASA media and the recorded values beside it.
 const VIEWS: Record<SceneId, [string, string][]> = {
-  flex: [["single", "Single droplet"], ["fuels", "Compare fuels"], ["gravity", "Earth vs microgravity"]],
-  bass: [["single", "Single sample"], ["compare", "Compare"]],
-  saffire: [["3d", "3D model"], ["footage", "NASA footage"], ["data", "Evidence & metadata"]],
+  flex: [["single", "Single droplet"], ["fuels", "Compare fuels"], ["gravity", "Earth vs microgravity"], ["nasa", "Compare with NASA"]],
+  bass: [["single", "Single sample"], ["compare", "Compare"], ["nasa", "Compare with NASA"]],
+  saffire: [["3d", "3D model"], ["nasa", "Compare with NASA"], ["footage", "NASA footage"], ["data", "Evidence & metadata"]],
 };
+const TOPIC: Record<SceneId, Topic> = { flex: "flex", bass: "bass", saffire: "saffire" };
 
 const TABS: Record<SceneId, [string, string][]> = {
   flex: [["explore", "Explore"], ["layers", "Layers"], ["evidence", "NASA evidence"], ["compare", "Compare"]],
@@ -170,7 +176,9 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
   useEffect(() => {
     // #footage (older links to the SAFFIRE-I footage section) opens the studio's NASA footage view
     if (sceneId === "saffire" && window.location.hash === "#footage") setParams({ view: "footage" });
-    if (["#studio", "#footage"].includes(window.location.hash) || sp.has("record") || sp.has("component") || sp.has("scene") || sp.has("view")) {
+    const h = window.location.hash;
+    const elsewhere = h && !["#studio", "#footage"].includes(h);   // e.g. ?record=…#map targets the chart, not the studio
+    if (!elsewhere && (["#studio", "#footage"].includes(h) || sp.has("record") || sp.has("component") || sp.has("scene") || sp.has("view"))) {
       section.current?.scrollIntoView({ block: "start", behavior: "auto" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -186,7 +194,7 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
 
   const recordUid = sceneId === "saffire" ? `saffire1:${burn}`
     : urlRecord && urlRecord.startsWith(sceneId === "flex" ? "flex:" : "bass2:") ? urlRecord : null;
-  const det = useApi<Detail>(recordUid ? `/experiments/${encodeURIComponent(recordUid)}` : null);
+  const det = useCachedApi<Detail>(recordUid ? `/experiments/${encodeURIComponent(recordUid)}` : null);   // shared with chart spotlights
   const detail = det.data && det.data.experiment_uid === recordUid ? det.data : null;
   const flexMeasured = sceneId === "flex" ? flexMeasuredOf(detail) : null;
   const bassMeasured = sceneId === "bass" ? bassMeasuredOf(detail) : null;
@@ -334,8 +342,8 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
   } else single = { ...base, state: saffire, measured: saffireMeasured };
 
   const measuredLabel = mode !== "evidence" ? null
-    : flexMeasured && view === "single" ? `test ${flexMeasured.label}: D₀ ${flexMeasured.d0_mm ?? "—"} mm, D_ext ${flexMeasured.dext_mm ?? "—"} mm`
-      : bassMeasured && view === "single" ? `test ${bassMeasured.label}: ${bassMeasured.diameter_mm ? `diameter ${bassMeasured.diameter_mm} mm` : bassMeasured.width_cm ? `width ${bassMeasured.width_cm} cm (CSV, nominal)` : "no recorded width"}, ${bassMeasured.flow ?? "flow not recorded"}`
+    : flexMeasured && !split ? `test ${flexMeasured.label}: D₀ ${flexMeasured.d0_mm ?? "—"} mm, D_ext ${flexMeasured.dext_mm ?? "—"} mm`
+      : bassMeasured && !split ? `test ${bassMeasured.label}: ${bassMeasured.diameter_mm ? `diameter ${bassMeasured.diameter_mm} mm` : bassMeasured.width_cm ? `width ${bassMeasured.width_cm} cm (CSV, nominal)` : "no recorded width"}, ${bassMeasured.flow ?? "flow not recorded"}`
         : saffireMeasured ? `burn ${saffireMeasured.label} (${saffireMeasured.flow}); sample size from the Operations document` : null;
 
   function resetParams() {
@@ -362,32 +370,63 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
   const record = detail ? { uid: detail.experiment_uid, label: detail.display_id } : null;
   const fuel = FUELS[mode === "evidence" && flexMeasured?.fuel ? (flexMeasured.fuel as FuelId) : flex.fuel];
   const unavailable = sceneId === "flex" && fuel.id === "Methanol" ? [{ id: "soot", reason: "not drawn: methanol is non-sooting" }] : [];
-  const showViewport = sceneId !== "saffire" || view === "3d";
+  const showViewport = sceneId !== "saffire" || view === "3d" || view === "nasa";
+  const nasaView = view === "nasa";
+
+  // --- Discover SpaceFire journey (only while the URL carries a studio step) --------------------------------------
+  const journey = useJourney();
+  const jStep = journey.step === "model" || journey.step === "interact" || journey.step === "evidence" ? journey.step : null;
+  const jCopy = jStep ? STEP_COPY[TOPIC[sceneId]][jStep] : null;
+  const jDone = jStep === "model" ? selected !== null
+    : jStep === "interact" ? (sceneId === "flex" ? view === "gravity" : sceneId === "bass" ? view === "compare" : saffire.cutaway && selected === "sample")
+      : jStep === "evidence" ? nasaView && !!detail : false;
+  function jAction() {
+    if (jStep === "model") select(sceneId === "flex" ? "flame" : "sample");
+    else if (jStep === "interact") {
+      if (sceneId === "flex") setParams({ view: "gravity" });
+      else if (sceneId === "bass") setParams({ view: "compare" });
+      else { setSaffireLocal((x) => ({ ...x, cutaway: true })); select("sample"); }
+    } else if (jStep === "evidence") {
+      setParams({ view: "nasa", record: recordUid ?? EXAMPLE_RECORD[TOPIC[sceneId]] });
+      setTab("evidence");
+    }
+  }
   const timelineOn = sceneId !== "saffire";
 
   return (
     <section id="studio" ref={section} aria-labelledby={`${sceneId}-studio-title`} data-testid="science-studio"
-      className="relative scroll-mt-28 overflow-hidden rounded-2xl border border-line/60 bg-panel/40 p-3 md:p-5">
+      className="relative isolate scroll-mt-28 overflow-hidden rounded-2xl border border-line/60 bg-panel/40 p-3 md:p-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="max-w-[70ch]">
           <h2 id={`${sceneId}-studio-title`} className="subhead text-[22px] md:text-[26px]">Explore it in 3D</h2>
           <p className="mt-1 text-[14.5px] leading-relaxed text-text-2">{scene.blurb}</p>
         </div>
-        <button type="button" onClick={startTour} data-testid="start-tour"
+        <button type="button" onClick={startTour} data-testid="start-tour" hidden={!!jStep}
           className="press glow-flame inline-flex min-h-10 items-center gap-2 rounded-lg bg-flame px-4 text-[14.5px] font-semibold text-flame-ink">
           <Icon name="chevron" />Start guided exploration
         </button>
       </div>
 
+      {jStep && jCopy && (
+        <JourneyCard step={jStep} topic={TOPIC[sceneId]} title={jCopy.title} task={jCopy.task} done={jDone} onAction={jAction} actionLabel={jCopy.action} className="mt-4">
+          <p>{jCopy.body}</p>
+        </JourneyCard>
+      )}
+
       <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-3">
         <Segmented label="Mode" value={mode} onChange={(v) => { setParams({ mode: v === "evidence" ? "evidence" : null }); if (v === "evidence") setTab("evidence"); }}
           options={[["conceptual", MODES.conceptual.label], ["evidence", MODES.evidence.label]]} />
-        <Segmented label="View" value={view} onChange={(v) => { setParams({ view: v === views[0][0] ? null : v }); if (v !== views[0][0] && tabs.some(([t]) => t === "compare")) setTab("compare"); }}
+        <p className="pb-1.5 text-[12.5px] text-text-3">What these mean: <Term id="conceptual-visualization">Conceptual</Term> · <Term id="nasa-evidence">NASA Evidence</Term></p>
+        <Segmented label="View" value={view} onChange={(v) => { setParams({ view: v === views[0][0] ? null : v }); if (v === "nasa") setTab("evidence"); else if (v !== views[0][0] && tabs.some(([t]) => t === "compare")) setTab("compare"); }}
           options={views} />
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[minmax(0,1fr)_430px]">
+      {/* In "Compare with NASA" the model and the NASA media share the full width; the studio panel moves below. */}
+      <div className={`mt-4 grid gap-4 ${nasaView ? "" : "lg:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[minmax(0,1fr)_430px]"}`}>
         <div className="flex min-w-0 flex-col gap-3">
+          <div className={nasaView ? "grid gap-3 lg:grid-cols-2" : ""}>
+          <div className={nasaView ? "min-w-0 lg:sticky lg:top-[128px] lg:self-start" : "min-w-0"}>
+          {nasaView && <p className="mb-1.5 text-[12px] font-semibold uppercase tracking-wide text-text-3" data-testid="model-label">3D conceptual model</p>}
           <div className="relative h-[58vh] min-h-[360px] overflow-hidden rounded-2xl border border-line/80 bg-[radial-gradient(120%_90%_at_50%_45%,rgba(30,52,90,0.55),rgba(5,10,20,0.98)_70%)] lg:h-[min(72vh,700px)]">
             <div aria-hidden className="tech-grid pointer-events-none absolute inset-0 opacity-60" />
             <div className="absolute inset-0" hidden={!showViewport}>
@@ -422,6 +461,15 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
                 <GuidedTour steps={steps} index={tourIdx} onIndex={(i) => applyStep(i)} onClose={() => setTourIdx(null)} taskDone={taskDone} />
               </div>
             )}
+          </div>
+          </div>
+          {nasaView && (
+            <EvidenceCompare sceneId={sceneId} detail={detail}
+              fuel={sceneId === "flex" ? (flexMeasured?.fuel ?? flex.fuel) : null}
+              sample={sceneId === "bass" ? (bassSampleOf(detail?.normalized.material_class as string) ?? bass.sample) : null}
+              onExample={sceneId === "saffire" ? undefined : () => setParams({ record: EXAMPLE_RECORD[TOPIC[sceneId]] })}
+              exampleLabel={sceneId === "flex" ? "Use example test C02H101" : "Use example test M7"} />
+          )}
           </div>
           {tourIdx !== null && (
             <div className="lg:hidden">
@@ -498,7 +546,7 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
                 <div className="mb-4 rounded-xl border border-electric/40 bg-electric/[0.06] p-3 text-[13px] text-text-2" data-testid="compare-switch">
                   <p>The 3D view is showing a single {sceneId === "flex" ? "droplet" : "sample"}. Switch to a side-by-side view (both halves share one camera):</p>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {views.slice(1).map(([v, label]) => (
+                    {views.slice(1).filter(([v]) => v !== "nasa").map(([v, label]) => (
                       <button key={v} type="button" onClick={() => setParams({ view: v })}
                         className="press rounded-lg border border-electric/60 px-3 py-1.5 text-[13px] text-text hover:bg-electric/10">{label}</button>
                     ))}
