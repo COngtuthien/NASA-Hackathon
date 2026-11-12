@@ -18,6 +18,8 @@ export const LEGACY_REDIRECTS: [string, string][] = [
 const BACKEND_URL =process.env.BACKEND_URL ?? "http://127.0.0.1:8000";
 
 const nextConfig: NextConfig = {
+  // Optional separate build folder (e.g. to verify a build while another `next start` serves `.next`). Default unchanged.
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
