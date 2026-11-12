@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { DUR, EASE, motion } from "@/components/motion";
-import { PHENOMENA, ROUTES } from "@/lib/routes";
+import { PHENOMENA } from "@/lib/routes";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Button, Empty, Field, FilterChips, inputCls, Kind, Loadable, PageHeader, Pager, Panel, Severity } from "@/components/ui";
@@ -19,6 +19,13 @@ type ListResp = {
   filters_applied: Record<string, unknown>;
 };
 
+// `primary`: the filters shown by default; the rest sit behind "Show all filters" (opened automatically when one is active).
+// `key`: the columns shown by default; "Show all columns" reveals every field (kept in the URL as cols=all).
+const PRIMARY: Record<string, string[]> = { flex: ["fuel", "x_o2"], bass2: ["material_class", "pi"], saffire1: ["flow_direction"] };
+const KEY_COLS: Record<string, string[]> = {
+  flex: ["fuel", "x_o2", "d0_mm", "test_end"], bass2: ["pi", "material_class", "flow_direction", "o2_initial"],
+  saffire1: ["sample", "material", "flow_direction", "air_flow_cm_s", "o2_raw", "burn_time_s"],
+};
 const FILTERS: Record<string, { cats: string[]; nums: string[]; has?: { field: string; label: string }[] }> = {
   flex: { cats: ["fuel", "diluent", "pressure_band", "test_end", "series"], nums: ["x_o2", "d0_mm", "pressure_atm"],
     has: [{ field: "dext_mm", label: "Has numeric extinction diameter" }] },
@@ -26,37 +33,9 @@ const FILTERS: Record<string, { cats: string[]; nums: string[]; has?: { field: s
     has: [{ field: "co_final", label: "Final CO is numeric" }, { field: "co2_final", label: "Final CO2 is numeric" }] },
   saffire1: { cats: ["flow_direction"], nums: [] },
 };
-const CONTROL_KEYS = new Set(["dataset", "q", "sort", "order", "page", "page_size"]);
-
-const STEPS = [
-  { label: "Discover", note: "pick an investigation" }, { label: "Filter", note: "conditions and outcomes" },
-  { label: "Inspect", note: "open a row: raw and parsed values" }, { label: "Compare", note: "tick 2–5 rows" },
-  { label: "Find similar", note: "nearest initial conditions" },
-];
-
-/** The explore workflow, shown as a sequence; the last two steps link to their tools. */
-function WorkflowStrip() {
-  return (
-    <ol className="mb-5 flex flex-wrap items-center gap-x-1 gap-y-2 text-[13px]" aria-label="Exploration workflow">
-      {STEPS.map((st, i) => {
-        const href = st.label === "Compare" ? ROUTES.compare : st.label === "Find similar" ? ROUTES.similar : null;
-        const inner = (
-          <>
-            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-line-strong text-[11px] text-text-2">{i + 1}</span>
-            <span className="text-text">{st.label}</span><span className="hidden text-text-3 2xl:inline">{st.note}</span>
-          </>
-        );
-        return (
-          <li key={st.label} className="flex items-center gap-1">
-            {i > 0 && <span aria-hidden className="mx-1 h-px w-5 bg-line-strong" />}
-            {href ? <Link href={href} className="flex items-center gap-1.5 rounded-full px-2 py-1 no-underline hover:bg-raised/60 hover:no-underline">{inner}</Link>
-              : <span className="flex items-center gap-1.5 px-2 py-1">{inner}</span>}
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
+const CONTROL_KEYS = new Set(["dataset", "q", "sort", "order", "page", "page_size", "cols"]);
+/** URL keys that only affect the page layout and are never sent to the API. */
+const VIEW_KEYS = new Set(["cols"]);
 
 export default function ExplorerView() {
   const sp = useSearchParams();
@@ -69,7 +48,7 @@ export default function ExplorerView() {
   const selected = sel.ds === dataset ? sel.list : [];
   const setSelected = (fn: (s: string[]) => string[]) => setSel({ ds: dataset, list: fn(selected) });
 
-  const apiPath = `/experiments?${new URLSearchParams({ ...Object.fromEntries(sp.entries()), dataset }).toString()}`;
+  const apiPath = `/experiments?${new URLSearchParams({ ...Object.fromEntries([...sp.entries()].filter(([k]) => !VIEW_KEYS.has(k))), dataset }).toString()}`;
   const list = useApi<ListResp>(apiPath);
 
   function update(patch: Record<string, string | null>, resetPage = true) {
@@ -88,7 +67,7 @@ export default function ExplorerView() {
 
   const exportParams = useMemo(() => {
     const p = new URLSearchParams();
-    for (const [k, v] of sp.entries()) if (!["sort", "order", "page", "page_size"].includes(k)) p.set(k, v);
+    for (const [k, v] of sp.entries()) if (!["sort", "order", "page", "page_size", ...VIEW_KEYS].includes(k)) p.set(k, v);
     p.set("dataset", dataset);
     return p;
   }, [sp, dataset]);
@@ -107,21 +86,20 @@ export default function ExplorerView() {
   }
 
   const cfg = FILTERS[dataset] ?? FILTERS.flex;
+  const primary = PRIMARY[dataset] ?? [];
+  const allCols = sp.get("cols") === "all";
+  const advancedActive = activeFilters.some((k) => {
+    const name = k.replace(/^(f_|min_|max_)/, "");
+    return k === "has" || !primary.includes(name);
+  });
+  const [moreOpen, setMoreOpen] = useState<boolean | null>(null);
+  const showMore = moreOpen ?? advancedActive;
 
   return (
     <>
-      <PageHeader kicker="Discover" title="Combustion Explorer"
-        lead="Every row of the three NASA experiment tables, with the original cell text kept beside the parsed value. Filters, sorting and paging run on the server."
-        actions={
-          <>
-            <a className="inline-flex min-h-9 items-center rounded-md border border-line-strong bg-raised px-3 text-sm text-text no-underline hover:border-flame/70"
-              href={`/api/v1/exports/experiments.csv?${exportParams.toString()}&variant=normalized`}>Export filtered (normalized)</a>
-            <a className="inline-flex min-h-9 items-center rounded-md border border-line-strong bg-raised px-3 text-sm text-text no-underline hover:border-flame/70"
-              href={`/api/v1/exports/experiments.csv?${exportParams.toString()}&variant=original`}>Export filtered (original cells)</a>
-          </>
-        } />
+      <PageHeader kicker="Experiments" title="Combustion Explorer"
+        lead="Browse every NASA test. Open one to see all its recorded values, or tick two to five to compare them." />
 
-      <WorkflowStrip />
       <div role="tablist" aria-label="Investigation" className="mb-5 grid gap-2 sm:grid-cols-3">
         {DATASETS.map((d) => {
           const ph = PHENOMENA.find((p) => p.dataset === d.key);
@@ -132,7 +110,7 @@ export default function ExplorerView() {
               {on && <motion.span layoutId="explorer-ds" aria-hidden className="absolute inset-0 rounded-xl bg-[linear-gradient(135deg,rgba(255,138,61,0.14),rgba(22,39,63,0.6))]"
                 transition={{ duration: DUR.base, ease: EASE }} />}
               <span className="relative block text-[15px] font-semibold">{ph?.title ?? d.system}</span>
-              <span className="relative mt-0.5 block text-[12.5px] text-text-3">{d.system} · source {d.label} ({d.inv})</span>
+              <span className="relative mt-0.5 block text-[12.5px] text-text-3">{d.label} · {d.system}</span>
             </button>
           );
         })}
@@ -148,26 +126,33 @@ export default function ExplorerView() {
           </form>
           <Loadable state={list} rows={6}>
             {(d) => (
-              <div className="flex flex-col gap-4">
-                {cfg.cats.map((c) => {
+              <div className="flex flex-col gap-4" id="more-filters">
+                {[...cfg.cats.filter((c) => primary.includes(c)), "__more__", ...cfg.cats.filter((c) => !primary.includes(c))].map((c) => {
+                  if (c === "__more__") return (
+                    <button key="more" type="button" aria-expanded={showMore} aria-controls="more-filters" onClick={() => setMoreOpen(!showMore)}
+                      className="order-last -mb-1 text-left text-[13.5px] text-link hover:underline" data-testid="more-filters">{showMore ? "Hide extra filters" : "Show all filters"}</button>
+                  );
+                  const extra = !primary.includes(c);
                   const facet = d.facets[c] as { value: string; count: number }[] | undefined;
                   const f = d.fields.find((x) => x.name === c);
                   if (!facet) return null;
                   return (
-                    <Field key={c} label={f?.label ?? c} htmlFor={`f-${c}`}>
+                    <div key={c} hidden={extra && !showMore} className={extra ? "order-last" : ""}>
+                    <Field label={f?.label ?? c} htmlFor={`f-${c}`}>
                       <select id={`f-${c}`} className={inputCls} value={sp.get(`f_${c}`) ?? ""}
                         onChange={(e) => update({ [`f_${c}`]: e.target.value || null })}>
                         <option value="">All</option>
                         {facet.map((v) => <option key={v.value ?? "null"} value={v.value ?? ""}>{v.value ?? "(none)"} ({v.count})</option>)}
                       </select>
                     </Field>
+                    </div>
                   );
                 })}
                 {cfg.nums.map((n) => {
                   const facet = d.facets[n] as { min: number; max: number } | undefined;
                   const f = d.fields.find((x) => x.name === n);
                   return (
-                    <fieldset key={n} className="text-sm">
+                    <fieldset key={n} className={`text-sm ${primary.includes(n) ? "" : "order-last"}`} hidden={!primary.includes(n) && !showMore}>
                       <legend className="text-text-2">{f?.label} {f?.unit ? `(${f.unit})` : ""}</legend>
                       <div className="mt-1 flex gap-2">
                         <input aria-label={`${f?.label} minimum`} className={`${inputCls} w-full`} type="number" step="any"
@@ -188,7 +173,7 @@ export default function ExplorerView() {
                   const cur = (sp.get("has") ?? "").split("|").filter(Boolean);
                   const on = cur.includes(h.field);
                   return (
-                    <label key={h.field} className="flex items-center gap-2 text-sm">
+                    <label key={h.field} className="order-last flex items-center gap-2 text-sm" hidden={!showMore}>
                       <input type="checkbox" checked={on} onChange={() => {
                         const nx = on ? cur.filter((x) => x !== h.field) : [...cur, h.field];
                         update({ has: nx.join("|") || null });
@@ -236,6 +221,11 @@ export default function ExplorerView() {
                     <button className="text-text-2 hover:text-text" onClick={() => setSelected(() => [])}>Clear</button>
                   </div>
                 )}
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-[13px]">
+                  <span className="text-text-3">{allCols ? "Showing every recorded field." : "Showing the key fields."}</span>
+                  <button type="button" aria-pressed={allCols} onClick={() => update({ cols: allCols ? null : "all" }, false)} className="text-link hover:underline" data-testid="all-columns">
+                    {allCols ? "Show key fields only" : "Show all columns"}</button>
+                </div>
                 {d.items.length === 0 ? (
                   <Empty title="No rows match these filters">Widen a numeric range or reset the filters.</Empty>
                 ) : (
@@ -247,7 +237,7 @@ export default function ExplorerView() {
                           <th scope="col">
                             <button onClick={() => toggleSort("experiment_uid")} className="font-semibold">Source row{sort === "experiment_uid" ? (order === "asc" ? " ▲" : " ▼") : ""}</button>
                           </th>
-                          {Object.keys(d.items[0].fields).map((c) => {
+                          {Object.keys(d.items[0].fields).filter((c) => allCols || (KEY_COLS[dataset] ?? []).includes(c)).map((c) => {
                             const f = d.fields.find((x) => x.name === c);
                             return (
                               <th key={c} scope="col" className={f?.kind === "numeric" ? "num" : ""} title={f?.source_header ? `Source column: ${f.source_header}` : f?.note ?? undefined}>
@@ -271,7 +261,7 @@ export default function ExplorerView() {
                             </td>
                             <td><Link href={expHref(it.experiment_uid)} className="font-semibold">{it.display_id}</Link>
                               <span className="block text-xs text-text-3">row {it.source_row}</span></td>
-                            {Object.entries(it.fields).map(([c, v]) => {
+                            {Object.entries(it.fields).filter(([c]) => allCols || (KEY_COLS[dataset] ?? []).includes(c)).map(([c, v]) => {
                               const f = d.fields.find((x) => x.name === c);
                               const kindCol = it.value_kinds?.[c];
                               return (
@@ -296,6 +286,10 @@ export default function ExplorerView() {
                   <Pager page={d.page} pages={d.pages} onPage={(p) => update({ page: String(p) }, false)} />
                   <Button variant="ghost" onClick={list.reload}>Refresh</Button>
                 </div>
+                <p className="mt-3 text-[13px] text-text-3">
+                  Download these rows: <a href={`/api/v1/exports/experiments.csv?${exportParams.toString()}&variant=normalized`}>Export filtered (normalized)</a>{" · "}
+                  <a href={`/api/v1/exports/experiments.csv?${exportParams.toString()}&variant=original`}>Export filtered (original cells)</a>
+                </p>
               </Panel>
             )}
           </Loadable>

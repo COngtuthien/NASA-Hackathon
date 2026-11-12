@@ -157,13 +157,18 @@ function ToolTrace({ calls }: { calls: Answer["tool_calls"] }) {
 function AnswerBlock({ a }: { a: Answer }) {
   const [hl, setHl] = useState<string | null>(null);
   const [kind, setKind] = useState<string>("all");
+  // Sources start open when there is no AI-written answer (the evidence is the answer), closed otherwise.
+  const [srcOpen, setSrcOpen] = useState(!a.answer);
+  const [allClaims, setAllClaims] = useState(false);
+  const CLAIMS_SHOWN = 3;
   const st = STATUS[a.status] ?? STATUS.retrieval_only;
   const counts = a.citations.reduce<Record<string, number>>((m, c) => ({ ...m, [c.source_type]: (m[c.source_type] ?? 0) + 1 }), {});
   const shown = kind === "all" ? a.citations : a.citations.filter((c) => c.source_type === kind);
   const cite = (id: string) => {
     setKind("all");
     setHl(id);
-    document.getElementById(`c-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setSrcOpen(true);
+    requestAnimationFrame(() => document.getElementById(`c-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
   };
   return (
     <div className="flex flex-col gap-4">
@@ -171,7 +176,6 @@ function AnswerBlock({ a }: { a: Answer }) {
         <span className={`rounded border px-2 py-0.5 text-sm font-semibold ${st.cls}`}>{st.label}</span>
         <span className="text-sm text-text-3">{st.note}</span>
       </div>
-      <ToolTrace calls={a.tool_calls} />
       {a.llm.configured && !a.llm.error && (a.llm.calls || a.llm.cached) ? (
         <p className="text-xs text-text-3">
           Written by {a.llm.model_version ?? a.llm.model}
@@ -184,10 +188,12 @@ function AnswerBlock({ a }: { a: Answer }) {
         <Callout tone="warn">The language model could not answer ({a.llm.error === "rate_limit" ? "free-tier quota reached" : a.llm.error.replace(/_/g, " ")}
           {a.llm.retry_after_s ? `; try again in about ${Math.ceil(a.llm.retry_after_s)} s` : ""}). Showing the retrieved and computed evidence only; nothing below is AI-written.</Callout>
       )}
-      {a.answer && <p className="max-w-[78ch] text-[16px] leading-relaxed">{withMarkers(a.answer, cite)}</p>}
+      {a.answer && <p className="max-w-[72ch] text-[17px] leading-relaxed text-text" data-testid="answer-text">{withMarkers(a.answer, cite)}</p>}
       {a.claims.length > 0 && (
+        <div>
+        <h3 className="subhead mb-2 text-[15px]">Supporting statements</h3>
         <ul className="flex flex-col gap-2">
-          {a.claims.map((c, i) => (
+          {a.claims.slice(0, allClaims ? undefined : CLAIMS_SHOWN).map((c, i) => (
             <li key={i} className="rounded-md border border-line bg-ink/40 p-3 text-sm">
               <div className="flex flex-wrap items-start gap-2"><Prov kind={c.kind} /><span className="flex-1">{c.text}</span>
                 <span className="flex gap-1">{c.citation_ids.map((id) => (
@@ -196,18 +202,30 @@ function AnswerBlock({ a }: { a: Answer }) {
             </li>
           ))}
         </ul>
+        {a.claims.length > CLAIMS_SHOWN && (
+          <button type="button" aria-expanded={allClaims} onClick={() => setAllClaims(!allClaims)} className="mt-2 text-[13.5px] text-link hover:underline">
+            {allClaims ? "Show fewer statements" : `Show all ${a.claims.length} statements`}</button>
+        )}
+        </div>
       )}
       {!a.llm.configured && a.status !== "answered" && (
         <Callout tone="warn">AI synthesis is not configured ({a.llm.reason}). The sources below were retrieved and the numbers computed without a language model; nothing here is AI-written.</Callout>
       )}
       {a.limitations.length > 0 && (
-        <div>
+        <div className="rounded-lg border-l-2 border-warn/50 pl-3">
           <h3 className="subhead text-[15px]">Limitations</h3>
           <ul className="mt-1 list-disc pl-5 text-sm text-text-2">{a.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
         </div>
       )}
-      <div>
-        <h3 className="subhead text-[15px]">Sources ({a.citations.length})</h3>
+      <div className="rounded-xl border border-line/60">
+        <h3 className="subhead text-[15px]">
+          <button type="button" aria-expanded={srcOpen} aria-controls={`src-${a.trace_id}`} onClick={() => setSrcOpen(!srcOpen)}
+            className="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3.5 py-2.5 text-left" data-testid="sources-toggle">
+            <span>Sources ({a.citations.length})</span>
+            <span className="text-[13px] font-normal text-link">{srcOpen ? "Hide sources" : a.citations.length ? `Show sources: ${Object.keys(counts).map((k) => SOURCE_LABEL[k] ?? k).join(", ")}` : ""}</span>
+          </button>
+        </h3>
+        <div id={`src-${a.trace_id}`} hidden={!srcOpen} className="border-t border-line/50 px-3.5 pb-3.5 pt-2">
         {a.citations.length === 0 ? <p className="text-sm text-text-2">No supporting source was found.</p> : (
           <>
             <div role="tablist" aria-label="Filter sources by type" className="mt-2 flex flex-wrap gap-1.5">
@@ -221,9 +239,11 @@ function AnswerBlock({ a }: { a: Answer }) {
             <ol className="mt-2 flex flex-col gap-2">{shown.map((c) => <CitationCard key={c.citation_id} c={c} highlight={hl === c.citation_id} />)}</ol>
           </>
         )}
+        </div>
       </div>
       <details className="text-sm">
         <summary className="cursor-pointer text-text-2">How this answer was built ({a.tool_calls.length} tool calls, trace {a.trace_id})</summary>
+        <div className="mt-2"><ToolTrace calls={a.tool_calls} /></div>
         <ul className="mt-2 flex flex-col gap-1 text-text-2">
           {a.tool_calls.map((t, i) => (
             <li key={i}><span className={t.ok ? "text-ok" : "text-crit"}>{t.ok ? "ok" : "failed"}</span> {t.tool}
@@ -254,11 +274,14 @@ function ModeBanner() {
     <div className={`rounded-xl border px-4 py-3 text-sm ${on ? "border-ok/35 bg-ok/[0.05]" : "border-warn/35 bg-warn/[0.05]"}`}>
       <p className={`font-semibold ${on ? "text-ok" : "text-warn"}`}>{on ? "AI synthesis on" : paused ? `AI synthesis paused until ${h.data.llm.paused_until}` : "Evidence-only mode"}</p>
       <p className="mt-0.5 text-text-2">{paused
-        ? "The model's free-tier request quota is used up. Until it resets you get the retrieved passages and computed tool results without AI-written prose; previously answered questions with identical evidence are still served from saved answers."
+        ? "The free-tier quota is used up. Until it resets you get the evidence itself, not AI-written prose; saved answers still work."
         : on
-        ? "A language model writes the answer; a verifier removes statements whose citations or numbers do not check out."
-        : `No language model is available${h.data.llm.reason ? ` (${h.data.llm.reason.replace(/\.$/, "")})` : ""}. You get the retrieved passages and computed tool results themselves, never AI-written prose.`}</p>
-      <p className="mt-1 text-xs text-text-3">{h.data.llm.configured && h.data.llm.model ? `Model: ${h.data.llm.model} (${h.data.llm.provider}) · ` : ""}Retrieval: {h.data.retrieval.mode}</p>
+        ? "A language model writes the answer; code removes any statement whose citations or numbers do not check out."
+        : "No language model is available here. You get the retrieved passages and computed results themselves, never AI-written prose."}</p>
+      <details className="mt-1 text-xs text-text-3">
+        <summary className="cursor-pointer">Technical details</summary>
+        <p className="mt-1">{h.data.llm.configured && h.data.llm.model ? `Model: ${h.data.llm.model} (${h.data.llm.provider}) · ` : ""}Retrieval: {h.data.retrieval.mode}{h.data.llm.reason ? ` · ${h.data.llm.reason}` : ""}</p>
+      </details>
     </div>
   );
 }
@@ -275,7 +298,7 @@ function EmptyWorkspace({ onPick }: { onPick: (q: string) => void }) {
     <div className="hairline-top relative overflow-hidden rounded-2xl border border-line/80 bg-panel/70 p-6 md:p-8">
       <div aria-hidden className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(91,140,255,0.16),transparent)]" />
       <h2 className="display relative text-[26px]">Start with a question</h2>
-      <p className="relative mt-2 max-w-[60ch] text-text-2">Answers show their sources, the tools that ran, and what could not be determined. Pick a starting point:</p>
+      <p className="relative mt-2 max-w-[60ch] text-text-2">Every answer shows its sources and what could not be determined. Try one:</p>
       <ul className="relative mt-5 grid gap-3 sm:grid-cols-2">
         {STARTERS.map((s) => (
           <li key={s.q}>
@@ -372,7 +395,7 @@ export default function AssistantView() {
   return (
     <>
       <PageHeader kicker="Discover" title="Research Copilot"
-        lead="Ask about microgravity combustion in the three NASA investigations. The Copilot runs fixed data tools and searches the documents (and, if you choose, external literature). Every statement must cite a source, and every number must appear in that source." />
+        lead="Ask about fire in microgravity. Every statement in the answer cites a NASA source, and every number must appear in that source." />
       <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
         <div className="flex flex-col gap-4 xl:sticky xl:top-[calc(var(--hdr,57px)+1.5rem)] xl:self-start">
           <ModeBanner />
