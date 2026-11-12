@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, ViewTransition, type FormEvent, type ReactNode } from "react";
 import { Icon } from "@/components/icons";
 import { AnimatePresence, motion, MotionProvider, DUR, EASE } from "@/components/motion";
-import { useApi } from "@/lib/api";
+import { aiStatus, useHealth } from "@/lib/api";
 import { ROUTES } from "@/lib/routes";
 
 type NavItem = { href: string; label: string; icon: string; source?: string; match?: string[] };
@@ -37,11 +37,6 @@ function isActive(it: NavItem, path: string) {
   const roots = it.match ?? [it.href];
   return roots.some((r) => path === r || path.startsWith(r + "/"));
 }
-
-type Health = {
-  status: string; database: { ok: boolean; ingested_at: string | null };
-  retrieval: { mode: string }; llm: { mode: string; configured: boolean };
-};
 
 function Logo() {
   const gid = `lg${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
@@ -76,7 +71,7 @@ function Pill({ tone, children, title }: { tone: "ok" | "warn" | "crit" | "muted
  * what the Research Copilot can do.
  */
 function StatusBar({ compact = false }: { compact?: boolean }) {
-  const h = useApi<Health>("/health");
+  const h = useHealth();
   if (h.error) return <Pill tone="crit">API offline: start the backend</Pill>;
   if (!h.data) return compact ? null : <span className="text-text-3">Checking data…</span>;
   const d = h.data;
@@ -88,8 +83,8 @@ function StatusBar({ compact = false }: { compact?: boolean }) {
       <span className="inline-flex items-center gap-1.5" title={`NASA data loaded${date ? ` ${date}` : ""} · document search: ${d.retrieval.mode}`}>
         <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-ok" />NASA data loaded
       </span>
-      <span title="How the Research Copilot answers" className={d.llm.configured ? "text-text-3" : "text-warn"}>
-        {d.llm.configured ? "AI answers on" : "AI: evidence-only mode"}
+      <span title="How the Research Copilot answers" className={aiStatus(d) === "on" ? "text-text-3" : "text-warn"}>
+        {aiStatus(d) === "on" ? "AI answers on" : aiStatus(d) === "paused" ? "AI paused: evidence-only" : "AI: evidence-only mode"}
       </span>
     </span>
   );

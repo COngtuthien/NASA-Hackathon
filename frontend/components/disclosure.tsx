@@ -16,7 +16,7 @@ import { Prov } from "@/components/ui";
  * Open when the URL hash names this section, one of its declared inner anchors (content that may render only after
  * its data loads), or any element already inside it; then scroll the target into view once it exists.
  */
-function useHashOpen(id: string | undefined, anchors: string[], setOpen: (v: boolean) => void) {
+export function useHashOpen(id: string | undefined, anchors: string[], setOpen: (v: boolean) => void) {
   const key = anchors.join("|");
   useEffect(() => {
     if (!id) return;

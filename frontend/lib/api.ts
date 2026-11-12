@@ -128,7 +128,54 @@ export function useApi<T>(path: string | null, body?: unknown): ApiState<T> {
   };
 }
 
-export function qs(params: Record<string, string | number | boolean | null | undefined | string[]>): string {
+// Read-only resources that do not change while a page is open (experiment records, health) are fetched once per page
+// session and shared, so the studio, a chart's record spotlight and the NASA comparison never refetch the same record.
+const CACHE = new Map<string, Promise<unknown>>();
+export function cachedFetch<T>(path: string): Promise<T> {
+  let p = CACHE.get(path) as Promise<T> | undefined;
+  if (!p) {
+    p = apiFetch<T>(path);
+    CACHE.set(path, p);
+    p.catch(() => CACHE.delete(path));
+  }
+  return p;
+}
+
+/** Like useApi for GETs, but shared through cachedFetch. `reload` drops the cached copy. */
+export function useCachedApi<T>(path: string | null): ApiState<T> {
+  const [tick, setTick] = useState(0);
+  const key = path === null ? null : `${path}#${tick}`;
+  const [res, setRes] = useState<{ key: string | null; data: T | null; error: ApiError | null }>({ key: null, data: null, error: null });
+  const latest = useRef<string | null>(null);
+  useEffect(() => {
+    latest.current = key;
+    if (key === null || path === null) return;
+    cachedFetch<T>(path)
+      .then((d) => { if (latest.current === key) setRes({ key, data: d, error: null }); })
+      .catch((e) => { if (latest.current === key) setRes({ key, data: null, error: e instanceof ApiError ? e : new ApiError(0, "unknown", String(e)) }); });
+  }, [key, path]);
+  const reload = useCallback(() => { if (path) CACHE.delete(path); setTick((t) => t + 1); }, [path]);
+  const current = key !== null && res.key === key;
+  return { data: key === null ? null : res.data, error: current ? res.error : null, loading: key !== null && !current, reload };
+}
+
+export type Health = {
+  status: string;
+  database: { ok: boolean; ingested_at?: string | null };
+  retrieval: { mode: string };
+  llm: { configured: boolean; mode: string; provider?: string; model?: string; reason?: string | null; paused_until?: string };
+};
+/** AI availability from the local health endpoint (shared; never calls the model, never checks quota remotely). */
+export function useHealth() {
+  return useCachedApi<Health>("/health");
+}
+export function aiStatus(h: Health | null): "on" | "paused" | "off" | "unknown" {
+  if (!h) return "unknown";
+  if (!h.llm.configured) return "off";
+  return h.llm.mode === "paused" ? "paused" : "on";
+}
+
+export function qs(params:Record<string, string | number | boolean | null | undefined | string[]>): string {
   const sp = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     if (v === null || v === undefined || v === "") continue;

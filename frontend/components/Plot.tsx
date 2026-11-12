@@ -10,6 +10,7 @@ export const OUTCOME_SYMBOL: Record<string, string> = { Extinction: "circle", Di
 type PlotlyLike = {
   react: (el: HTMLElement, data: unknown[], layout: unknown, config: unknown) => Promise<unknown>;
   purge: (el: HTMLElement) => void;
+  Plots?: { resize: (el: HTMLElement) => void };
 };
 type PlotEl = HTMLDivElement & { on?: (ev: string, cb: (e: { points: { customdata?: unknown }[] }) => void) => void;
   removeAllListeners?: (ev: string) => void };
@@ -59,6 +60,9 @@ export default function Plot({ data, layout, height = 380, onPointClick, ariaLab
             el.classList.add("chart-refresh");
           }
           drawn.current = true;
+          // drawn while hidden (e.g. inside a closed disclosure): fit the real width now
+          const fl = (el as unknown as { _fullLayout?: { width?: number } })._fullLayout;
+          if (el.clientWidth && fl?.width && Math.abs(fl.width - el.clientWidth) > 2) Plotly.Plots?.resize(el);
           if (el.removeAllListeners) el.removeAllListeners("plotly_click");
           el.on?.("plotly_click", (e) => {
             const cd = e.points?.[0]?.customdata;
@@ -72,6 +76,21 @@ export default function Plot({ data, layout, height = 380, onPointClick, ariaLab
     };
   }, [data, layout, height]);
 
+  // A chart drawn while its disclosure was hidden gets Plotly's default width; redraw at the real width when the
+  // container's size changes (opened disclosure, rotation), so it never overflows a narrow screen.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => {
+      if (!el.clientWidth || !drawn.current) return;
+      const fl = (el as unknown as { _fullLayout?: { width?: number } })._fullLayout;
+      if (fl?.width && Math.abs(fl.width - el.clientWidth) < 2) return;
+      import("plotly.js-dist-min").then((m) => ((m as unknown as { default?: PlotlyLike }).default ?? (m as unknown as PlotlyLike)).Plots?.resize(el)).catch(() => {});
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   useEffect(() => {
     const el = ref.current;
     return () => {
@@ -80,5 +99,5 @@ export default function Plot({ data, layout, height = 380, onPointClick, ariaLab
   }, []);
 
   if (failed) return <p className="text-sm text-crit">Chart failed to load: {failed}</p>;
-  return <div ref={ref} role="img" aria-label={ariaLabel} style={{ width: "100%", minHeight: height }} />;
+  return <div ref={ref} role="img" aria-label={ariaLabel} style={{ width: "100%", maxWidth: "100%", minHeight: height, overflow: "hidden" }} />;
 }
