@@ -6,6 +6,7 @@ export const ROUTES = {
   mission: "/",
   copilot: "/copilot",
   explorer: "/experiments",
+  lab: "/lab",
   extinction: "/phenomena/flame-extinction",
   spread: "/phenomena/flame-spread",
   spacecraft: "/phenomena/spacecraft-fire",
