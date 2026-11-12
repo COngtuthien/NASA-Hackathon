@@ -292,9 +292,15 @@ function EmptyWorkspace({ onPick }: { onPick: (q: string) => void }) {
 
 export default function AssistantView() {
   const sp = useSearchParams();
-  const [q, setQ] = useState(sp.get("q") ?? "");
+  // `q` asks immediately (existing links); `draft` only pre-fills (Interactive Lab): nothing is sent until Ask.
+  const [q, setQ] = useState(sp.get("q") ?? (sp.get("draft") ?? "").slice(0, 400));
   const [scope, setScope] = useState(sp.get("scope") ?? "internal");
-  const [invs, setInvs] = useState<string[]>([]);
+  const [invs, setInvs] = useState<string[]>(() => {
+    const inv = sp.get("inv");
+    return inv && PHENOMENA.some((p) => p.inv === inv) ? [inv] : [];
+  });
+  const fromLab = sp.get("from") === "lab";
+  const labTopic = sp.get("topic");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -394,6 +400,12 @@ export default function AssistantView() {
                   })}
                 </div>
               </fieldset>
+              {fromLab && (
+                <div className="rounded-lg border border-electric/40 bg-electric/[0.06] px-3 py-2 text-[12.5px] text-text-2" data-testid="lab-context">
+                  <p className="font-medium text-text">From the Interactive Combustion Lab</p>
+                  <p className="mt-0.5">Draft question only: edit it, then press Ask. Sent with it: {invs.length ? `investigation filter ${invs.join(", ")}` : "no investigation filter"}{ctxUid ? ` and experiment ${ctxUid}` : ""}.{labTopic ? ` “${labTopic.slice(0, 60)}” is a conceptual component and appears only in the question text.` : ""} Lab slider positions are never sent.</p>
+                </div>
+              )}
               {ctxUid && <p className="text-xs text-text-3">Context: experiment <Link href={expHref(ctxUid)}>{ctxUid}</Link></p>}
               <div className="flex items-center justify-between gap-3">
                 <span className="text-xs text-text-3">Ctrl + Enter to ask</span>

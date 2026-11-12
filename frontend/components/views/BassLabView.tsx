@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import Plot, { baseLayout, CAT } from "@/components/Plot";
 import { PhenomenonArt } from "@/components/illustrations";
+import LabEntryLink from "@/components/lab/LabEntryLink";
 import { MediaFigure, OrbitMediaPanel } from "@/components/media";
 import { Callout, Loadable, PageHeader, Panel, Prov, Segmented } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
@@ -73,6 +74,8 @@ export default function BassLabView() {
           { id: "bass2-flame-gmt214", caption: "An elongated flame around a rod-shaped sample during a reduced-oxygen session." },
         ]}
         schematic={{ node: <PhenomenonArt kind="spread" caption="" />, caption: "Schematic of opposed-flow spread: air (cyan) flows against the flame (orange) moving along the strip. Not to scale; not data." }} />
+      <LabEntryLink scene="bass" className="mt-5" label="Explore the BASS-II flow duct and sample geometries in 3D" />
+      <div className="h-5" />
       <Panel id="materials" tone="feature" title="Investigator and material family" aside="Selection applies to the gas-balance views">
         <div className="flex flex-col gap-3">
           <Segmented label="Principal investigator" value={pi} onChange={(v) => router.replace(`${pathname}${qs({ pi: v })}`, { scroll: false })}

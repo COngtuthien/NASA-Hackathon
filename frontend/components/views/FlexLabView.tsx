@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { FlexMapChart, type FlexPoint } from "@/components/charts";
 import { PhenomenonArt } from "@/components/illustrations";
+import LabEntryLink from "@/components/lab/LabEntryLink";
 import { MediaFigure, OrbitMediaPanel } from "@/components/media";
 import Plot, { baseLayout, CAT, OUTCOME_COLOR } from "@/components/Plot";
 import { Callout, Field, inputCls, Loadable, PageHeader, Panel, Prov, Segmented } from "@/components/ui";
@@ -116,6 +117,8 @@ export default function FlexLabView() {
           { id: "cfi-g-cool-flame-video", caption: "Related experiment: a hot flame that dies out and leaves a cool flame too faint to see, the behaviour FLEX found in heptane droplets." },
         ]}
         schematic={{ node: <PhenomenonArt kind="droplet" caption="" />, caption: "Schematic of the idealized geometry the d²-law assumes: a droplet (orange) inside a spherical flame shell. Not to scale; not data." }} />
+      <LabEntryLink scene="flex" className="mt-5" label="See the droplet flame in 3D: microgravity sphere vs 1 g teardrop" />
+      <div className="h-5" />
       <Panel id="conditions" tone="feature" title="Experimental conditions" aside="Every chart and value below follows these selectors">
         <div className="grid gap-4 xl:grid-cols-[auto_auto_1fr]">
           <Segmented label="Fuel" value={filters.fuel ?? ""} onChange={(v) => set("fuel", v)}

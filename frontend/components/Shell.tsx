@@ -14,6 +14,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { href: ROUTES.mission, label: "Mission Control", icon: "overview" },
     { href: ROUTES.copilot, label: "Research Copilot", icon: "assistant" },
     { href: ROUTES.explorer, label: "Combustion Explorer", icon: "experiments" },
+    { href: ROUTES.lab, label: "Interactive Combustion Lab", icon: "lab" },
   ] },
   { group: "Scientific analysis", items: [
     { href: ROUTES.extinction, label: "Flame Extinction & Burning Dynamics", icon: "droplet", source: "FLEX" },

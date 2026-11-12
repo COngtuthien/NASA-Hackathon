@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import Plot, { baseLayout, CAT } from "@/components/Plot";
 import { PhenomenonArt } from "@/components/illustrations";
+import LabEntryLink from "@/components/lab/LabEntryLink";
 import { MediaFigure, MediaPanelBlock, SchematicFigure } from "@/components/media";
 import { usePauseOffscreen } from "@/components/motion";
 import { Callout, Field, inputCls, Loadable, PageHeader, Panel, Prov, Severity } from "@/components/ui";
@@ -128,6 +129,7 @@ export default function SaffireView() {
           <div className="flex flex-col gap-5">
             <Callout tone="warn">{c.statements.find((s) => s.kind === "UNSUPPORTED")?.text} The manifest lists image files, but their pixels are not in the local data, so no manifest frame is shown or reconstructed. The footage below is NASA&apos;s public release.</Callout>
             <SaffireFootage />
+            <LabEntryLink scene="saffire" label="Inspect a conceptual 3D cutaway of the Saffire-I flow duct" />
             <Panel id="airflow" tone="feature" title="Airflow and flame-spread direction" aside="Direction and speed as recorded in the CSV">
               <div className="grid gap-5 md:grid-cols-2">
                 {c.burns.map((bn) => <FlowCard key={String(bn.experiment_uid)} burn={bn} />)}

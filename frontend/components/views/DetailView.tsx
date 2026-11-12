@@ -5,7 +5,9 @@ import { PHENOMENA } from "@/lib/routes";
 import { useParams } from "next/navigation";
 import { Callout, Empty, Kind, LinkButton, Loadable, PageHeader, Panel, Prov, Severity } from "@/components/ui";
 import { MediaFigure } from "@/components/media";
+import { Icon } from "@/components/icons";
 import { MEDIA_BY_ID } from "@/lib/scientific-media";
+import { labHref, SCENE_OF_DATASET } from "@/lib/lab-models";
 
 /** Apparatus (not flame) photos, so no reader takes an investigation image for a picture of the selected test. */
 const APPARATUS: Record<string, string> = { flex: "flex2-mdca-apparatus", bass2: "bass2-msg-operations", saffire1: "saffire1-hardware-cygnus" };
@@ -60,6 +62,9 @@ export default function DetailView() {
               <>
                 <LinkButton href={`/intelligence/compare${qs({ uids: d.experiment_uid })}`}>Compare with others</LinkButton>
                 <LinkButton href={`/intelligence/similar${qs({ uid: d.experiment_uid })}`}>Find similar tests</LinkButton>
+                {SCENE_OF_DATASET[d.dataset] && d.experiment_kind === "burn" && (
+                  <LinkButton href={`${labHref(SCENE_OF_DATASET[d.dataset], d.experiment_uid)}&mode=evidence`}><Icon name="lab" />View in 3D lab</LinkButton>
+                )}
                 <LinkButton variant="primary" href={`/copilot${qs({ q: `Explain ${d.investigation} test ${d.display_id}`, uid: d.experiment_uid })}`}>Ask about this test</LinkButton>
               </>
             } />
