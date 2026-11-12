@@ -1,5 +1,49 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 10 status (branch `feature/spacefire-phase10-combustion-storytelling`, 2026-11-12): COMPLETE
+Stage-by-stage combustion storytelling in the existing studios: one timeline store drives the 3D state, the stage
+chip, the highlighted components and a short, source-backed explanation; Earth and microgravity are compared stage by
+stage on one canvas; BASS-II gets material- and flow-aware stages; SAFFIRE-I gets an explanatory walkthrough. Frontend
+only: no backend, data, flag, verifier or Gemini change. No Gemini request was made; verification used a backend with
+`LLM_API_KEY=` blank (`llm.mode = retrieval_only`) and the opt-in live test was not run. Design, sources and rules:
+`docs/COMBUSTION_STAGE_STORYTELLING.md`.
+
+| Milestone | Status | Evidence |
+|---|---|---|
+| M1 Audit and architecture | DONE | Reused the timeline store (single source of truth), `flexStage(p)` scene states, `SplitView`, `layerView` emphasis, tours and the journey. Added `lib/stages.ts`, `components/studio/StageExplainer.tsx`, `useStageId`, `useTimelineValue`, `goToStage`, a scene `focus` prop and a stacked `SplitView`. No new dependency, canvas or timer |
+| M2 FLEX stages | DONE | Five stages with summary, key idea, why, basis labels, sources, limits, inspect target, absent-component reasons and a text alternative; selected-test lines (idealized D₀²/K time beside the recorded burn time; outcome text per test-end category) |
+| M3 Earth vs microgravity | DONE | Earth (1 g) left, microgravity right, same stage on one canvas; per-stage Earth / microgravity lines; stage-specific "Why are they different?" with sources and 3D emphasis; NASA 1 g vs µg photo with credit; "Conceptual comparison — not paired Earth and ISS measurements"; stacked on phones |
+| M4 Fuel-specific context | DONE | Methanol vs n-heptane notes for burning, regression and end (soot; cool flame described, not drawn, not every test); Compare Fuels shows both and says the shared timeline is not equal burn time |
+| M5 BASS-II stages | DONE | Ignition, spread, end from the chosen sample and flow; selected test: width conflict, Table 5.1 rates with units and page, recorded outcome or "cannot be inferred" |
+| M6 SAFFIRE-I walkthrough | DONE | Five explanatory steps (not a timeline), burn-aware (S1 / S2), keyboard operable, footage on request, nothing reconstructed |
+| M7 UX and accessibility | DONE | Prev / Next stage, stage list `aria-current`, polite stage announcements, screen-reader scene descriptions, stage chip in the viewport, opt-in camera follow, reduced motion, WebGL fallback, 36 px touch targets |
+| M8 Scientific validation | DONE | Every new statement checked against its cited passage (FLEX ERD pp.18, 36, 64, 74; Liu et al. pp.2, 4, 8; Farouk & Dryer p.2; MDCA package p.22; BASS-II pp.12, 13, 27, 64; SAFFIRE-I documents); unsupported claims omitted |
+| M9 Regression and delivery | DONE | See below |
+
+### Phase 10 verification (2026-11-12)
+- `tsc --noEmit` clean; `eslint .` clean; `next build` OK (18 routes).
+- Playwright on the production build, model disabled: **113 passed, 1 skipped** (opt-in live Gemini, not run).
+  New: `e2e/phase10-unit.spec.ts` (8 logic tests), `e2e/phase10.spec.ts` (10), `e2e/phase10-mobile.spec.ts` (2:
+  390 px stacked comparison with touch, 768 px side by side).
+- No existing test was changed: the stage line keeps its `timeline-stage` test id and stage titles, and the gravity
+  captions and split note keep the texts older tests check.
+- Backend `pytest`: **181 passed**. Smoke: pages 200, `/lab` 307, records and all newly cited documents 200.
+- Sweep at 1440, 768 and 390 px over the comparison, fuels, record, BASS-II, SAFFIRE-I and Home views: no horizontal
+  overflow, no console errors.
+- Robustness fixes found during testing: the studio no longer re-renders on every animation frame (selective
+  subscriptions); the shared record fetch retries once on a transient network/proxy/5xx failure (seen once as a
+  missing record context in a full run).
+- Environment: another `next start` on port 3000 and a Gemini-enabled backend on port 8000 were running outside this
+  session and were left untouched. Verification used port 8010 (model disabled) and a separate build folder on 3010
+  through new optional settings: `NEXT_DIST_DIR` (next.config), `PW_BASE_URL` / `PW_API_PORT` (Playwright). Defaults
+  are unchanged.
+
+### Phase 10 known limitations
+- Stage boundaries are illustrative and identical for every test; recorded burn times are shown beside the timeline,
+  never used to scale it.
+- The 1 g side is a qualitative shape; no FLEX test ran at 1 g, and no Earth numbers are shown.
+- The n-heptane cool flame is described, not drawn.
+
 ## Phase 9 status (branch `feature/spacefire-phase9-discovery-experience`, 2026-11-12): COMPLETE
 A scientific discovery layer on top of Phase 8: an optional guided journey, compact but truthful scientific notices,
 a "Compare with NASA" view in every studio, chart points that select real tests, contextual Copilot drafts and a small

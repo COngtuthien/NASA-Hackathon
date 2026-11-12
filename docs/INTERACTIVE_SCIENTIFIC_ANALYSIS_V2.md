@@ -114,6 +114,11 @@ No control is decorative-only. Decorative motion (flicker, drift) is a labelled 
   nominal-vs-actual width disagreement is stated, not reconciled.
 
 ## 7. Timeline semantics
+> Phase 10 update: the timeline now drives a stage explainer (one sentence, key idea, why, NASA evidence, inspect) and
+> Previous / Next stage controls; the Earth vs microgravity view shows Earth on the left and microgravity on the right,
+> explained stage by stage; SAFFIRE-I has an explanatory walkthrough. See `docs/COMBUSTION_STAGE_STORYTELLING.md`.
+> The semantics below are unchanged.
+
 - `lib/timeline.ts`: a small external store (progress 0–1, playing, speed 0.5–2×). The render loop advances it while
   playing; the UI subscribes via `useSyncExternalStore`, so 60 fps playback re-renders only the timeline bar.
 - The axis is **normalized progress**, never seconds. Stage boundaries are arbitrary positions on that axis.
