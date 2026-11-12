@@ -34,6 +34,11 @@ const nextConfig: NextConfig = {
     return [
       ...LEGACY_REDIRECTS.map(([source, destination]) => ({ source, destination, permanent: false })),
       { source: "/intelligence", destination: "/intelligence/similar", permanent: false },
+      // Phase 7: the standalone 3D lab moved into the Scientific Analysis pages (#studio). The query string
+      // (scene, record, mode, component) is passed through; the studio reads record/mode/component and scrolls to itself.
+      { source: "/lab", has: [{ type: "query", key: "scene", value: "bass" }], destination: "/phenomena/flame-spread", permanent: false },
+      { source: "/lab", has: [{ type: "query", key: "scene", value: "saffire" }], destination: "/phenomena/spacecraft-fire", permanent: false },
+      { source: "/lab", destination: "/phenomena/flame-extinction", permanent: false },
     ];
   },
   async rewrites() {

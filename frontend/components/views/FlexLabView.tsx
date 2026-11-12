@@ -5,7 +5,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { FlexMapChart, type FlexPoint } from "@/components/charts";
 import { PhenomenonArt } from "@/components/illustrations";
-import LabEntryLink from "@/components/lab/LabEntryLink";
+import ScienceStudio from "@/components/studio/ScienceStudio";
+import { LiteraturePanel, ScientificConclusions } from "@/components/studio/ScienceSummary";
+import { SOURCES } from "@/lib/lab-scientific-metadata";
 import { MediaFigure, OrbitMediaPanel } from "@/components/media";
 import Plot, { baseLayout, CAT, OUTCOME_COLOR } from "@/components/Plot";
 import { Callout, Field, inputCls, Loadable, PageHeader, Panel, Prov, Segmented } from "@/components/ui";
@@ -64,6 +66,16 @@ export default function FlexLabView() {
     router.replace(`${pathname}?${n.toString()}`, { scroll: false });
   };
 
+  // lowest initial O₂ at which a methanol test did NOT end in Extinction; all methanol tests below it did
+  const methanolLow = useMemo(() => {
+    const pts = map.data?.points.filter((p) => p.fuel === "Methanol") ?? [];
+    const non = pts.filter((p) => p.test_end !== "Extinction").map((p) => p.x_o2);
+    if (!non.length) return null;
+    const x = Math.min(...non);
+    const below = pts.filter((p) => p.x_o2 < x);
+    return below.length && below.every((p) => p.test_end === "Extinction") ? { x, n: below.length } : null;
+  }, [map.data]);
+
   const d2Plot = useMemo(() => {
     if (!d2.data) return null;
     const inc = d2.data.records.filter((r) => r.included);
@@ -107,7 +119,9 @@ export default function FlexLabView() {
           { value: map.data ? fmt(map.data.n_plotted) : "…", label: "with numeric O₂ and D₀ (plotted)" },
           { value: d2.data ? fmt(d2.data.summary.median_ratio) : "…", label: "median reported ÷ d²-law burn time" },
         ]}
-        sections={[{ id: "seen", label: "Seen in orbit" }, { id: "conditions", label: "Conditions" }, { id: "map", label: "Extinction map" }, { id: "d2", label: "d²-law check" }, { id: "ratio", label: "Extinction diameter" }]} />
+        sections={[{ id: "studio", label: "3D studio" }, { id: "seen", label: "Seen in orbit" }, { id: "conditions", label: "Conditions" }, { id: "map", label: "Extinction map" }, { id: "d2", label: "d²-law check" }, { id: "ratio", label: "Extinction diameter" }, { id: "conclusions", label: "Conclusions" }, { id: "literature", label: "Literature" }]} />
+      <ScienceStudio sceneId="flex" />
+      <div className="h-6" />
       <OrbitMediaPanel galleryInv="PSI-69" title="A droplet flame without gravity"
         lead={<>On Earth a droplet flame is pulled upward into a teardrop; aboard the ISS it wraps the droplet in a near-spherical shell. That symmetry is what makes the d²-law check below testable (<a href="/api/v1/documents/2g11-070he-0310/file#page=2" target="_blank" rel="noreferrer">Liu et al., PDF p.2</a>). In FLEX a hot-flame extinction could be followed by low-temperature, &ldquo;cool-flame&rdquo; burning, observed for the first time (<a href="/api/v1/documents/cool-flames-in-space-a-hot-prospect-on-earth/file#page=23" target="_blank" rel="noreferrer">Cool Flames in Space, PDF p.23</a>), one reason a FLEX outcome is not a single number.</>}
         items={[
@@ -117,7 +131,6 @@ export default function FlexLabView() {
           { id: "cfi-g-cool-flame-video", caption: "Related experiment: a hot flame that dies out and leaves a cool flame too faint to see, the behaviour FLEX found in heptane droplets." },
         ]}
         schematic={{ node: <PhenomenonArt kind="droplet" caption="" />, caption: "Schematic of the idealized geometry the d²-law assumes: a droplet (orange) inside a spherical flame shell. Not to scale; not data." }} />
-      <LabEntryLink scene="flex" className="mt-5" label="See the droplet flame in 3D: microgravity sphere vs 1 g teardrop" />
       <div className="h-5" />
       <Panel id="conditions" tone="feature" title="Experimental conditions" aside="Every chart and value below follows these selectors">
         <div className="grid gap-4 xl:grid-cols-[auto_auto_1fr]">
@@ -141,7 +154,9 @@ export default function FlexLabView() {
             {(m) => (
               <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
                 <div>
-                  <FlexMapChart points={m.points} />
+                  <FlexMapChart points={m.points} highlight={sp.get("record")} />
+                  {sp.get("record")?.startsWith("flex:") && m.points.some((p) => p.experiment_uid === sp.get("record")) && (
+                    <p className="mt-1 text-xs text-text-2">The ringed point is the test selected in the 3D studio.</p>)}
                   <ul className="mt-2 list-disc pl-5 text-xs text-text-3">{m.notes.map((n) => <li key={n}>{n}</li>)}</ul>
                 </div>
                 <div className="text-sm">
@@ -193,6 +208,22 @@ export default function FlexLabView() {
             onPointClick={(u) => router.push(expHref(String(u)))} /> : <Loadable state={map}>{() => null}</Loadable>}
           <p className="mt-2 text-xs text-text-3">For heptane, the visible flame can go out (radiative extinction) while a cool flame keeps burning, so Dext marks the end of the visible flame, not of burning.</p>
         </Panel>
+      </div>
+      <div className="mt-5 flex flex-col gap-5">
+        <ScientificConclusions
+          findings={[
+            { text: "Without buoyancy a droplet flame can approach a spherical shell around the droplet, fed by diffusion: the geometry classical droplet-combustion theory assumes.", kind: "DOC", source: { ...SOURCES.liuP2 } },
+            ...(d2.data && d2.data.summary.median_ratio !== null ? [{ text: <>Across {d2.data.summary.n_included} tests that meet the check&apos;s criteria, reported burn times sit close to the idealized d²-law estimate: median ratio {fmt(d2.data.summary.median_ratio)} (10th–90th percentile {fmt(d2.data.summary.q10_ratio)}–{fmt(d2.data.summary.q90_ratio)}).</>, kind: "COMPUTED", source: { label: "d²-law check on this page", href: "#d2" } }] : []),
+            ...(methanolLow ? [{ text: <>All {methanolLow.n} methanol tests with initial O₂ below {fmt(methanolLow.x)} ended in Extinction; above it, outcomes are mixed.</>, kind: "COMPUTED", source: { label: "Extinction map on this page", href: "#map" } }] : []),
+            { text: "For larger n-heptane droplets the visible flame can go out by radiative loss while low-temperature “cool flame” burning continues; methanol shows classical radiative extinction.", kind: "DOC", source: { ...SOURCES.faroukP2 } },
+          ]}
+          limits={[
+            { text: "‘Disruption’ outcomes are not defined in the local documents and may hide a censored result; they are excluded from the d²-law check.", kind: "quality_flag", source: { label: "Data reliability", href: "/reliability?investigation=PSI-69" } },
+            { text: "The burning-rate column's header says ‘mm’; values are interpreted as mm²/s (flag FLEX-UNIT-K). The CO₂ column's header reads ‘CO’ (flag FLEX-HDR-CO2).", kind: "quality_flag", source: { label: "FLEX dataset flags", href: "/reliability?investigation=PSI-69" } },
+            { text: "FLEX test conditions were chosen adaptively, not randomly, so outcome shares are not probabilities and correlations are descriptive. No limiting oxygen index is derived here.", kind: "COMPUTED", source: { label: "Extinction map notes", href: "#map" } },
+            { text: "The 3D studio is conceptual: flame standoff, 1 g shape and the burn timeline are illustrations, not simulations of any test.", kind: "HYPOTHESIS" },
+          ]} />
+        <LiteraturePanel inv="PSI-69" source="FLEX" query="FLEX droplet combustion microgravity extinction" question="What do the NASA FLEX (PSI-69) sources say about droplet flame extinction in microgravity?" />
       </div>
     </>
   );

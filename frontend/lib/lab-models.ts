@@ -38,7 +38,7 @@ export const SCENES: LabScene[] = [
     id: "flex", title: "Droplet Combustion", short: "Droplet", source: "FLEX", inv: "PSI-69", dataset: "flex",
     phenomenonHref: ROUTES.extinction, phenomenonTitle: "Flame Extinction & Burning Dynamics", scale: "Millimetre scale",
     blurb: "A fuel droplet wrapped in its flame. Compare the near-spherical microgravity flame with the buoyant 1 g teardrop, then inspect a real FLEX test.",
-    textAlternative: "A small liquid fuel droplet sits at the centre. Around it a translucent flame envelope is drawn several droplet diameters away. In microgravity the envelope is a near-sphere; in the 1 g comparison it stretches upward into a teardrop. Optional arrows show fuel vapour moving outward and oxygen moving inward (microgravity) or an upward buoyant flow (1 g). A millimetre scale bar sits beside the droplet.",
+    textAlternative: "A small liquid fuel droplet sits at the centre, inside a faint fuel-vapour region. Around it a translucent flame envelope is drawn several droplet diameters away. In microgravity the envelope is a near-sphere; in the 1 g comparison it stretches upward into a teardrop. Optional arrows show fuel vapour moving outward and oxygen moving inward (microgravity) or an upward buoyant flow (1 g). A millimetre scale bar sits beside the droplet.",
     components: [
       { id: "droplet", label: "Fuel droplet", basis: "documented-principle",
         summary: "A liquid fuel droplet (methanol or n-heptane in FLEX). In the MDCA apparatus a droplet can be formed between two hollow needles that then retract, leaving it free-floating, and hot-wire igniters retract once it lights.",
@@ -61,10 +61,14 @@ export const SCENES: LabScene[] = [
         summary: "The surrounding atmosphere: O₂ with N₂ and, in many FLEX tests, CO₂ or helium as diluent.",
         provenance: "Dots are illustrative: the cyan share follows the oxygen slider (conceptual) or the selected test's recorded O₂ mole fraction (evidence mode). Dot motion is decorative.",
         sources: [SOURCES.psi69], askAbout: "how ambient oxygen and diluents affect FLEX droplet flames" },
-      { id: "transport", label: "Transport (conceptual)", basis: "documented-principle",
-        summary: "Microgravity: fuel vapour diffuses outward, oxygen inward, meeting at the flame. 1 g: buoyancy drives an upward flow past the droplet.",
-        provenance: "Directions follow the classical spherically symmetric picture and the documented buoyancy effect. Arrow speed and spacing are illustrative, not velocities.",
-        sources: [SOURCES.liuP2, SOURCES.flexEird74], askAbout: "how fuel vapour and oxygen are transported to a droplet flame without buoyancy" },
+      { id: "vapour", label: "Fuel vapour region", basis: "documented-principle",
+        summary: "Fuel evaporating from the surface diffuses outward through the region between droplet and flame; it does not burn until it meets oxygen at the flame.",
+        provenance: "Classical spherically symmetric picture (Liu et al.). The amber glow and the outward particles are illustrative: no concentration field is computed.",
+        sources: [SOURCES.liuP2], askAbout: "the fuel vapour region between a burning droplet and its flame" },
+      { id: "oxygen", label: "Oxygen transport", basis: "documented-principle",
+        summary: "Microgravity: oxygen diffuses inward from the surroundings to the flame. 1 g comparison: buoyancy drives an upward flow past the droplet instead.",
+        provenance: "Directions follow the classical picture and the documented buoyancy effect. Particle and arrow speeds are illustrative, not velocities.",
+        sources: [SOURCES.liuP2, SOURCES.flexEird74], askAbout: "how oxygen reaches a droplet flame without buoyancy" },
     ],
   },
   {
@@ -101,6 +105,10 @@ export const SCENES: LabScene[] = [
         summary: "A Kanthal A-1 hot-wire coil swung into position by a crew-pulled lever.",
         provenance: "Igniter type from the Summary Report; drawn position is illustrative.",
         sources: [SOURCES.bassP13], askAbout: "how BASS-II samples were ignited" },
+      { id: "airflow", label: "Airflow", basis: "documented-principle",
+        summary: "Air flows from the fan end through the straightener, past the sample and out of the duct. Opposed or concurrent spread depends on which end of the sample burns first, not on reversing the fan.",
+        provenance: "Flow path from the Summary Report. Streamlines and particle speed are conceptual: measured velocities (cm/s) appear only in the evidence panel (Table 5.1 and the Air display column).",
+        sources: [SOURCES.bassP12, SOURCES.bassP64], askAbout: "how airflow direction affects flame spread over solids in BASS-II" },
       { id: "radiometer", label: "Radiometer", basis: "confirmed",
         summary: "A thermopile detector in the downstream top back corner of the duct, looking upstream. Its signal was not calibrated but tracked flame steadiness.",
         provenance: "Position stated in the Summary Report.",
@@ -142,6 +150,10 @@ export const SCENES: LabScene[] = [
         summary: "Thermocouples (flow, flame and plume temperatures), two radiometers, solid-state pressure, CO₂ and O₂ sensors, and two anemometers.",
         provenance: "Sensor list from the ISA-Tab. Their positions here are illustrative. None of these sensor time series are in SpaceFire's local data.",
         sources: [SOURCES.saffireIsa], askAbout: "the Saffire-I diagnostics and which data are available" },
+      { id: "airflow", label: "Airflow (20 cm/s)", basis: "confirmed",
+        summary: "Air enters through the flow straighteners at the bottom and is drawn upward past the sample by the fans at the top, at 20 cm/s.",
+        provenance: "Direction and speed from the ISA-Tab and the Description of Data. The particles are illustrative and do not move at scale.",
+        sources: [SOURCES.saffireIsa, SOURCES.saffireDod], askAbout: "the airflow past the Saffire-I sample" },
       { id: "flame", label: "Flame-spread direction", basis: "confirmed",
         summary: "The CSV records S1 as concurrent (flame moving with the airflow) and S2 as opposed (against it).",
         provenance: "Direction per burn from the CSV. The glowing band and its motion are illustrative: the local data has no flame position, spread rate or ignition location, so none is drawn as measured.",
@@ -159,9 +171,12 @@ export function isSceneId(v: string | null | undefined): v is SceneId {
 /** Which lab scene an experiment record belongs to (for links from detail pages). */
 export const SCENE_OF_DATASET: Record<string, SceneId> = { flex: "flex", bass2: "bass", saffire1: "saffire" };
 
-export function labHref(scene: SceneId, record?: string | null, component?: string | null): string {
-  const p = new URLSearchParams({ scene });
-  if (record) p.set("record", record);
-  if (component) p.set("component", component);
-  return `${ROUTES.lab}?${p.toString()}`;
+/** Link into a phenomenon page's Interactive Science Studio, optionally with a record, mode and component. */
+export function studioHref(scene: SceneId, opts: { record?: string | null; mode?: "evidence" | null; component?: string | null } = {}): string {
+  const p = new URLSearchParams();
+  if (opts.record) p.set("record", opts.record);
+  if (opts.mode) p.set("mode", opts.mode);
+  if (opts.component) p.set("component", opts.component);
+  const q = p.toString();
+  return `${SCENE_BY_ID[scene].phenomenonHref}${q ? `?${q}` : ""}#studio`;
 }

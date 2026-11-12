@@ -5,7 +5,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import Plot, { baseLayout, CAT } from "@/components/Plot";
 import { PhenomenonArt } from "@/components/illustrations";
-import LabEntryLink from "@/components/lab/LabEntryLink";
+import ScienceStudio from "@/components/studio/ScienceStudio";
+import { LiteraturePanel, ScientificConclusions } from "@/components/studio/ScienceSummary";
+import { SOURCES } from "@/lib/lab-scientific-metadata";
 import { MediaFigure, OrbitMediaPanel } from "@/components/media";
 import { Callout, Loadable, PageHeader, Panel, Prov, Segmented } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
@@ -31,6 +33,7 @@ export default function BassLabView() {
   const router = useRouter();
   const pathname = usePathname();
   const pi = sp.get("pi") ?? "";
+  const rec = sp.get("record");
   const g = useApi<Resp>(`/analytics/bass/gases${qs({ pi })}`);
 
   const plot = useMemo(() => {
@@ -50,8 +53,13 @@ export default function BassLabView() {
     const xmax = Math.max(1, ...pts.map((r) => -(r.delta_o2 as number)));
     data.push({ type: "scatter", mode: "lines", name: `PMMA complete combustion, slope 5/6`, x: [0, xmax], y: [0, xmax * g.data.reference.ratio],
       line: { color: "#E6EDF7", dash: "dash", width: 1.5 }, hoverinfo: "skip" });
+    // the test selected in the 3D studio, ringed
+    for (const r of pts.filter((x) => x.experiment_uid === rec)) {
+      data.push({ type: "scatter", mode: "markers", name: `Selected in the 3D studio: ${r.test_id}`, x: [-(r.delta_o2 as number)], y: [r.delta_co2], customdata: [r.experiment_uid],
+        hovertemplate: `<b>${r.test_id}</b> (selected in the studio)<extra></extra>`, marker: { color: "rgba(0,0,0,0)", size: 22, line: { color: "#E6EDF7", width: 2.5 } } });
+    }
     return { data, layout: baseLayout("O₂ consumed, initial − final (% by volume, points)", "CO₂ produced, final − initial (% by volume, points)"), n: pts.length };
-  }, [g.data]);
+  }, [g.data, rec]);
 
   return (
     <>
@@ -65,7 +73,9 @@ export default function BassLabView() {
           { value: g.data ? fmt(g.data.summary.slope_co2_per_o2_above_resolution) : "…", label: "CO₂ produced per O₂ consumed (fitted slope)" },
           { value: g.data ? fmt(g.data.summary.pmma_stoichiometric_reference) : "…", label: "PMMA complete-combustion reference (5/6)" },
         ]}
-        sections={[{ id: "seen", label: "Seen in orbit" }, { id: "materials", label: "Investigator & material" }, { id: "gas", label: "Gas balance" }, { id: "endpoints", label: "Per-test endpoints" }, { id: "spread", label: "Spread rate (Table 5.1)" }, { id: "outcomes", label: "SIBAL outcomes (Table 7.1)" }, { id: "report", label: "Test matrices" }]} />
+        sections={[{ id: "studio", label: "3D studio" }, { id: "seen", label: "Seen in orbit" }, { id: "materials", label: "Investigator & material" }, { id: "gas", label: "Gas balance" }, { id: "endpoints", label: "Per-test endpoints" }, { id: "spread", label: "Spread rate (Table 5.1)" }, { id: "outcomes", label: "SIBAL outcomes (Table 7.1)" }, { id: "report", label: "Test matrices" }, { id: "conclusions", label: "Conclusions" }, { id: "literature", label: "Literature" }]} />
+      <ScienceStudio sceneId="bass" />
+      <div className="h-6" />
       <OrbitMediaPanel galleryInv="PSI-25" title="Small samples, controlled airflow"
         lead={<>BASS-II burned small samples, including rods, slabs, thin films and fabric strips, inside a small flow duct in the Microgravity Science Glovebox. A fan pushes air past the sample, against the spreading flame (opposed), with it (concurrent) or, for some rods, head-on (stagnation). The spread rate falls as the opposed flow is reduced, and under some conditions the flame goes out (<a href="/api/v1/documents/bass-ii-summary-report/file#page=27" target="_blank" rel="noreferrer">Summary Report, PDF p.27</a>). The photos show what that looks like; the charts below quantify it.</>}
         items={[
@@ -74,7 +84,6 @@ export default function BassLabView() {
           { id: "bass2-flame-gmt214", caption: "An elongated flame around a rod-shaped sample during a reduced-oxygen session." },
         ]}
         schematic={{ node: <PhenomenonArt kind="spread" caption="" />, caption: "Schematic of opposed-flow spread: air (cyan) flows against the flame (orange) moving along the strip. Not to scale; not data." }} />
-      <LabEntryLink scene="bass" className="mt-5" label="Explore the BASS-II flow duct and sample geometries in 3D" />
       <div className="h-5" />
       <Panel id="materials" tone="feature" title="Investigator and material family" aside="Selection applies to the gas-balance views">
         <div className="flex flex-col gap-3">
@@ -138,6 +147,21 @@ export default function BassLabView() {
         )}
       </Loadable>
       <BassReportSection />
+      <div className="mt-5 flex flex-col gap-5">
+        <ScientificConclusions
+          findings={[
+            { text: "Opposed-flow spread slows as the opposed flow is reduced, and under some conditions the flame goes out: flow, not only the material, decides whether and how fast a flame spreads.", kind: "DOC", source: { ...SOURCES.bassP27 } },
+            ...(g.data && g.data.summary.slope_co2_per_o2_above_resolution !== null ? [{ text: <>Across {g.data.summary.n_fit_above_resolution} tests with an O₂ drop greater than 0.2 percentage points, CO₂ produced per O₂ consumed has a fitted slope of {fmt(g.data.summary.slope_co2_per_o2_above_resolution)}, against {fmt(g.data.reference.ratio)} for complete PMMA combustion.</>, kind: "COMPUTED", source: { label: "Gas balance on this page", href: "#gas" } }] : []),
+            { text: "Measured spread rates exist only where the Summary Report tracked the flame from video (Table 5.1), each at a printed flow velocity and stage.", kind: "report_table", source: { label: "Spread rate (Table 5.1)", href: "#spread" } },
+          ]}
+          limits={[
+            { text: "Gas values are whole-chamber endpoints (one reading before, one after each burn), not time series; non-numeric cells are kept as recorded.", kind: "experiment", source: { label: "Per-test endpoints", href: "#endpoints" } },
+            { text: "Each PI used one material family, geometry and flow direction, so differences between PIs are confounded.", kind: "COMPUTED", source: { label: "Investigator & material", href: "#materials" } },
+            { text: "The CSV and the Appendix A log give nominal sample widths (1 or 2 cm); the report tables print actual widths (1.2 or 2.2 cm). Both are kept, and T24's conflict is flagged.", kind: "quality_flag", source: { label: "Report cross-checks", href: "#report" } },
+            { text: "The 3D studio's flame front and its timeline are illustrative progressions, not measured flame-front motion.", kind: "HYPOTHESIS" },
+          ]} />
+        <LiteraturePanel inv="PSI-25" source="BASS-II" query="BASS-II flame spread microgravity solid" question="What do the NASA BASS-II (PSI-25) sources say about opposed versus concurrent flame spread over solids in microgravity?" />
+      </div>
     </>
   );
 }

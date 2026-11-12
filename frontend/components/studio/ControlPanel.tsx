@@ -25,7 +25,7 @@ export function Toggle({ label, checked, onChange, note, disabled }: { label: st
   );
 }
 
-function Slider({ label, value, min, max, step, onChange, format, note, disabled }: {
+export function Slider({ label, value, min, max, step, onChange, format, note, disabled }: {
   label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void;
   format: (v: number) => string; note: string; disabled?: boolean;
 }) {
@@ -44,7 +44,7 @@ function Slider({ label, value, min, max, step, onChange, format, note, disabled
   );
 }
 
-function Group({ title, children }: { title: string; children: ReactNode }) {
+export function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <fieldset className="flex flex-col gap-3.5 border-t border-line/70 pt-3.5 first:border-t-0 first:pt-0">
       <legend className="sr-only">{title}</legend>
@@ -54,13 +54,23 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-export default function LabControlPanel({ scene, mode, common, setCommon, flex, setFlex, bass, setBass, saffire, setSaffire, onReset, onStatic, locked }: {
+export type FlexCoverage = { n: number; o2: [number, number]; d0: [number, number]; pressures: string[]; diluents: string[] };
+
+export default function ControlPanel({ scene, mode, common, setCommon, flex, setFlex, bass, setBass, saffire, setSaffire, onReset, onStatic, locked, flexCoverage, bassCounts, extra }: {
   scene: SceneId; mode: Mode; common: CommonState; setCommon: (c: CommonState) => void;
   flex: FlexState; setFlex: (s: FlexState) => void; bass: BassState; setBass: (s: BassState) => void;
   saffire: SaffireState; setSaffire: (s: SaffireState) => void; onReset: () => void; onStatic: () => void;
   /** Evidence mode with a selected record: the drawing follows the record, so these controls are locked. */
   locked: string | null;
+  /** Ranges actually covered by FLEX tests of the selected fuel (from /analytics/flex/map). */
+  flexCoverage?: FlexCoverage | null;
+  /** Number of BASS-II CSV tests per sample type. */
+  bassCounts?: Partial<Record<BassState["sample"], number>>;
+  /** Scene-specific content shown after the scene controls (e.g. the fuel explanation). */
+  extra?: ReactNode;
 }) {
+  const o2Range = flexCoverage ? { min: Math.floor(flexCoverage.o2[0] * 100) / 100, max: Math.ceil(flexCoverage.o2[1] * 100) / 100, step: 0.01 } : FLEX_RANGE.o2;
+  const d0Range = flexCoverage ? { min: Math.floor(flexCoverage.d0[0] * 10) / 10, max: Math.ceil(flexCoverage.d0[1] * 10) / 10, step: 0.1 } : FLEX_RANGE.d0;
   return (
     <div className="flex flex-col gap-5" data-testid="lab-controls">
       {locked && <p className="rounded-lg border border-data/40 bg-data/[0.06] px-3 py-2 text-[12.5px] text-text-2">Evidence mode: the drawing follows <b className="text-data">{locked}</b>. Switch to Conceptual 3D to explore freely.</p>}
@@ -78,13 +88,19 @@ export default function LabControlPanel({ scene, mode, common, setCommon, flex, 
             <Segmented label="Fuel (FLEX fuels)" value={flex.fuel} onChange={(v) => setFlex({ ...flex, fuel: v as FlexState["fuel"] })}
               options={[["Heptane", "n-Heptane"], ["Methanol", "Methanol"]]} />
           </div>
-          <p className="-mt-2 text-[12px] leading-snug text-text-3">Both fuels were burned in FLEX. Heptane adds the documented soot shell; flame colours are illustrative. Also filters the nearby NASA tests in Evidence.</p>
-          <Slider label="Ambient O₂ (mole fraction)" value={flex.o2} {...FLEX_RANGE.o2} disabled={!!locked}
+          <p className="-mt-2 text-[12px] leading-snug text-text-3">The only two fuels in the FLEX CSV. Changing fuel updates the explanation, the soot shell (sooting n-heptane only), the NASA media, the slider ranges and the tests in Evidence. Flame colours are illustrative.</p>
+          <Slider label="Ambient O₂ (mole fraction)" value={Math.min(Math.max(flex.o2, o2Range.min), o2Range.max)} {...o2Range} disabled={!!locked}
             onChange={(v) => setFlex({ ...flex, o2: v })} format={(v) => v.toFixed(2)}
             note="Changes the share of cyan O₂ dots only. Finds real FLEX tests near this value; it does not predict burning or extinction." />
-          <Slider label="Initial droplet diameter D₀" value={flex.d0} {...FLEX_RANGE.d0} disabled={!!locked}
+          <Slider label="Initial droplet diameter D₀" value={Math.min(Math.max(flex.d0, d0Range.min), d0Range.max)} {...d0Range} disabled={!!locked}
             onChange={(v) => setFlex({ ...flex, d0: v })} format={(v) => `${v.toFixed(1)} mm`}
             note="Redraws the droplet to scale (see the mm scale bar). The flame is always drawn at 4× the droplet radius: an illustrative choice, not computed." />
+          {flexCoverage && (
+            <p className="rounded-lg border border-line/80 px-2.5 py-1.5 text-[12px] leading-snug text-text-3" data-testid="fuel-coverage">
+              Slider ranges follow the {flexCoverage.n} FLEX {flex.fuel === "Heptane" ? "n-heptane" : "methanol"} tests with numeric O₂ and D₀: O₂ {flexCoverage.o2[0]}–{flexCoverage.o2[1]}, D₀ {flexCoverage.d0[0]}–{flexCoverage.d0[1]} mm,
+              pressure bands {flexCoverage.pressures.join(", ")} atm, diluents {flexCoverage.diluents.join(", ")} <span className="text-text-2">(computed from the CSV)</span>.
+            </p>
+          )}
         </Group>
       )}
 
@@ -92,16 +108,16 @@ export default function LabControlPanel({ scene, mode, common, setCommon, flex, 
         <Group title="Sample and airflow (conceptual)">
           <div inert={!!locked} className={locked ? "opacity-50" : ""}>
             <Segmented label="Sample type (BASS-II geometries)" value={bass.sample} onChange={(v) => setBass({ ...bass, sample: v as BassState["sample"], flow: v !== "rod" && bass.flow === "stagnation" ? "opposed" : bass.flow })}
-              options={BASS_SAMPLES.map((x) => [x.id, x.label])} />
-            <p className="mt-1 text-[12px] leading-snug text-text-3">{BASS_SAMPLES.find((x) => x.id === bass.sample)?.note} Sample length is illustrative.</p>
+              options={BASS_SAMPLES.map((x) => [x.id, bassCounts?.[x.id] !== undefined ? `${x.label} (${bassCounts[x.id]})` : x.label])} />
+            <p className="mt-1 text-[12px] leading-snug text-text-3">{BASS_SAMPLES.find((x) => x.id === bass.sample)?.note} Sample length is illustrative.{bassCounts ? " Numbers in brackets: BASS-II tests of that type in the CSV." : ""}</p>
           </div>
           <div inert={!!locked} className={locked ? "opacity-50" : ""}>
             <Segmented label="Flame spread relative to airflow" value={bass.flow} onChange={(v) => setBass({ ...bass, flow: v as BassState["flow"] })}
               options={BASS_FLOWS.filter((f) => f.id !== "stagnation" || bass.sample === "rod").map((f) => [f.id, f.label])} />
             <p className="mt-1 text-[12px] leading-snug text-text-3">{BASS_FLOWS.find((f) => f.id === bass.flow)?.note} Air always flows from the fan end to the outlet; what changes is which end of the sample burns first.</p>
           </div>
-          <Toggle label="Moving flame front" checked={bass.showFront} onChange={(v) => setBass({ ...bass, showFront: v })}
-            note="Illustrative travel only. Its speed is not a measured spread rate." />
+          <Toggle label="Flame front and direction" checked={bass.showFront} onChange={(v) => setBass({ ...bass, showFront: v })}
+            note="Shows the front line and its direction. It moves only with the illustrative timeline; its speed is not a measured spread rate." />
         </Group>
       )}
 
@@ -117,8 +133,12 @@ export default function LabControlPanel({ scene, mode, common, setCommon, flex, 
         </Group>
       )}
 
+      {extra}
+
       <Group title="View">
-        <Toggle label="Annotations" checked={common.annotations} onChange={(v) => setCommon({ ...common, annotations: v })} />
+        <Segmented label="3D labels" value={common.labels} onChange={(v) => setCommon({ ...common, labels: v as CommonState["labels"] })}
+          options={[["focus", "Contextual"], ["all", "All"], ["off", "Off"]]} />
+        <p className="-mt-2 text-[12px] leading-snug text-text-3">Contextual: a few key labels, or only the selected component&apos;s label.</p>
         <Toggle label={scene === "flex" ? "Transport indicators" : "Airflow indicators"} checked={common.transport} onChange={(v) => setCommon({ ...common, transport: v })}
           note="Conceptual arrows and particles; their speed is not a measured velocity." />
         <Toggle label="Decorative motion" checked={common.motion} onChange={(v) => setCommon({ ...common, motion: v })}

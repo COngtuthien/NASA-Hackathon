@@ -47,11 +47,11 @@ varying float vHeight;
 
 void main() {
   float facing = abs(dot(normalize(vNormalW), normalize(vViewW)));
-  float limb = pow(1.0 - facing, 2.2);
+  float limb = pow(1.0 - facing, 2.6);
   // colour: blue base everywhere; warmer toward the tip as the flame is stretched
   float warm = smoothstep(0.35, 1.0, vHeight) * uStretch;
   vec3 col = mix(uBase, uTip, clamp(warm + uStretch * 0.15, 0.0, 1.0));
-  float a = (0.05 + limb * 0.95) * uIntensity;
+  float a = (0.045 + limb * 0.8) * uIntensity;
   gl_FragColor = vec4(col * a, a);
 }
 `;
@@ -67,8 +67,11 @@ export function flameMaterialArgs(base = "#4f8dff", tip = "#ffb547", intensity =
     uTime: { value: 0 }, uStretch: { value: 0 }, uFlicker: { value: 1 },
     uBase: { value: new THREE.Color(base) }, uTip: { value: new THREE.Color(tip) }, uIntensity: { value: intensity },
   };
-  return { uniforms, vertexShader: vertex, fragmentShader: fragment, transparent: true, depthWrite: false,
-    blending: THREE.AdditiveBlending, side: THREE.DoubleSide };
+  // Pure light addition: the shader outputs premultiplied colour, and destination alpha is left untouched so the
+  // transparent canvas never darkens the page background behind a flame.
+  return { uniforms, vertexShader: vertex, fragmentShader: fragment, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    blending: THREE.CustomBlending, blendEquation: THREE.AddEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor,
+    blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneFactor };
 }
 
 /** Typed access to a flame material's uniforms through a ref (R3F owns and disposes the material). */

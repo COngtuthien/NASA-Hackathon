@@ -13,9 +13,9 @@ export type FlexPoint = {
 
 const OUTCOMES = ["Extinction", "Disruption", "Completion"];
 
-export function FlexMapChart({ points, height = 400 }: { points: FlexPoint[]; height?: number }) {
+export function FlexMapChart({ points, height = 400, highlight = null }: { points: FlexPoint[]; height?: number; highlight?: string | null }) {
   const router = useRouter();
-  const data = useMemo(() => OUTCOMES.map((o) => {
+  const data = useMemo(() => [...OUTCOMES.map((o) => {
     const pts = points.filter((p) => p.test_end === o);
     return {
       type: "scatter", mode: "markers", name: `${o} (n=${pts.length})`,
@@ -26,7 +26,12 @@ export function FlexMapChart({ points, height = 400 }: { points: FlexPoint[]; he
       marker: { color: OUTCOME_COLOR[o], symbol: OUTCOME_SYMBOL[o], size: 9, opacity: 0.88,
         line: { color: "#101E33", width: 1.5 } },
     };
-  }), [points]);
+  }), ...points.filter((p) => p.experiment_uid === highlight).map((p) => ({
+    // the test selected in the 3D studio, ringed (same coordinates as its own point)
+    type: "scatter", mode: "markers", name: `Selected in the 3D studio: ${p.identifier}`, x: [p.x_o2], y: [p.d0_mm], customdata: [p.experiment_uid],
+    hovertemplate: `<b>${p.identifier}</b> (selected in the studio)<extra></extra>`,
+    marker: { color: "rgba(0,0,0,0)", size: 20, symbol: "circle", line: { color: "#E6EDF7", width: 2.5 } },
+  }))], [points, highlight]);
   const layout = useMemo(() => baseLayout("Initial O₂ (mole fraction)", "Initial droplet diameter D₀ (mm)"), []);
   return (
     <Plot data={data} layout={layout} height={height}

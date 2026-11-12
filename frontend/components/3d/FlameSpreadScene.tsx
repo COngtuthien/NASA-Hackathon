@@ -11,7 +11,7 @@ import * as THREE from "three";
 import { approach, flameMaterialArgs, flameU } from "@/components/3d/flameMaterial";
 import { Annotation } from "@/components/3d/ScientificAnnotations";
 import { Arrow, hoverCursor, pickPart, seeded, useCursorReset, useDotTexture } from "@/components/3d/sceneUtils";
-import type { BassSceneProps } from "@/components/3d/types";
+import { labelShown, layerView, type BassSceneProps } from "@/components/3d/types";
 
 const DUCT = 7.6;          // cm, outer cross-section (documented)
 const LEN = 17;            // cm, test section length (documented)
@@ -22,9 +22,9 @@ const PRIORITY = ["igniter", "radiometer", "sample", "flame", "holder", "straigh
 
 type Pts = THREE.Points<THREE.BufferGeometry, THREE.PointsMaterial>;
 
-function Wall({ pos, size, part, glass = false, dim = false }: { pos: THREE.Vector3Tuple; size: THREE.Vector3Tuple; part: string; glass?: boolean; dim?: boolean }) {
+function Wall({ pos, size, part, glass = false, dim = false, hover }: { pos: THREE.Vector3Tuple; size: THREE.Vector3Tuple; part: string; glass?: boolean; dim?: boolean; hover: object }) {
   return (
-    <mesh position={pos} userData={{ part }} {...hoverCursor}>
+    <mesh position={pos} userData={{ part }} {...hover}>
       <boxGeometry args={size} />
       {glass ? <meshPhysicalMaterial color="#9fc3ff" roughness={0.05} metalness={0} transparent opacity={0.08} depthWrite={false} />
         : <meshStandardMaterial color="#1c2230" metalness={0.5} roughness={0.45} transparent={dim} opacity={dim ? 0.35 : 1} />}
@@ -32,7 +32,18 @@ function Wall({ pos, size, part, glass = false, dim = false }: { pos: THREE.Vect
   );
 }
 
-export default function FlameSpreadScene({ state, measured, common, animate, mode, selected, onSelect }: BassSceneProps) {
+export default function FlameSpreadScene(props: BassSceneProps) {
+  const { state, measured, common, animate, mode, selected, onSelect, interactive, timeline } = props;
+  const hover = interactive ? hoverCursor : {};
+  const V = {
+    duct: layerView(props, "duct"), fan: layerView(props, "fan"), straightener: layerView(props, "straightener"),
+    sample: layerView(props, "sample", ["flame", "holder"]), holder: layerView(props, "holder", ["sample"]),
+    flame: layerView(props, "flame", ["sample"]), igniter: layerView(props, "igniter", ["sample"]),
+    radiometer: layerView(props, "radiometer"), airflow: layerView(props, "airflow"),
+  };
+  const flameEmph = useRef(V.flame.emphasis);
+  useEffect(() => { flameEmph.current = V.flame.emphasis; });
+  const show = (id: string, primary = false) => labelShown(props, id, primary);
   useCursorReset();
   const invalidate = useThree((s) => s.invalidate);
   const dot = useDotTexture();
@@ -55,6 +66,20 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
 
   const ductBox = useMemo(() => new THREE.BoxGeometry(LEN, DUCT, DUCT), []);
   useEffect(() => () => ductBox.dispose(), [ductBox]);
+  // streamlines: straight lanes through the duct that part slightly around the sample (shape illustrative)
+  const streamlines = useMemo(() => {
+    const pts: number[] = [];
+    const cx = rodLike || flow === "stagnation" ? -SAMPLE_LEN / 2 : 0;
+    for (const y0 of [-2.4, -1.2, 1.2, 2.4]) for (const z0 of [-2.6, -1.3, 1.3, 2.6]) {
+      const segs = 24, x0 = -LEN / 2 - 1.5, x1 = LEN / 2 + 2;
+      const yAt = (x: number) => y0 + (Math.abs(y0) < 1.5 ? Math.sign(y0) * 0.35 * Math.exp(-((x - cx) ** 2) / 8) : 0);
+      for (let i = 0; i < segs; i++) {
+        const xa = x0 + ((x1 - x0) * i) / segs, xb = x0 + ((x1 - x0) * (i + 1)) / segs;
+        pts.push(xa, yAt(xa), z0, xb, yAt(xb), z0);
+      }
+    }
+    return new Float32Array(pts);
+  }, [rodLike, flow]);
   const flameMat = useRef<THREE.ShaderMaterial>(null);
   const flameRef = useRef<THREE.Group>(null);
   const burnRef = useRef<THREE.Mesh>(null);
@@ -62,7 +87,9 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
   const airPts = useRef<Pts>(null);
   const live = useRef({ time: 0, front: { value: 0.45 }, transport: { value: common.transport ? 1 : 0 } });
 
-  useEffect(() => { invalidate(); }, [invalidate, sample, flow, width, thick, rodD, common.transport, common.annotations, mode, selected, animate, state.showFront]);
+  useEffect(() => { invalidate(); }, [invalidate, sample, flow, width, thick, rodD, common.transport, common.labels, mode, selected, animate, state.showFront, props.hidden, props.isolate]);
+
+  useEffect(() => (timeline ? timeline.subscribe(() => invalidate()) : undefined), [timeline, invalidate]);
 
   // geometry of the travelling front along x (sample spans -L/2..L/2; air flows toward +x)
   const half = SAMPLE_LEN / 2;
@@ -72,8 +99,11 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
     const L = live.current;
     let moving = approach(L.transport, common.transport ? 1 : 0, dt, 6);
     if (animate) L.time += dt;
-    const target = state.showFront && animate ? (L.time * 0.045) % 1 : 0.45;
-    if (state.showFront && animate) L.front.value = target; else moving = approach(L.front, target, dt, 5) || moving;
+    // front position: from the illustrative timeline when it is active, otherwise parked mid-sample
+    const tl = timeline?.get();
+    const target = tl?.active ? Math.min(1, Math.max(0, (tl.p - 0.12) / 0.76)) : 0.45;
+    if (tl?.active) L.front.value = target; else moving = approach(L.front, target, dt, 5) || moving;
+    const lit = tl?.active ? (tl.p >= 0.08 ? 1 : 0) : 1;
     const p = stagnation ? 0 : 0.08 + L.front.value * 0.84;
     const fx = frontX(p);
 
@@ -83,7 +113,7 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
       fu.uTime.value = L.time;
       fu.uFlicker.value = animate ? 1 : 0;
       fu.uStretch.value = concurrent ? 0.85 : stagnation ? 0.1 : 0.22;
-      fu.uIntensity.value = (selected === "flame" ? 1.8 : 1.4) * (evidence ? 0.7 : 1);
+      fu.uIntensity.value = (selected === "flame" ? 1.2 : 0.9) * (evidence ? 0.7 : 1) * lit * flameEmph.current;
     }
     const g = flameRef.current;
     if (g) {
@@ -98,7 +128,7 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
     if (b) {
       const start = concurrent ? -half : half;
       const len = Math.abs(fx - start);
-      b.visible = !stagnation && len > 0.05;
+      b.visible = !stagnation && len > 0.05 && lit > 0;
       b.position.x = (fx + start) / 2;
       b.scale.x = Math.max(len, 0.01);
     }
@@ -115,23 +145,22 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
       attr.needsUpdate = true;
       a.material.opacity = 0.7 * L.transport.value;
     }
-    if (moving && !animate) invalidate();
+    if ((moving || tl?.playing) && !animate) invalidate();
   });
 
-  const A = common.annotations;
   const sampleColor = sample === "fabric" ? "#cdbb93" : sample === "thin-film" ? "#bcd6f2" : "#d9e7f5";
   const sampleSel = selected === "sample";
   const igniterX = concurrent || stagnation ? -half - 0.7 : half + 0.7;
   const inner = DUCT / 2 - WALL;
 
   return (
-    <group onClick={(e) => { e.stopPropagation(); const p = pickPart(e, PRIORITY); if (p) onSelect(p); }}>
+    <group onClick={interactive ? (e) => { e.stopPropagation(); const p = pickPart(e, PRIORITY); if (p) onSelect(p); } : undefined}>
       {/* flow duct: dark back and bottom, window front, rail plate on top (still-camera view) */}
-      <group>
-        <Wall part="duct" pos={[0, 0, -DUCT / 2 + WALL / 2]} size={[LEN, DUCT, WALL]} />
-        <Wall part="duct" pos={[0, -DUCT / 2 + WALL / 2, 0]} size={[LEN, WALL, DUCT]} />
-        <Wall part="duct" pos={[0, DUCT / 2 - WALL / 2, 0]} size={[LEN, WALL, DUCT]} glass />
-        <Wall part="duct" pos={[0, 0, DUCT / 2 - WALL / 2]} size={[LEN, DUCT, WALL]} glass />
+      <group visible={V.duct.visible}>
+        <Wall hover={hover} part="duct" pos={[0, 0, -DUCT / 2 + WALL / 2]} size={[LEN, DUCT, WALL]} />
+        <Wall hover={hover} part="duct" pos={[0, -DUCT / 2 + WALL / 2, 0]} size={[LEN, WALL, DUCT]} />
+        <Wall hover={hover} part="duct" pos={[0, DUCT / 2 - WALL / 2, 0]} size={[LEN, WALL, DUCT]} glass />
+        <Wall hover={hover} part="duct" pos={[0, 0, DUCT / 2 - WALL / 2]} size={[LEN, DUCT, WALL]} glass />
         {/* window frames and rounded-corner cue */}
         {[[1, 1], [1, -1], [-1, 1], [-1, -1]].map(([sy, sz]) => (
           <mesh key={`${sy}${sz}`} position={[0, sy * (DUCT / 2 - 0.3), sz * (DUCT / 2 - 0.3)]} rotation={[0, 0, Math.PI / 2]} raycast={() => null}>
@@ -149,7 +178,7 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
       </group>
 
       {/* upstream: fan housing with restrictor plate, then honeycomb straightener and screen */}
-      <group position={[-LEN / 2 - 3.6, 0, 0]} userData={{ part: "fan" }} {...hoverCursor}>
+      <group position={[-LEN / 2 - 3.6, 0, 0]} userData={{ part: "fan" }} visible={V.fan.visible} {...hover}>
         <mesh rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[3.1, 3.1, 4.2, 40, 1, true]} />
           <meshStandardMaterial color={selected === "fan" ? "#2a3a5c" : "#1a1f29"} metalness={0.5} roughness={0.45} side={THREE.DoubleSide} /></mesh>
         {[0, 1, 2, 3, 4].map((i) => (
@@ -159,7 +188,7 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
         <mesh position={[0.2, 0, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.55, 0.55, 0.8, 20]} /><meshStandardMaterial color="#3a4458" metalness={0.6} roughness={0.3} /></mesh>
         <mesh position={[-2.05, 0, 0]} rotation={[0, Math.PI / 2, 0]}><ringGeometry args={[1.1, 3.1, 40]} /><meshStandardMaterial color="#2c3444" side={THREE.DoubleSide} /></mesh>
       </group>
-      <group position={[-LEN / 2 - 0.75, 0, 0]} userData={{ part: "straightener" }} {...hoverCursor}>
+      <group position={[-LEN / 2 - 0.75, 0, 0]} userData={{ part: "straightener" }} visible={V.straightener.visible} {...hover}>
         <mesh><boxGeometry args={[1.1, DUCT - 0.1, DUCT - 0.1, 1, 10, 10]} />
           <meshBasicMaterial color={selected === "straightener" ? "#5b8cff" : "#56627a"} wireframe transparent opacity={selected === "straightener" ? 0.9 : 0.4} /></mesh>
         <mesh position={[0.62, 0, 0]} rotation={[0, Math.PI / 2, 0]}><planeGeometry args={[DUCT - 0.2, DUCT - 0.2, 16, 16]} />
@@ -167,7 +196,7 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
       </group>
 
       {/* sample holder (illustrative): two side rails on a bracket from the back wall */}
-      <group userData={{ part: "holder" }} {...hoverCursor}>
+      <group userData={{ part: "holder" }} visible={V.holder.visible} {...hover}>
         {!rodLike && sample !== "sphere" && [-1, 1].map((s) => (
           <mesh key={s} position={[0, 0, s * (width / 2 + 0.12)]}><boxGeometry args={[SAMPLE_LEN + 1.2, Math.max(thick, 0.1) + 0.24, 0.22]} />
             <meshStandardMaterial color={selected === "holder" ? "#5b8cff" : "#6b7486"} metalness={0.7} roughness={0.3} /></mesh>
@@ -181,7 +210,7 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
       </group>
 
       {/* the sample */}
-      <group userData={{ part: "sample" }} {...hoverCursor}>
+      <group userData={{ part: "sample" }} visible={V.sample.visible} {...hover}>
         {(sample === "thin-film" || sample === "slab" || sample === "fabric") && (
           <mesh><boxGeometry args={[SAMPLE_LEN, thick, width]} />
             <meshPhysicalMaterial color={sampleColor} roughness={sample === "fabric" ? 0.9 : 0.15} clearcoat={sample === "fabric" ? 0 : 0.6}
@@ -199,13 +228,13 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
       </group>
 
       {/* burned region and front line (illustrative) */}
-      {sample !== "sphere" && (
+      {sample !== "sphere" && V.sample.visible && (
         <mesh ref={burnRef} raycast={() => null}>
           {rodLike ? <boxGeometry args={[1, rodD * 1.01, rodD * 1.01]} /> : <boxGeometry args={[1, thick + 0.02, width * 1.005]} />}
           <meshStandardMaterial color="#3b2a22" roughness={0.9} transparent opacity={rodLike ? 0.55 : 0.85} />
         </mesh>
       )}
-      {sample !== "sphere" && (
+      {sample !== "sphere" && V.sample.visible && (
         <mesh ref={frontRef} raycast={() => null}>
           <boxGeometry args={[0.08, (rodLike ? rodD : thick) + 0.06, (rodLike ? rodD : width) + 0.06]} />
           <meshBasicMaterial color="#ffb547" />
@@ -213,20 +242,20 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
       )}
 
       {/* flame */}
-      <group ref={flameRef} userData={{ part: "flame" }} {...hoverCursor}>
+      <group ref={flameRef} userData={{ part: "flame" }} visible={V.flame.visible} {...hover}>
         <mesh><sphereGeometry args={[1, 56, 40]} /><shaderMaterial ref={flameMat} args={[flameArgs]} /></mesh>
       </group>
       <pointLight color="#ff9a4a" intensity={10} distance={16} decay={2} position={[0, 1.2, 0]} />
       <pointLight color="#9fb6ff" intensity={5} distance={20} decay={2} position={[0, 2.6, 2.4]} />
 
       {/* hot-wire igniter (position illustrative) */}
-      <group position={[igniterX, 0.1, 0]} userData={{ part: "igniter" }} {...hoverCursor}>
+      <group position={[igniterX, 0.1, 0]} userData={{ part: "igniter" }} visible={V.igniter.visible} {...hover}>
         <mesh rotation={[0, Math.PI / 2, 0]}><torusGeometry args={[0.35, 0.05, 8, 24]} /><meshStandardMaterial color={selected === "igniter" ? "#ff8a3d" : "#c06a3c"} emissive="#ff6a2a" emissiveIntensity={0.4} /></mesh>
         <mesh position={[0, 1.7, -0.6]} rotation={[0.35, 0, 0]}><cylinderGeometry args={[0.05, 0.05, 3.2, 8]} /><meshStandardMaterial color="#8a93a6" metalness={0.8} roughness={0.3} /></mesh>
       </group>
 
       {/* radiometer: downstream top back corner, looking upstream (documented) */}
-      <group position={[LEN / 2 - 0.9, DUCT / 2 - 0.9, -DUCT / 2 + 0.9]} userData={{ part: "radiometer" }} {...hoverCursor}>
+      <group position={[LEN / 2 - 0.9, DUCT / 2 - 0.9, -DUCT / 2 + 0.9]} userData={{ part: "radiometer" }} visible={V.radiometer.visible} {...hover}>
         <mesh rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.38, 0.38, 1.1, 20]} /><meshStandardMaterial color={selected === "radiometer" ? "#5b8cff" : "#3a4458"} metalness={0.6} roughness={0.3} /></mesh>
         <mesh position={[-0.56, 0, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.24, 0.24, 0.04, 20]} /><meshStandardMaterial color="#7fb2ff" emissive="#4f8dff" emissiveIntensity={0.6} /></mesh>
       </group>
@@ -237,37 +266,39 @@ export default function FlameSpreadScene({ state, measured, common, animate, mod
         {Array.from({ length: 11 }, (_, i) => <mesh key={i} position={[i, 0.1, 0]} raycast={() => null}><boxGeometry args={[0.04, i % 5 ? 0.18 : 0.32, 0.04]} /><meshBasicMaterial color="#a9b8cd" /></mesh>)}
       </group>
 
-      {/* airflow */}
-      <points ref={airPts} raycast={() => null}>
+      {/* airflow: conceptual streamlines and drifting particles (direction only; not a measured velocity) */}
+      {common.transport && V.airflow.visible && (
+        <lineSegments raycast={() => null}>
+          <bufferGeometry><bufferAttribute attach="attributes-position" args={[streamlines, 3]} /></bufferGeometry>
+          <lineBasicMaterial color="#4fd1e8" transparent opacity={0.22 * V.airflow.emphasis} />
+        </lineSegments>
+      )}
+      <points ref={airPts} raycast={() => null} visible={V.airflow.visible}>
         <bufferGeometry><bufferAttribute attach="attributes-position" args={[air.pos, 3]} /></bufferGeometry>
         <pointsMaterial map={dot} color="#4fd1e8" size={0.16} sizeAttenuation transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0} />
       </points>
-      {common.transport && [-2, 0, 2].map((y) => (
+      {common.transport && V.airflow.visible && [-2, 0, 2].map((y) => (
         <Arrow key={y} from={[-LEN / 2 - 8.2, y, 0]} to={[-LEN / 2 - 5.9, y, 0]} color="#4fd1e8" opacity={0.85} radius={0.07} head={0.5} />
       ))}
-      {common.transport && <Arrow from={[LEN / 2 + 0.4, 0, 0]} to={[LEN / 2 + 3, 0, 0]} color="#4fd1e8" opacity={0.6} radius={0.07} head={0.5} />}
+      {common.transport && V.airflow.visible && <Arrow from={[LEN / 2 + 0.4, 0, 0]} to={[LEN / 2 + 3, 0, 0]} color="#4fd1e8" opacity={0.6} radius={0.07} head={0.5} />}
       {state.showFront && !stagnation && (
         <Arrow from={[concurrent ? -1.5 : 1.5, (rodLike ? rodD / 2 : thick / 2) + 1.9, width / 2 + 0.6]} to={[concurrent ? 1.5 : -1.5, (rodLike ? rodD / 2 : thick / 2) + 1.9, width / 2 + 0.6]}
           color="#ffb547" opacity={0.95} radius={0.07} head={0.5} />
       )}
 
-      {A && (
-        <>
-          <Annotation id="duct" label="Flow duct 7.6 × 7.6 × 17 cm" position={[2, DUCT / 2 + 0.7, -1]} selected={selected === "duct"} onSelect={onSelect} />
-          <Annotation id="fan" label="Fan + flow restrictors" position={[-LEN / 2 - 3.6, 3.8, 0]} selected={selected === "fan"} onSelect={onSelect} />
-          <Annotation id="straightener" label="Honeycomb + screen" position={[-LEN / 2 - 0.75, -DUCT / 2 - 0.7, 1]} selected={selected === "straightener"} onSelect={onSelect} />
-          <Annotation id="sample" tone={evidence ? "measured" : "default"} position={[-3.8, 1.5, -width / 2 - 0.6]} selected={sampleSel} onSelect={onSelect}
-            label={evidence ? `Sample · ${measured?.diameter_mm ? `Ø ${measured.diameter_mm} mm` : measured?.width_cm ? `${measured.width_cm} cm wide` : "size not recorded"} (CSV)` : "Solid sample"} />
-          <Annotation id="holder" label="Holder (illustrative)" position={[half + 0.9, -1.2, -inner / 2]} selected={selected === "holder"} onSelect={onSelect} />
-          <Annotation id="flame" label={stagnation ? "Flame at the rod tip (stagnation)" : concurrent ? "Flame trails downstream (concurrent)" : "Flame creeps upstream (opposed)"}
-            position={[stagnation ? -half - 1.5 : 1.5, -2.3, width / 2 + 0.8]} selected={selected === "flame"} onSelect={onSelect} />
-          {state.showFront && !stagnation && <Annotation id="flame" label="Illustrative front travel, not a measured rate" tone="warn" position={[0, (rodLike ? rodD / 2 : thick / 2) + 2.6, width / 2 + 0.6]} selected={false} onSelect={onSelect} />}
-          <Annotation id="igniter" label="Hot-wire igniter" position={[igniterX, -1.3, 0.8]} selected={selected === "igniter"} onSelect={onSelect} />
-          <Annotation id="radiometer" label="Radiometer" position={[LEN / 2 - 0.9, DUCT / 2 + 0.6, -DUCT / 2 + 0.9]} selected={selected === "radiometer"} onSelect={onSelect} />
-          {common.transport && <Annotation id="fan" label="Airflow →" position={[-LEN / 2 - 7, 2.9, 0]} selected={false} onSelect={onSelect} />}
-          <Annotation id="duct" label="10 cm scale" position={[-5.6, -DUCT / 2 + 0.75, -DUCT / 2 + 0.6]} selected={false} onSelect={() => undefined} />
-        </>
-      )}
+      {show("duct", true) && <Annotation id="duct" label="Flow duct 7.6 × 7.6 × 17 cm" position={[2, DUCT / 2 + 0.7, -1]} selected={selected === "duct"} onSelect={onSelect} />}
+      {show("fan") && <Annotation id="fan" label="Fan + flow restrictors" position={[-LEN / 2 - 3.6, 3.8, 0]} selected={selected === "fan"} onSelect={onSelect} />}
+      {show("straightener") && <Annotation id="straightener" label="Honeycomb + screen" position={[-LEN / 2 - 0.75, -DUCT / 2 - 0.7, 1]} selected={selected === "straightener"} onSelect={onSelect} />}
+      {show("sample", true) && <Annotation id="sample" tone={evidence ? "measured" : "default"} position={[-3.8, 1.5, -width / 2 - 0.6]} selected={sampleSel} onSelect={onSelect}
+        label={evidence ? `Sample · ${measured?.diameter_mm ? `Ø ${measured.diameter_mm} mm` : measured?.width_cm ? `${measured.width_cm} cm wide` : "size not recorded"} (CSV)` : "Solid sample"} />}
+      {show("holder") && <Annotation id="holder" label="Holder (illustrative)" position={[half + 0.9, -1.2, -inner / 2]} selected={selected === "holder"} onSelect={onSelect} />}
+      {show("flame", true) && <Annotation id="flame" label={stagnation ? "Flame at the rod tip (stagnation)" : concurrent ? "Flame trails downstream (concurrent)" : "Flame creeps upstream (opposed)"}
+        position={[stagnation ? -half - 1.5 : 1.5, -2.3, width / 2 + 0.8]} selected={selected === "flame"} onSelect={onSelect} />}
+      {interactive && common.labels !== "off" && state.showFront && !stagnation && V.sample.visible && <Annotation id="flame" label="Illustrative progression — not measured flame-front motion" tone="warn" position={[0, (rodLike ? rodD / 2 : thick / 2) + 2.6, width / 2 + 0.6]} selected={false} onSelect={onSelect} />}
+      {show("igniter") && <Annotation id="igniter" label="Hot-wire igniter" position={[igniterX, -1.3, 0.8]} selected={selected === "igniter"} onSelect={onSelect} />}
+      {show("radiometer") && <Annotation id="radiometer" label="Radiometer" position={[LEN / 2 - 0.9, DUCT / 2 + 0.6, -DUCT / 2 + 0.9]} selected={selected === "radiometer"} onSelect={onSelect} />}
+      {common.transport && show("airflow", true) && <Annotation id="airflow" label="Airflow →" position={[-LEN / 2 - 7, 2.9, 0]} selected={selected === "airflow"} onSelect={onSelect} />}
+      {interactive && common.labels === "all" && <Annotation id="scale" label="10 cm scale" position={[-5.6, -DUCT / 2 + 0.75, -DUCT / 2 + 0.6]} selected={false} onSelect={() => undefined} />}
     </group>
   );
 }

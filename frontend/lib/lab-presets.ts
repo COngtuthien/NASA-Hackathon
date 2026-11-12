@@ -30,13 +30,16 @@ export type SaffireState = {
   burn: SaffireBurn;
 };
 
+/** Labels: "focus" shows the primary labels, or only the selected component's label once one is selected. */
+export type LabelMode = "focus" | "all" | "off";
+
 export type CommonState = {
-  annotations: boolean;
+  labels: LabelMode;
   transport: boolean;
   motion: boolean;
 };
 
-export const COMMON_DEFAULT: CommonState = { annotations: true, transport: true, motion: true };
+export const COMMON_DEFAULT: CommonState = { labels: "focus", transport: true, motion: true };
 export const FLEX_DEFAULT: FlexState = { gravity: "micro", o2: 0.21, d0: 3, fuel: "Heptane" };
 export const BASS_DEFAULT: BassState = { sample: "slab", flow: "opposed", showFront: true };
 export const SAFFIRE_DEFAULT: SaffireState = { cutaway: true, exploded: false, burn: "S1" };
@@ -45,7 +48,7 @@ export const SAFFIRE_DEFAULT: SaffireState = { cutaway: true, exploded: false, b
 export const FLEX_RANGE = { o2: { min: 0.12, max: 0.34, step: 0.01 }, d0: { min: 1, max: 5, step: 0.1 } } as const;
 
 export const BASS_SAMPLES: { id: BassSample; label: string; materialClasses: string[]; note: string }[] = [
-  { id: "thin-film", label: "PMMA thin film", materialClasses: ["PMMA thin film"], note: "Flat; thin films burn as a sheet." },
+  { id: "thin-film", label: "PMMA thin film", materialClasses: ["PMMA thin film"], note: "Flat PMMA film, the thinnest flat samples (slabs and films span 0.125–5 mm)." },
   { id: "slab", label: "PMMA slab", materialClasses: ["PMMA slab"], note: "Flat; 1–5 mm thick in Table 5.1." },
   { id: "rod", label: "PMMA rod", materialClasses: ["PMMA rod (clear)", "PMMA rod (black)"], note: "Cylinder, 6.35–12.7 mm diameter." },
   { id: "sphere", label: "PMMA sphere section", materialClasses: ["PMMA sphere section"], note: "Section of a 4 cm diameter sphere." },

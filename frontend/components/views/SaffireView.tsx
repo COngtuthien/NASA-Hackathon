@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import Plot, { baseLayout, CAT } from "@/components/Plot";
 import { PhenomenonArt } from "@/components/illustrations";
-import LabEntryLink from "@/components/lab/LabEntryLink";
-import { MediaFigure, MediaPanelBlock, SchematicFigure } from "@/components/media";
+import ScienceStudio from "@/components/studio/ScienceStudio";
+import { LiteraturePanel, ScientificConclusions } from "@/components/studio/ScienceSummary";
+import { SOURCES } from "@/lib/lab-scientific-metadata";
+import { MediaFigure, SchematicFigure } from "@/components/media";
 import { usePauseOffscreen } from "@/components/motion";
 import { Callout, Field, inputCls, Loadable, PageHeader, Panel, Prov, Severity } from "@/components/ui";
 import { expHref, fmt, useApi } from "@/lib/api";
@@ -53,22 +55,16 @@ function FlowCard({ burn }: { burn: Record<string, unknown> }) {
 
 const SET_LABEL: Record<string, string> = { BIT: "Built-in test", PreFlowVis: "F1 flow visualization", Sample1: "S1 burn (concurrent)", Sample2: "S2 burn (opposed)", PostFlowVis: "F2 flow visualization" };
 
-/** NASA's public Saffire-I footage. It is not derived from the local manifest, which holds file names and times only. */
-function SaffireFootage() {
+/** Saffire-I hardware as NASA photographed it. NASA's burn footage lives in the studio's "NASA footage" view (#footage). */
+function SaffireHardware() {
   return (
-    <section id="footage" aria-labelledby="footage-title" className="hairline-top scroll-mt-36 rounded-2xl border border-line/80 bg-[linear-gradient(170deg,rgba(255,138,61,0.07),rgba(16,30,51,0.92)_45%)] p-4 md:p-6">
-      <p className="kicker">NASA footage</p>
-      <h2 id="footage-title" className="subhead mt-2 text-[22px] md:text-[26px]">The first large-scale fire in a spacecraft, as NASA filmed it</h2>
+    <section id="hardware" aria-labelledby="hardware-title" className="hairline-top scroll-mt-36 rounded-2xl border border-line/80 bg-[linear-gradient(170deg,rgba(255,138,61,0.07),rgba(16,30,51,0.92)_45%)] p-4 md:p-6">
+      <p className="kicker">NASA hardware</p>
+      <h2 id="hardware-title" className="subhead mt-2 text-[22px] md:text-[26px]">The flight unit that held the first large-scale spacecraft fire</h2>
       <p className="mt-2 max-w-[80ch] text-[15px] leading-relaxed text-text-2">
         On 14 June 2016, after Cygnus left the space station, a hot wire ignited the fabric sample inside a closed enclosure while cameras recorded the burn
-        and later downlinked the images. Nothing plays until you press play; the YouTube video loads only then.
+        and later downlinked the images. NASA&apos;s footage of the burn is in the 3D studio&apos;s <a href="#footage">NASA footage</a> view above; nothing plays until you press play.
       </p>
-      <div className="mt-5 grid gap-6 lg:grid-cols-2">
-        <MediaPanelBlock id="saffire1-burn-animation">
-          <p className="text-xs text-text-3">What it shows: a flame front moving along the sample. It cannot tell you the spread rate: the frames are NASA&apos;s selection, played faster than real time, with no scale.</p>
-        </MediaPanelBlock>
-        <MediaPanelBlock id="saffire1-youtube" />
-      </div>
       <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         <MediaFigure id="saffire1-preflight-ceit" aspect="4 / 3" compact sizes="(min-width: 1280px) 30vw, (min-width: 640px) 45vw, 92vw"
           caption="Saffire-I before flight, during the OA-6 crew equipment interface test at Kennedy Space Center." />
@@ -123,13 +119,14 @@ export default function SaffireView() {
             { value: `${fmt((got / listed) * 100)} %`, label: "of those frames marked received on the ground" },
           ];
         })() : undefined}
-        sections={[{ id: "footage", label: "NASA footage" }, { id: "airflow", label: "Airflow" }, { id: "compare", label: "S1 vs S2" }, { id: "timeline", label: "Downlink timeline" }, { id: "manifest", label: "Manifest summary" }, { id: "sets", label: "Image sets & papers" }]} />
+        sections={[{ id: "studio", label: "3D studio & footage" }, { id: "hardware", label: "Hardware" }, { id: "airflow", label: "Airflow" }, { id: "compare", label: "S1 vs S2" }, { id: "timeline", label: "Downlink timeline" }, { id: "manifest", label: "Manifest summary" }, { id: "sets", label: "Image sets" }, { id: "conclusions", label: "Conclusions" }, { id: "literature", label: "Literature" }]} />
+      <ScienceStudio sceneId="saffire" />
+      <div className="h-6" />
       <Loadable state={cs} rows={10}>
         {(c) => (
           <div className="flex flex-col gap-5">
             <Callout tone="warn">{c.statements.find((s) => s.kind === "UNSUPPORTED")?.text} The manifest lists image files, but their pixels are not in the local data, so no manifest frame is shown or reconstructed. The footage below is NASA&apos;s public release.</Callout>
-            <SaffireFootage />
-            <LabEntryLink scene="saffire" label="Inspect a conceptual 3D cutaway of the Saffire-I flow duct" />
+            <SaffireHardware />
             <Panel id="airflow" tone="feature" title="Airflow and flame-spread direction" aside="Direction and speed as recorded in the CSV">
               <div className="grid gap-5 md:grid-cols-2">
                 {c.burns.map((bn) => <FlowCard key={String(bn.experiment_uid)} burn={bn} />)}
@@ -189,18 +186,26 @@ export default function SaffireView() {
               <p className="mt-2 text-xs text-text-3">Timestamps come from epoch-millisecond file names. JPEG file sizes exist in the workbook but are not shown: they are not a flame measurement.</p>
             </Panel>
 
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-5">
               <Panel id="sets" title="Image-set rows (F1, F2)">
                 <ul className="flex flex-col gap-2 text-sm">{c.image_sets.map((s) => (
                   <li key={s.label}><b>{s.label}</b>: CSV text <span className="raw">{s.csv_description}</span>
                     <span className="block text-text-2">Documented role: {s.documented_role}{s.csv_role !== s.documented_role && <span className="text-warn"> (conflicts with CSV)</span>}</span></li>))}</ul>
               </Panel>
-              <Panel title="Publications listed for SAFFIRE-I">
-                <ul className="flex flex-col gap-2 text-sm">{c.publications.map((p) => (
-                  <li key={p.title}>{p.doi ? <a href={`https://doi.org/${p.doi}`} target="_blank" rel="noreferrer">{p.title}</a> : p.title}</li>))}</ul>
-                <p className="mt-2 text-xs text-text-3">Listed in NASA PSI metadata; contents not read. Search them in <Link href="/evidence/literature?q=Saffire%20spacecraft%20fire%20experiment">External research</Link>.</p>
-              </Panel>
             </div>
+            <ScientificConclusions
+              findings={[
+                { text: "Saffire-I burned a cotton-fiberglass sheet about 0.4 m wide by 0.94 m tall inside a flow duct aboard Cygnus after it left the space station: the first of three Saffire flights.", kind: "DOC", source: { ...SOURCES.saffireOps } },
+                { text: <>The CSV records two burns at {fmt(c.burns[0]?.air_flow_cm_s)} cm/s airflow: S1 in concurrent flow (burn time {fmt(c.burns.find((b) => b.sample === "S1")?.burn_time_s)} s) and S2 in opposed flow ({fmt(c.burns.find((b) => b.sample === "S2")?.burn_time_s)} s).</>, kind: "experiment", source: { label: "S1 vs S2 on this page", href: "#compare" } },
+                { text: "NASA's published footage shows a flame front moving along the sample; its playback rate is not the burn rate.", kind: "DOC", source: { label: "NASA footage in the studio", href: "#footage" } },
+              ]}
+              limits={[
+                { text: c.statements.find((x) => x.kind === "UNSUPPORTED")?.text ?? "Flame spread rates are not available in the local files.", kind: "UNSUPPORTED" },
+                { text: "With only two burns and different flow directions, burn times are not a material property and cannot be compared as one.", kind: "COMPUTED", source: { label: "S1 vs S2", href: "#compare" } },
+                { text: "CSV length and width appear swapped relative to the Operations document (SAF-LENGTH-WIDTH); F2's CSV label conflicts with the DoD; only about a quarter of the listed Sample 2 frames are marked received (SAF-DOWNLINK-GAP).", kind: "quality_flag", source: { label: "Data conflicts and warnings", href: "#compare" } },
+                { text: "The 3D arrangement is conceptual: component positions, duct cross-section and the moving flame band are illustrative.", kind: "HYPOTHESIS" },
+              ]} />
+            <LiteraturePanel inv="PSI-98" source="SAFFIRE-I" query="Saffire spacecraft fire experiment" question="What do the NASA SAFFIRE-I (PSI-98) sources say about large-scale flame spread in a spacecraft?" />
           </div>
         )}
       </Loadable>

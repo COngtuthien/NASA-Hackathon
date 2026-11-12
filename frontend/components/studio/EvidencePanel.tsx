@@ -6,7 +6,8 @@
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { Icon } from "@/components/icons";
-import { MediaFigure, MediaPanelBlock } from "@/components/media";
+import { MediaFigure } from "@/components/media";
+import D2Calculator from "@/components/studio/D2Calculator";
 import { Callout, Kind, Loadable, Prov, Severity, SourceBadge } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
 import { copilotHref } from "@/lib/lab-copilot";
@@ -141,7 +142,8 @@ function FlexEvidence({ scene, flex, uid, onRecord, detail }: { scene: LabScene;
             <Row label="Burn time">{fmt(n.burn_time_s)} s<Kind kind={n.burn_time_kind as string} /></Row>
             <Row label="Test end" note={n.test_end === "Disruption" ? "'Disruption' has no definition in the local documents; treated as unresolved." : undefined}>{String(n.test_end ?? "—")}</Row>
           </tbody></table>
-          <p className="mt-2 text-[12px] text-text-3">The 3D view draws D₀ and the extinction diameter to scale and colours O₂ dots by the recorded fraction. It does not animate a burn: K is shown here, not used to drive motion.</p>
+          <p className="mt-2 text-[12px] text-text-3">The 3D view draws D₀ and the extinction diameter to scale and colours O₂ dots by the recorded fraction. It does not animate this burn: K is shown here and used only in the idealized calculation below.</p>
+          <div className="mt-3"><D2Calculator uid={detail.experiment_uid} /></div>
           <div className="mt-3 flex flex-col gap-3">
             <Flags flags={detail.quality_flags} title="Quality flags for this test" />
             <Flags flags={detail.dataset_flags.filter((f) => f.severity !== "info")} title="Dataset-wide caveats" />
@@ -269,7 +271,7 @@ function BassEvidence({ scene, bass, uid, onRecord, detail }: { scene: LabScene;
 
 type SaffireCase = { burns: Record<string, unknown>[]; quality_flags: Flag[]; statements: { kind: string; text: string }[] };
 
-function SaffireEvidence({ scene, burn, detail }: { scene: LabScene; burn: string; detail: Detail | null }) {
+export function SaffireEvidence({ scene, burn, detail }: { scene: LabScene; burn: string; detail: Detail | null }) {
   const cs = useApi<SaffireCase>("/analytics/saffire/case");
   return (
     <div className="flex flex-col gap-5">
@@ -315,26 +317,24 @@ function SaffireEvidence({ scene, burn, detail }: { scene: LabScene; burn: strin
       </Loadable>
 
       <section aria-labelledby="saf-media">
-        <h3 id="saf-media" className="subhead text-[15px]">NASA footage and hardware</h3>
-        <p className="mt-1 text-[12.5px] text-text-3">NASA&apos;s public release; the local manifest holds file names and times only, so no frame is reconstructed here.</p>
-        <div className="mt-2"><MediaPanelBlock id="saffire1-burn-animation" /></div>
-        <div className="mt-3 grid grid-cols-2 gap-3">
+        <h3 id="saf-media" className="subhead text-[15px]">NASA hardware photographs</h3>
+        <p className="mt-1 text-[12.5px] text-text-3">NASA&apos;s burn footage is in the studio&apos;s “NASA footage” view. The local manifest holds file names and times only, so no frame is reconstructed.</p>
+        <div className="mt-2 grid grid-cols-2 gap-3">
           <MediaFigure id="saffire1-hardware-cygnus" aspect="4 / 3" compact sizes="200px" caption="Flight unit in Cygnus." />
           <MediaFigure id="saffire1-preflight-ceit" aspect="4 / 3" compact sizes="200px" caption="Before flight (OA-6 check)." />
         </div>
-        <p className="mt-2 text-[13px]"><Link href={`${ROUTES.spacecraft}#footage`}>NASA video and the full Spacecraft Fire Dynamics page</Link></p>
       </section>
     </div>
   );
 }
 
-export default function LabEvidencePanel({ scene, flex, bass, saffireBurn, uid, onRecord, detail }: {
+export default function EvidencePanel({ scene, flex, bass, saffireBurn, uid, onRecord, detail }: {
   scene: LabScene; flex: FlexState; bass: BassState; saffireBurn: string; uid: string | null; onRecord: (uid: string | null) => void; detail: Detail | null;
 }) {
   return (
     <div className="flex flex-col gap-4" data-testid="lab-evidence">
       <div className="flex flex-wrap items-center gap-2"><SourceBadge source={scene.source} inv={scene.inv} size="sm" />
-        <Link href={scene.phenomenonHref} className="text-[13px]">{scene.phenomenonTitle}</Link></div>
+        <a href={scene.id === "flex" ? "#map" : scene.id === "bass" ? "#gas" : "#compare"} className="text-[13px]">Charts and analysis on this page</a></div>
       {scene.id === "flex" && <FlexEvidence scene={scene} flex={flex} uid={uid} onRecord={onRecord} detail={detail} />}
       {scene.id === "bass" && <BassEvidence scene={scene} bass={bass} uid={uid} onRecord={onRecord} detail={detail} />}
       {scene.id === "saffire" && <SaffireEvidence scene={scene} burn={saffireBurn} detail={detail} />}

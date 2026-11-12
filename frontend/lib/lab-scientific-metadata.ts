@@ -20,6 +20,9 @@ const doc = (id: string, page: number | null, label: string): SourceRef => ({
 export const SOURCES = {
   liuP2: doc("2g11-070he-0310", 2, "Liu et al. 2013, PDF p.2 (spherical droplet flame structure, d²-law)"),
   liuP4: doc("2g11-070he-0310", 4, "Liu et al. 2013, PDF p.4 (MDCA droplet deployment and ignition)"),
+  liuP8: doc("2g11-070he-0310", 8, "Liu et al. 2013, PDF p.8 (flame and soot standoff ratios vary with D₀)"),
+  flexEird36: doc("flex-eird-v4", 36, "FLEX ERD v4, PDF p.36 (FLEX fuels: sooting n-heptane, non-sooting methanol)"),
+  faroukP2: doc("1g17-070he-0166", 2, "Farouk & Dryer 2013, PDF p.2 (n-heptane two-stage “cool flame” burning vs methanol radiative extinction)"),
   flexEird74: doc("flex-eird-v4", 74, "FLEX ERD v4, PDF p.74 (earlier quiescent and forced-flow droplet experiments)"),
   coolFlames: doc("cool-flames-in-space-a-hot-prospect-on-earth", 23, "Cool Flames in Space, PDF p.23 (cool-flame burning after extinction)"),
   bassP12: doc("bass-ii-summary-report", 12, "BASS-II Summary Report, PDF p.12 (flow duct, fan, flow straightener, radiometer)"),

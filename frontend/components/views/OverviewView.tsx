@@ -377,9 +377,9 @@ function OrbitMedia() {
 /* ---------------- D2. Interactive 3D lab entry ---------------- */
 
 const LAB_CARDS = [
-  { scene: "flex", icon: "droplet", title: "Droplet Combustion", source: "FLEX", line: "A spherical flame around a fuel droplet, and the 1 g teardrop it becomes on Earth." },
-  { scene: "bass", icon: "solid", title: "Flame Spread over Solids", source: "BASS-II", line: "A sample in the documented 7.6 × 7.6 × 17 cm flow duct, burning against or with the air." },
-  { scene: "saffire", icon: "fire", title: "Spacecraft Fire Safety", source: "SAFFIRE-I", line: "A conceptual cutaway of the flow duct where a 0.4 × 0.94 m fabric sheet burned aboard Cygnus." },
+  { href: `${ROUTES.extinction}#studio`, icon: "droplet", title: "Flame Extinction & Burning Dynamics", source: "FLEX", line: "Compare n-heptane and methanol droplet flames, step through a burn, and set microgravity beside Earth gravity." },
+  { href: `${ROUTES.spread}#studio`, icon: "solid", title: "Flame Spread & Material Behavior", source: "BASS-II", line: "Change the sample and the airflow in the documented 7.6 × 7.6 × 17 cm duct, then compare two real tests." },
+  { href: `${ROUTES.spacecraft}#studio`, icon: "fire", title: "Spacecraft Fire Dynamics", source: "SAFFIRE-I", line: "Take apart a conceptual Saffire-I duct with camera presets, then switch to NASA's footage of the real burn." },
 ] as const;
 
 function LabBand() {
@@ -388,23 +388,23 @@ function LabBand() {
       <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(50%_70%_at_85%_50%,rgba(255,138,61,0.08),transparent),radial-gradient(40%_60%_at_10%_40%,rgba(91,140,255,0.08),transparent)]" />
       <Container className="grid gap-10 lg:grid-cols-[minmax(0,420px)_1fr] lg:items-center lg:gap-14">
         <div>
-          <SectionTitle id="lab-title" kicker="Interactive Combustion Lab" title="Take the experiments apart in 3D"
-            lead="Rotate, zoom and select the parts of each experiment, switch gravity on and off, then put the picture next to real NASA records. The 3D views explain principles; every measured value stays in the evidence panel." />
+          <SectionTitle id="lab-title" kicker="Interactive Science Studios" title="Take the experiments apart in 3D"
+            lead="Each Scientific Analysis page opens with an interactive 3D studio: rotate and isolate the parts of the experiment, follow a guided exploration, compare fuels, samples or burns, then check every picture against real NASA records. The 3D views explain principles; every measured value stays in the evidence panel." />
           <Reveal className="mt-6 flex flex-wrap gap-3">
-            <LinkButton href={ROUTES.lab} variant="primary" size="lg">Enter the lab<Icon name="chevron" size={14} /></LinkButton>
+            <LinkButton href={`${ROUTES.extinction}#studio`} variant="primary" size="lg">Start with droplet flames<Icon name="chevron" size={14} /></LinkButton>
           </Reveal>
         </div>
         <Stagger className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
           {LAB_CARDS.map((c) => (
-            <StaggerItem key={c.scene}>
-              <Link href={`${ROUTES.lab}?scene=${c.scene}`}
+            <StaggerItem key={c.source}>
+              <Link href={c.href}
                 className="lift glow-flame hairline-top group flex h-full flex-col gap-3 rounded-2xl border border-line/80 bg-panel/80 p-5 text-text no-underline hover:border-flame/60 hover:no-underline">
                 <span className="grid h-10 w-10 place-items-center rounded-xl border border-flame/40 bg-flame/10 text-flame"><Icon name={c.icon} size={20} /></span>
                 <span className="subhead text-[18px]">{c.title}</span>
                 <span className="text-[14px] leading-relaxed text-text-2">{c.line}</span>
                 <span className="mt-auto flex items-center justify-between text-[12.5px] text-text-3">
                   <span>NASA {c.source}</span>
-                  <span className="inline-flex items-center gap-1 text-link group-hover:underline">Open in 3D<Icon name="chevron" size={12} /></span>
+                  <span className="inline-flex items-center gap-1 text-link group-hover:underline">Open the 3D studio<Icon name="chevron" size={12} /></span>
                 </span>
               </Link>
             </StaggerItem>
