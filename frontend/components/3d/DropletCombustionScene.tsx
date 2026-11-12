@@ -126,7 +126,8 @@ export default function DropletCombustionScene(props: FlexSceneProps) {
     transport: { value: common.transport ? 1 : 0 }, time: 0, ambO2: -1 });
 
   // render a frame whenever an input changes (the canvas renders on demand when motion is off)
-  useEffect(() => { invalidate(); }, [invalidate, gravityTarget, rf, rd, o2, heptane, common.transport, common.labels, mode, selected, animate, props.hidden, props.isolate]);
+  const focusKey = props.focus?.join("|") ?? "";
+  useEffect(() => { invalidate(); }, [invalidate, gravityTarget, rf, rd, o2, heptane, common.transport, common.labels, mode, selected, animate, props.hidden, props.isolate, focusKey]);
   useEffect(() => (timeline ? timeline.subscribe(() => invalidate()) : undefined), [timeline, invalidate]);
 
   useFrame((_, dt) => {

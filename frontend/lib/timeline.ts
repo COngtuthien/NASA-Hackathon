@@ -47,6 +47,11 @@ export function useTimeline(store: TimelineStore): TimelineSnap {
   return useSyncExternalStore(store.subscribe, store.get, () => SERVER_SNAP);
 }
 
+/** One primitive derived from the store: the caller re-renders only when that value changes (not every frame). */
+export function useTimelineValue<T extends string | number | boolean | null>(store: TimelineStore, select: (s: TimelineSnap) => T, server: T): T {
+  return useSyncExternalStore(store.subscribe, () => select(store.get()), () => server);
+}
+
 export type Stage = { id: string; label: string; from: number; to: number; text: string };
 
 /** Conceptual FLEX burn stages. Boundaries are arbitrary positions on a normalized axis, not times from a test. */
@@ -72,4 +77,23 @@ export const BASS_STAGES: Stage[] = [
 
 export function stageAt(stages: Stage[], p: number): Stage {
   return stages.find((s) => p >= s.from && p < s.to) ?? stages[stages.length - 1];
+}
+
+/**
+ * The active stage id (null while the timeline is off), derived from the one timeline store. Components using it
+ * re-render only when the stage changes, never on every animation frame.
+ */
+export function useStageId(store: TimelineStore | null, stages: Stage[]): string | null {
+  const get = () => {
+    const s = store?.get();
+    return s && s.active ? stageAt(stages, s.p).id : null;
+  };
+  return useSyncExternalStore(store ? store.subscribe : NOOP_SUB, get, () => null);
+}
+const NOOP_SUB = () => () => {};
+
+/** Jump to a stage (paused): the same action for stage buttons, Previous / Next and guided steps. */
+export function goToStage(store: TimelineStore, stages: Stage[], index: number) {
+  const s = stages[Math.max(0, Math.min(stages.length - 1, index))];
+  store.set({ p: s.from + 0.001, playing: false, active: true });
 }

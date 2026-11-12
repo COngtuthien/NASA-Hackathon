@@ -68,7 +68,8 @@ export default function SpacecraftFireScene(props: SaffireSceneProps) {
   const shell = useRef<THREE.MeshStandardMaterial[]>([]);
   const parts = useRef<Record<string, THREE.Group | null>>({});
 
-  useEffect(() => { invalidate(); }, [invalidate, ex, state.cutaway, concurrent, common.transport, common.labels, selected, animate, mode, props.hidden, props.isolate]);
+  const focusKey = props.focus?.join("|") ?? "";
+  useEffect(() => { invalidate(); }, [invalidate, ex, state.cutaway, concurrent, common.transport, common.labels, selected, animate, mode, props.hidden, props.isolate, focusKey]);
 
   useFrame((_, dt) => {
     const L = live.current;

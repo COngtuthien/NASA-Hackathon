@@ -134,7 +134,11 @@ const CACHE = new Map<string, Promise<unknown>>();
 export function cachedFetch<T>(path: string): Promise<T> {
   let p = CACHE.get(path) as Promise<T> | undefined;
   if (!p) {
-    p = apiFetch<T>(path);
+    // one retry after a short pause for a transient failure (offline/proxy/5xx); client errors are not retried
+    p = apiFetch<T>(path).catch((e) => {
+      if (e instanceof ApiError && (e.status === 0 || e.status >= 500)) return new Promise<T>((res, rej) => setTimeout(() => apiFetch<T>(path).then(res, rej), 600));
+      throw e;
+    });
     CACHE.set(path, p);
     p.catch(() => CACHE.delete(path));
   }

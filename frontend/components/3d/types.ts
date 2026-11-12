@@ -22,6 +22,11 @@ export type SceneCommonProps = {
   interactive: boolean;
   /** Illustrative timeline driving the scene, when active. */
   timeline: TimelineStore | null;
+  /**
+   * Components the active stage is about (Phase 10). Without an explicit selection they keep full emphasis and the
+   * rest are softened (never hidden), and their labels are the ones shown in contextual label mode.
+   */
+  focus?: string[];
 };
 
 export type FlexSceneProps = SceneCommonProps & { state: FlexState; measured: FlexMeasured | null };
@@ -33,6 +38,7 @@ export function layerView(p: SceneCommonProps, id: string, keepWith: string[] = 
   if (p.hidden.includes(id)) return { visible: false, emphasis: 0 };
   const sel = p.selected;
   if (p.isolate && sel && sel !== id && !keepWith.includes(sel)) return { visible: false, emphasis: 0 };
+  if (!sel && p.focus?.length) return { visible: true, emphasis: p.focus.includes(id) || p.focus.some((f) => keepWith.includes(f)) ? 1 : 0.5 };
   return { visible: true, emphasis: !sel || sel === id ? 1 : 0.28 };
 }
 
@@ -40,5 +46,6 @@ export function layerView(p: SceneCommonProps, id: string, keepWith: string[] = 
 export function labelShown(p: SceneCommonProps, id: string, primary = false): boolean {
   if (!p.interactive || p.common.labels === "off") return false;
   if (p.common.labels === "all") return !p.hidden.includes(id);
-  return p.selected ? p.selected === id : primary;
+  if (p.selected) return p.selected === id;
+  return p.focus?.length ? p.focus.includes(id) : primary;
 }

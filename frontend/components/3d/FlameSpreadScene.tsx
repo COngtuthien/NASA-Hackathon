@@ -87,7 +87,8 @@ export default function FlameSpreadScene(props: BassSceneProps) {
   const airPts = useRef<Pts>(null);
   const live = useRef({ time: 0, front: { value: 0.45 }, transport: { value: common.transport ? 1 : 0 } });
 
-  useEffect(() => { invalidate(); }, [invalidate, sample, flow, width, thick, rodD, common.transport, common.labels, mode, selected, animate, state.showFront, props.hidden, props.isolate]);
+  const focusKey = props.focus?.join("|") ?? "";
+  useEffect(() => { invalidate(); }, [invalidate, sample, flow, width, thick, rodD, common.transport, common.labels, mode, selected, animate, state.showFront, props.hidden, props.isolate, focusKey]);
 
   useEffect(() => (timeline ? timeline.subscribe(() => invalidate()) : undefined), [timeline, invalidate]);
 
