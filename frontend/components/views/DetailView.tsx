@@ -1,17 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { PHENOMENA } from "@/lib/routes";
+import { PHENOMENA, ROUTES } from "@/lib/routes";
 import { useParams } from "next/navigation";
 import { Callout, Empty, Kind, LinkButton, Loadable, PageHeader, Panel, Prov, Severity } from "@/components/ui";
 import { Disclosure, MeasureGroup, QualityNotice } from "@/components/disclosure";
 import { MediaFigure } from "@/components/media";
 import { Icon } from "@/components/icons";
+import { AskSuggestions } from "@/components/ask-suggestions";
+import type { Inv } from "@/lib/copilot-suggestions";
 import { MEDIA_BY_ID } from "@/lib/scientific-media";
 import { SCENE_OF_DATASET, studioHref } from "@/lib/lab-models";
 
 /** Apparatus (not flame) photos, so no reader takes an investigation image for a picture of the selected test. */
 const APPARATUS: Record<string, string> = { flex: "flex2-mdca-apparatus", bass2: "bass2-msg-operations", saffire1: "saffire1-hardware-cygnus" };
+/** Charts whose points are individual tests: the record opens ringed there, with its spotlight. */
+const CHART_OF: Record<string, { href: string; hash: string; name: string }> = {
+  flex: { href: ROUTES.extinction, hash: "map", name: "extinction map" }, bass2: { href: ROUTES.spread, hash: "gas", name: "gas-balance chart" },
+};
 import { expHref, fmt, qs, useApi } from "@/lib/api";
 import { LinkLevel, ReportRecordCard, type ReportRecord } from "@/components/report";
 
@@ -121,6 +127,13 @@ export default function DetailView() {
                     </QualityNotice>
                   </div>
                 )}
+                <div className="mt-5 flex flex-col gap-4 border-t border-line/50 pt-4 md:flex-row md:items-start md:justify-between">
+                  {CHART_OF[d.dataset] && d.experiment_kind === "burn" && (
+                    <Link href={`${CHART_OF[d.dataset].href}?record=${encodeURIComponent(d.experiment_uid)}#${CHART_OF[d.dataset].hash}`} className="inline-flex shrink-0 items-center gap-1 text-[14px]" data-testid="show-on-chart">
+                      Show this test on the {CHART_OF[d.dataset].name}<Icon name="chevron" size={13} /></Link>
+                  )}
+                  <AskSuggestions ctx={{ inv: d.investigation_id as Inv, record: { uid: d.experiment_uid, label: d.display_id }, from: "record" }} max={2} compact title="Questions about this test" className="md:max-w-[60%]" />
+                </div>
               </section>
 
               <Disclosure id="values" title="All recorded values" action="Show raw and parsed values"

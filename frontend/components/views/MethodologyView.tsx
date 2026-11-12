@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Disclosure } from "@/components/disclosure";
+import { GlossaryList } from "@/components/glossary";
 import type { ReactNode } from "react";
 import { Icon } from "@/components/icons";
 import { CountUp, Reveal, Stagger, StaggerItem } from "@/components/motion";
@@ -24,7 +25,7 @@ type Doc = { document_id: string; title: string; investigation_id: string; relat
 
 const SECTIONS = [
   { id: "glance", label: "At a glance" }, { id: "pipeline", label: "Pipeline" }, { id: "ai", label: "AI answers" },
-  { id: "limits", label: "Limitations" }, { id: "sources", label: "Sources" },
+  { id: "limits", label: "Limitations" }, { id: "glossary", label: "Glossary" }, { id: "sources", label: "Sources" },
 ];
 
 
@@ -274,6 +275,7 @@ export default function MethodologyView() {
         </ul>
       </Reveal>
         </Disclosure>
+        <GlossaryList />
         <Disclosure id="sources" title="Data, documents and system state" action="Show sources and system state"
           summary="The NASA investigations, the indexed documents and the current data import.">
       <div className="grid gap-5 xl:grid-cols-2">

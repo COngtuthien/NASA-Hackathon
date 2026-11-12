@@ -9,7 +9,11 @@ import { LiteraturePanel, ScientificConclusions } from "@/components/studio/Scie
 import { SOURCES } from "@/lib/lab-scientific-metadata";
 import { MediaFigure, SchematicFigure } from "@/components/media";
 import { usePauseOffscreen } from "@/components/motion";
-import { Disclosure, QualityNotice } from "@/components/disclosure";
+import { Disclosure } from "@/components/disclosure";
+import { AskSuggestions } from "@/components/ask-suggestions";
+import { Term } from "@/components/glossary";
+import { ScientificNotice } from "@/components/scientific-notice";
+import { NOTICES } from "@/lib/scientific-notices";
 import { Field, inputCls, Loadable, PageHeader, Prov, Severity } from "@/components/ui";
 import { expHref, fmt, useApi } from "@/lib/api";
 
@@ -125,20 +129,21 @@ export default function SaffireView() {
                 { title: "NASA's footage shows the flame front moving along the sample.", kind: "DOC",
                   detail: "Its playback rate is not the burn rate: the frames are NASA's selection, with no scale.", sources: [{ label: "NASA footage in the 3D studio", href: "#footage" }] },
               ]}
-              notice={<QualityNotice href="#compare" linkLabel="See the data conflicts">{c.statements.find((s) => s.kind === "UNSUPPORTED")?.text} The manifest lists image files, but their pixels are not in the local data, so no manifest frame is shown or reconstructed. The footage is NASA&apos;s public release.</QualityNotice>}
+              notice={<ScientificNotice notice={NOTICES.saffire} />}
               limits={[
                 { text: c.statements.find((x) => x.kind === "UNSUPPORTED")?.text ?? "Flame spread rates are not available in the local files.", kind: "UNSUPPORTED" },
                 { text: "With only two burns and different flow directions, burn times are not a material property and cannot be compared as one.", kind: "COMPUTED", source: { label: "S1 vs S2", href: "#compare" } },
                 { text: "CSV length and width appear swapped relative to the Operations document (SAF-LENGTH-WIDTH); F2's CSV label conflicts with the DoD; only about a quarter of the listed Sample 2 frames are marked received (SAF-DOWNLINK-GAP).", kind: "quality_flag", source: { label: "Data conflicts and warnings", href: "#compare" } },
                 { text: "The 3D arrangement is conceptual: component positions, duct cross-section and the moving flame band are illustrative.", kind: "HYPOTHESIS" },
               ]} />
+            <AskSuggestions ctx={{ inv: "PSI-98" }} className="rounded-xl border border-line/60 bg-panel/40 p-4" />
             <div className="h-4" />
             <SaffireHardware />
             <div className="mt-6 flex flex-col gap-4" id="data">
               <h2 className="subhead text-[22px] md:text-[26px]">Explore the data</h2>
               <p className="-mt-2 max-w-[65ch] text-[15px] text-text-2">The local data: two burn rows and a manifest of image file names and times.</p>
             <Disclosure id="airflow" level="explore" title="Airflow and flame-spread direction" action="Explore the two burns"
-              summary="Both burns ran in a 20 cm/s airflow; S1 spread with the air, S2 against it.">
+              summary={<>Both burns ran in a 20 cm/s airflow; S1 spread with the air (<Term id="concurrent-flow">concurrent</Term>), S2 against it (<Term id="opposed-flow">opposed</Term>).</>}>
               <div className="grid gap-5 md:grid-cols-2">
                 {c.burns.map((bn) => <FlowCard key={String(bn.experiment_uid)} burn={bn} />)}
               </div>

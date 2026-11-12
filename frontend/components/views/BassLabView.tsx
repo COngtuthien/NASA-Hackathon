@@ -9,7 +9,12 @@ import ScienceStudio from "@/components/studio/ScienceStudio";
 import { LiteraturePanel, ScientificConclusions } from "@/components/studio/ScienceSummary";
 import { SOURCES } from "@/lib/lab-scientific-metadata";
 import { MediaFigure, OrbitMediaPanel } from "@/components/media";
-import { Disclosure, QualityNotice } from "@/components/disclosure";
+import { Disclosure } from "@/components/disclosure";
+import { AskSuggestions } from "@/components/ask-suggestions";
+import { Term } from "@/components/glossary";
+import { RecordSpotlight } from "@/components/record-spotlight";
+import { ScientificNotice } from "@/components/scientific-notice";
+import { NOTICES } from "@/lib/scientific-notices";
 import { Callout, Loadable, PageHeader, Prov, Segmented } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
 import BassReportSection from "@/components/views/BassReportSection";
@@ -35,6 +40,12 @@ export default function BassLabView() {
   const pathname = usePathname();
   const pi = sp.get("pi") ?? "";
   const rec = sp.get("record");
+  const selectRecord = (uid: string | null) => {
+    const n = new URLSearchParams(sp.toString());
+    if (uid) n.set("record", uid); else n.delete("record");
+    const q = n.toString();
+    router.replace(`${pathname}${q ? `?${q}` : ""}${window.location.hash}`, { scroll: false });
+  };
   const g = useApi<Resp>(`/analytics/bass/gases${qs({ pi })}`);
 
   const plot = useMemo(() => {
@@ -56,8 +67,8 @@ export default function BassLabView() {
       line: { color: "#E6EDF7", dash: "dash", width: 1.5 }, hoverinfo: "skip" });
     // the test selected in the 3D studio, ringed
     for (const r of pts.filter((x) => x.experiment_uid === rec)) {
-      data.push({ type: "scatter", mode: "markers", name: `Selected in the 3D studio: ${r.test_id}`, x: [-(r.delta_o2 as number)], y: [r.delta_co2], customdata: [r.experiment_uid],
-        hovertemplate: `<b>${r.test_id}</b> (selected in the studio)<extra></extra>`, marker: { color: "rgba(0,0,0,0)", size: 22, line: { color: "#E6EDF7", width: 2.5 } } });
+      data.push({ type: "scatter", mode: "markers", name: `Selected test: ${r.test_id}`, x: [-(r.delta_o2 as number)], y: [r.delta_co2], customdata: [r.experiment_uid],
+        hovertemplate: `<b>${r.test_id}</b> (selected)<extra></extra>`, marker: { color: "rgba(0,0,0,0)", size: 22, line: { color: "#E6EDF7", width: 2.5 } } });
     }
     return { data, layout: baseLayout("O₂ consumed, initial − final (% by volume, points)", "CO₂ produced, final − initial (% by volume, points)"), n: pts.length };
   }, [g.data, rec]);
@@ -65,7 +76,7 @@ export default function BassLabView() {
   return (
     <>
       <PageHeader kicker="Flame spread · BASS-II" title="Flame Spread & Material Behavior"
-        lead="How does a flame creep across a solid when no rising hot gas carries heat ahead of it? BASS-II burned small samples in a controlled airflow aboard the ISS."
+        lead={<>How does a <Term id="flame-spread">flame creep across a solid</Term> when no rising hot gas carries heat ahead of it? BASS-II burned small samples in a controlled airflow aboard the ISS.</>}
         source={{ source: "BASS-II", inv: "PSI-25" }}
         art={<MediaFigure id="bass2-flame-gmt203" eager compact aspect="4 / 3" sizes="(min-width: 768px) 340px, 92vw"
           caption="BASS-II flame over an acrylic slab aboard the ISS, 2014 (NASA)." />}
@@ -82,16 +93,17 @@ export default function BassLabView() {
           { title: "Measured spread rates exist only where NASA tracked the flame on video (Summary Report Table 5.1).", kind: "report_table",
             detail: "Each rate belongs to one test and the flow velocity printed beside it.", sources: [{ label: "Spread rate (Table 5.1)", href: "#spread" }] },
         ]}
-        notice={<QualityNotice href="#report-trust" linkLabel="See the report cross-checks">Sample widths differ between sources: the CSV gives nominal widths (1 or 2 cm), the report tables actual widths (1.2 or 2.2 cm). Both are kept, never reconciled.</QualityNotice>}
+        notice={<ScientificNotice notice={NOTICES.bass} />}
         limits={[
           { text: "Gas values are whole-chamber endpoints (one reading before, one after each burn), not time series; non-numeric cells are kept as recorded.", kind: "experiment", source: { label: "Per-test endpoints", href: "#endpoints" } },
           { text: "Each PI used one material family, geometry and flow direction, so differences between PIs are confounded.", kind: "COMPUTED", source: { label: "Investigator & material", href: "#materials" } },
           { text: "The CSV and the Appendix A log give nominal sample widths (1 or 2 cm); the report tables print actual widths (1.2 or 2.2 cm). Both are kept, and T24's conflict is flagged.", kind: "quality_flag", source: { label: "Report cross-checks", href: "#report" } },
           { text: "The 3D studio's flame front and its timeline are illustrative progressions, not measured flame-front motion.", kind: "HYPOTHESIS" },
         ]} />
+      <AskSuggestions ctx={{ inv: "PSI-25" }} className="mt-5 rounded-xl border border-line/60 bg-panel/40 p-4" />
       <div className="h-10" />
       <OrbitMediaPanel galleryInv="PSI-25" title="Small samples, controlled airflow"
-        lead={<>A fan pushes air past the sample, against the spreading flame (opposed) or with it (concurrent). Less opposed flow means slower spread, until the flame goes out (<a href="/api/v1/documents/bass-ii-summary-report/file#page=27" target="_blank" rel="noreferrer">Summary Report, PDF p.27</a>).</>}
+        lead={<>A fan pushes air past the sample, against the spreading flame (<Term id="opposed-flow">opposed</Term>) or with it (<Term id="concurrent-flow">concurrent</Term>). Less opposed flow means slower spread, until the flame goes out (<a href="/api/v1/documents/bass-ii-summary-report/file#page=27" target="_blank" rel="noreferrer">Summary Report, PDF p.27</a>).</>}
         items={[
           { id: "bass2-msg-operations", caption: "The Microgravity Science Glovebox, where the flow duct is installed." },
           { id: "bass2-flame-gmt213", caption: "A dim, mostly blue flame at reduced oxygen." },
@@ -126,8 +138,11 @@ export default function BassLabView() {
               <p className="mb-2 text-[13px] text-text-3">{plot ? `n = ${plot.n} tests with both endpoints; ${d.summary.n_excluded_unphysical} excluded as unphysical` : ""}</p>
               <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
                 <div>{plot && <Plot data={plot.data} layout={plot.layout} height={400} ariaLabel="Scatter of oxygen consumed versus CO2 produced per BASS-II test"
-                  onPointClick={(u) => router.push(expHref(String(u)))} />}
-                  <p className="mt-1 text-xs text-text-3">Marker shape: triangle = clear rod, square = black rod, circle = other. Click a point to open the test.</p></div>
+                  onPointClick={(u) => selectRecord(String(u))} />}
+                  <p className="mt-1 text-xs text-text-3">Marker shape: triangle = clear rod, square = black rod, circle = other. Click a point to inspect the test.</p>
+                  <RecordSpotlight uid={rec?.startsWith("bass2:") ? rec : null} onSelect={selectRecord} inv="PSI-25" chartName="gas balance"
+                    options={d.records.filter((r) => r.delta_o2 !== null && r.delta_co2 !== null && !r.flags.includes("o2_unphysical"))
+                      .map((r) => ({ uid: r.experiment_uid, label: `${r.test_id} · ${r.material_class}` })).sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true }))} /></div>
                 <div className="text-sm">
                   <h3 className="subhead text-[15px]">Result <Prov kind="COMPUTED" /></h3>
                   <p className="mt-1">Slope ΔCO₂ / O₂ consumed: <b className="text-data">{fmt(d.summary.slope_co2_per_o2_above_resolution)}</b> for {d.summary.n_fit_above_resolution} tests with &gt; 0.2 point O₂ drop

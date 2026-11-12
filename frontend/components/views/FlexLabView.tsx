@@ -10,7 +10,12 @@ import { LiteraturePanel, ScientificConclusions } from "@/components/studio/Scie
 import { SOURCES } from "@/lib/lab-scientific-metadata";
 import { MediaFigure, OrbitMediaPanel } from "@/components/media";
 import Plot, { baseLayout, CAT, OUTCOME_COLOR } from "@/components/Plot";
-import { Disclosure, QualityNotice } from "@/components/disclosure";
+import { Disclosure } from "@/components/disclosure";
+import { AskSuggestions } from "@/components/ask-suggestions";
+import { Term } from "@/components/glossary";
+import { RecordSpotlight, useSelectedRecord } from "@/components/record-spotlight";
+import { ScientificNotice } from "@/components/scientific-notice";
+import { NOTICES } from "@/lib/scientific-notices";
 import { Callout, Field, inputCls, Loadable, PageHeader, Prov, Segmented } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
 
@@ -52,6 +57,12 @@ function OutcomeBands({ bands }: { bands: { fuel: string; o2_band: string; n: nu
   );
 }
 
+/** A ring drawn over the selected test's own point (same coordinates; no new data). */
+const ring = (label: string, x: unknown, y: unknown, uid: string) => ({
+  type: "scatter", mode: "markers", name: `Selected test: ${label}`, x: [x], y: [y], customdata: [uid],
+  hovertemplate: `<b>${label}</b> (selected)<extra></extra>`, marker: { color: "rgba(0,0,0,0)", size: 20, line: { color: "#E6EDF7", width: 2.5 } },
+});
+
 export default function FlexLabView() {
   const sp = useSearchParams();
   const router = useRouter();
@@ -61,6 +72,7 @@ export default function FlexLabView() {
   const query = qs(filters);
   const map = useApi<MapResp>(`/analytics/flex/map${query}`);
   const d2 = useApi<D2Resp>(`/analytics/flex/d2${query}`);
+  const sel = useSelectedRecord("flex:");
   const set = (k: string, v: string) => {
     const n = new URLSearchParams(sp.toString());
     if (v) n.set(k, v); else n.delete(k);
@@ -92,8 +104,9 @@ export default function FlexLabView() {
     });
     data.push({ type: "scatter", mode: "lines", name: "Equality (ratio 1)", x: [0, max], y: [0, max],
       line: { color: "#7F92AD", dash: "dash", width: 1.5 }, hoverinfo: "skip" });
+    for (const r of inc.filter((x) => x.experiment_uid === sel.uid)) data.push(ring(r.identifier, r.t_est_s, r.burn_time_s, r.experiment_uid));
     return { data, layout: baseLayout("d²-law estimate (D₀² − D_end²)/K (s)", "Reported burn time (s)") };
-  }, [d2.data]);
+  }, [d2.data, sel.uid]);
 
   const ratioPlot = useMemo(() => {
     if (!map.data) return null;
@@ -105,13 +118,17 @@ export default function FlexLabView() {
         hovertemplate: "<b>%{text}</b><br>X_O2 %{x:.3f}<br>Dext/D0 %{y:.3f}<extra></extra>",
         marker: { color: CAT[i], symbol: i ? "diamond" : "circle", size: 8, line: { color: "#101E33", width: 1.5 } } };
     });
-    return { data, layout: baseLayout("Initial O₂ (mole fraction)", "Visible-flame extinction diameter / D₀ (ratio)"), n: pts.length };
-  }, [map.data]);
+    const out: unknown[] = [...data];
+    for (const p of pts.filter((x) => x.experiment_uid === sel.uid)) out.push(ring(p.identifier, p.x_o2, p.dext_over_d0, p.experiment_uid));
+    return { data: out, layout: baseLayout("Initial O₂ (mole fraction)", "Visible-flame extinction diameter / D₀ (ratio)"), n: pts.length };
+  }, [map.data, sel.uid]);
+  const mapOptions = useMemo(() => (map.data?.points ?? []).map((p) => ({ uid: p.experiment_uid, label: `${p.identifier} · ${p.fuel}` }))
+    .sort((a, b) => a.label.localeCompare(b.label)), [map.data]);
 
   return (
     <>
       <PageHeader kicker="Droplet flames · FLEX" title="Flame Extinction & Burning Dynamics"
-        lead={<>Why does a burning droplet make a sphere of flame in orbit, and what makes it go out? FLEX burned single methanol and n-heptane droplets aboard the ISS to find out.</>}
+        lead={<>Why does a burning droplet make a sphere of flame in <Term id="microgravity">orbit</Term>, and what makes it go out? FLEX burned single methanol and n-heptane droplets aboard the ISS to find out.</>}
         source={{ source: "FLEX", inv: "PSI-69" }}
         art={<MediaFigure id="flex-heptane-soot-composite" eager compact aspect="4 / 3" sizes="(min-width: 768px) 340px, 92vw"
           caption="A burning 3 mm heptane droplet in FLEX aboard the ISS (NASA colorized composite of video frames)." />}
@@ -120,7 +137,7 @@ export default function FlexLabView() {
       <div className="h-6" />
       <ScientificConclusions
         findings={[
-          { title: "In microgravity a droplet flame can become a near-spherical shell, fed by diffusion rather than rising hot gas.", kind: "DOC",
+          { title: <>In microgravity a droplet flame can become a near-spherical shell, a <Term id="diffusion-flame">diffusion flame</Term> fed by mixing rather than rising hot gas.</>, kind: "DOC",
             detail: "This is the geometry classical droplet-combustion theory assumes, which is why FLEX droplets are a clean test of it.", sources: [SOURCES.liuP2] },
           ...(d2.data && d2.data.summary.median_ratio !== null ? [{ title: <>Reported burn times sit close to the classical d²-law: median ratio {fmt(d2.data.summary.median_ratio)}.</>, kind: "COMPUTED",
             detail: <>Across {d2.data.summary.n_included} tests that meet the check&apos;s criteria; 10th–90th percentile {fmt(d2.data.summary.q10_ratio)}–{fmt(d2.data.summary.q90_ratio)}. A consistency check of reported values, not a prediction.</>,
@@ -131,13 +148,14 @@ export default function FlexLabView() {
           { title: "Large n-heptane droplets can keep burning as an invisible “cool flame” after the visible flame goes out.", kind: "DOC",
             detail: "Methanol instead shows classical radiative extinction.", sources: [SOURCES.faroukP2] },
         ]}
-        notice={<QualityNotice href="/reliability?investigation=PSI-69">Two FLEX column headers are wrong in the source file: burning rate K is labelled ‘mm’ but read as mm²/s, and the CO₂ column is labelled ‘CO’. Values are interpreted, never altered.</QualityNotice>}
+        notice={<ScientificNotice notice={NOTICES.flex} />}
         limits={[
           { text: "‘Disruption’ outcomes are not defined in the local documents and may hide a censored result; they are excluded from the d²-law check.", kind: "quality_flag", source: { label: "Data reliability", href: "/reliability?investigation=PSI-69" } },
           { text: "The burning-rate column's header says ‘mm’; values are interpreted as mm²/s (flag FLEX-UNIT-K). The CO₂ column's header reads ‘CO’ (flag FLEX-HDR-CO2).", kind: "quality_flag", source: { label: "FLEX dataset flags", href: "/reliability?investigation=PSI-69" } },
           { text: "FLEX test conditions were chosen adaptively, not randomly, so outcome shares are not probabilities and correlations are descriptive. No limiting oxygen index is derived here.", kind: "COMPUTED", source: { label: "Extinction map notes", href: "#map" } },
           { text: "The 3D studio is conceptual: flame standoff, 1 g shape and the burn timeline are illustrations, not simulations of any test.", kind: "HYPOTHESIS" },
         ]} />
+      <AskSuggestions ctx={{ inv: "PSI-69" }} className="mt-5 rounded-xl border border-line/60 bg-panel/40 p-4" />
       <div className="h-10" />
       <OrbitMediaPanel galleryInv="PSI-69" title="A droplet flame without gravity"
         lead={<>On Earth a droplet flame is pulled into a teardrop; aboard the ISS it wraps the droplet in a near-spherical shell (<a href="/api/v1/documents/2g11-070he-0310/file#page=2" target="_blank" rel="noreferrer">Liu et al., PDF p.2</a>).</>}
@@ -151,7 +169,7 @@ export default function FlexLabView() {
         <h2 className="subhead text-[22px] md:text-[26px]">Explore the data</h2>
         <p className="-mt-2 max-w-[65ch] text-[15px] text-text-2">The charts behind the findings. Each uses only rows with the values it needs and lists the rows it leaves out.</p>
       <Disclosure id="map" anchors={["conditions"]} level="explore" title="Extinction map: oxygen vs droplet size" action="Explore the extinction map"
-        summary={map.data ? <>Where {fmt(map.data.n_plotted)} tests ended in extinction, disruption or completion, by initial O₂ and droplet size. Filter by fuel, diluent and pressure.</> : "Where each test ended, by initial O₂ and droplet size."}>
+        summary={map.data ? <>Where {fmt(map.data.n_plotted)} tests ended in <Term id="flame-extinction">extinction</Term>, disruption or completion, by initial O₂ and droplet size. Filter by fuel, diluent and pressure.</> : "Where each test ended, by initial O₂ and droplet size."}>
       <div id="conditions" className="scroll-mt-36 rounded-xl border border-line/60 bg-ink/40 p-4">
         <p className="mb-3 text-[13.5px] text-text-2">Conditions: every chart in this section follows these selectors.</p>
         <div className="grid gap-4 xl:grid-cols-[auto_auto_1fr]">
@@ -172,9 +190,10 @@ export default function FlexLabView() {
             {(m) => (
               <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
                 <div>
-                  <FlexMapChart points={m.points} highlight={sp.get("record")} />
-                  {sp.get("record")?.startsWith("flex:") && m.points.some((p) => p.experiment_uid === sp.get("record")) && (
-                    <p className="mt-1 text-xs text-text-2">The ringed point is the test selected in the 3D studio.</p>)}
+                  <FlexMapChart points={m.points} highlight={sel.uid} onSelect={sel.select} />
+                  {sel.uid && m.points.some((p) => p.experiment_uid === sel.uid) && (
+                    <p className="mt-1 text-xs text-text-2">The ringed point is the selected test (also shown in the 3D studio).</p>)}
+                  <RecordSpotlight uid={sel.uid} onSelect={sel.select} options={mapOptions} inv="PSI-69" chartName="extinction map" />
                   <ul className="mt-2 list-disc pl-5 text-xs text-text-3">{m.notes.map((n) => <li key={n}>{n}</li>)}</ul>
                 </div>
                 <div className="text-sm">
@@ -193,8 +212,8 @@ export default function FlexLabView() {
           </Loadable>
       </Disclosure>
 
-        <Disclosure id="d2" title="d²-law consistency check" action="Show the d²-law check"
-          summary={d2.data ? <>Do reported burn times match the classical d²-law? Median ratio {fmt(d2.data.summary.median_ratio)} across {d2.data.summary.n_included} tests.</> : "Do reported burn times match the classical d²-law?"}>
+        <Disclosure id="d2" title={<><Term id="d2-law">d²-law</Term> consistency check</>} action="Show the d²-law check"
+          summary={d2.data ? <>Do reported burn times match the classical d²-law, using the <Term id="burning-rate-constant">burning-rate constant K</Term>? Median ratio {fmt(d2.data.summary.median_ratio)} across {d2.data.summary.n_included} tests.</> : "Do reported burn times match the classical d²-law?"}>
           <Loadable state={d2} rows={8}>
             {(d) => (
               <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
@@ -202,7 +221,9 @@ export default function FlexLabView() {
                   <Callout>{d.label}</Callout>
                   <p className="mt-2 text-sm"><span className="raw">{d.formula}</span></p>
                   {d2Plot && <Plot data={d2Plot.data} layout={d2Plot.layout} height={380} ariaLabel="Scatter of d²-law estimated burn time versus reported burn time"
-                    onPointClick={(u) => router.push(expHref(String(u)))} />}
+                    onPointClick={(u) => sel.select(String(u))} />}
+                  <RecordSpotlight uid={sel.uid} onSelect={sel.select} inv="PSI-69" chartName="d²-law check"
+                    options={d.records.filter((r) => r.included).map((r) => ({ uid: r.experiment_uid, label: `${r.identifier} · ${r.fuel}` })).sort((a, b) => a.label.localeCompare(b.label))} />
                 </div>
                 <div className="text-sm">
                   <h3 className="subhead text-[15px]">Result <Prov kind="COMPUTED" /></h3>
@@ -225,7 +246,7 @@ export default function FlexLabView() {
         <Disclosure id="ratio" title="Extinction diameter vs oxygen" action="Show extinction diameters"
           summary={ratioPlot ? <>How large the droplet still was when the visible flame went out, for {ratioPlot.n} extinction tests.</> : "How large the droplet still was when the visible flame went out."}>
           {ratioPlot ? <Plot data={ratioPlot.data} layout={ratioPlot.layout} height={340} ariaLabel="Scatter of extinction diameter ratio versus initial oxygen"
-            onPointClick={(u) => router.push(expHref(String(u)))} /> : <Loadable state={map}>{() => null}</Loadable>}
+            onPointClick={(u) => sel.select(String(u))} /> : <Loadable state={map}>{() => null}</Loadable>}
           <p className="mt-2 text-xs text-text-3">For heptane, the visible flame can go out (radiative extinction) while a cool flame keeps burning, so Dext marks the end of the visible flame, not of burning.</p>
         </Disclosure>
       </div>
