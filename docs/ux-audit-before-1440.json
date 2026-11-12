@@ -1,0 +1,122 @@
+[
+ {
+  "path": "/",
+  "words": 2047,
+  "numbers": 200,
+  "fold": 112,
+  "pills": 38,
+  "height": 11734
+ },
+ {
+  "path": "/phenomena/flame-extinction",
+  "words": 2875,
+  "numbers": 208,
+  "fold": 211,
+  "pills": 22,
+  "height": 7768
+ },
+ {
+  "path": "/phenomena/flame-spread",
+  "words": 5268,
+  "numbers": 1961,
+  "fold": 220,
+  "pills": 49,
+  "height": 7428
+ },
+ {
+  "path": "/phenomena/spacecraft-fire",
+  "words": 1789,
+  "numbers": 363,
+  "fold": 230,
+  "pills": 21,
+  "height": 5961
+ },
+ {
+  "path": "/experiments",
+  "words": 704,
+  "numbers": 405,
+  "fold": 303,
+  "pills": 7,
+  "height": 1289
+ },
+ {
+  "path": "/experiments/flex/flex%3A180",
+  "words": 610,
+  "numbers": 108,
+  "fold": 183,
+  "pills": 7,
+  "height": 2027
+ },
+ {
+  "path": "/copilot",
+  "words": 212,
+  "numbers": 6,
+  "fold": 176,
+  "pills": 0,
+  "height": 1241
+ },
+ {
+  "path": "/evidence",
+  "words": 590,
+  "numbers": 71,
+  "fold": 201,
+  "pills": 0,
+  "height": 2056
+ },
+ {
+  "path": "/evidence/literature",
+  "words": 97,
+  "numbers": 0,
+  "fold": 82,
+  "pills": 0,
+  "height": 1162
+ },
+ {
+  "path": "/evidence/media",
+  "words": 680,
+  "numbers": 63,
+  "fold": 139,
+  "pills": 18,
+  "height": 3370
+ },
+ {
+  "path": "/reliability",
+  "words": 2104,
+  "numbers": 434,
+  "fold": 222,
+  "pills": 71,
+  "height": 5140
+ },
+ {
+  "path": "/methodology",
+  "words": 1662,
+  "numbers": 125,
+  "fold": 201,
+  "pills": 16,
+  "height": 5408
+ },
+ {
+  "path": "/modeling",
+  "words": 479,
+  "numbers": 82,
+  "fold": 227,
+  "pills": 0,
+  "height": 1533
+ },
+ {
+  "path": "/intelligence/similar",
+  "words": 111,
+  "numbers": 9,
+  "fold": 88,
+  "pills": 0,
+  "height": 1288
+ },
+ {
+  "path": "/intelligence/compare",
+  "words": 86,
+  "numbers": 10,
+  "fold": 83,
+  "pills": 0,
+  "height": 900
+ }
+]

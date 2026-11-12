@@ -244,7 +244,7 @@ export function OrbitMediaPanel({ title, lead, items, schematic, galleryInv }: {
   schematic?: { node: ReactNode; caption: ReactNode };
 }) {
   return (
-    <section id="seen" aria-labelledby="seen-title" className="hairline-top scroll-mt-36 rounded-2xl border border-line/80 bg-[linear-gradient(170deg,rgba(91,140,255,0.06),rgba(16,30,51,0.9)_40%)] p-4 md:p-6">
+    <section id="seen" aria-labelledby="seen-title" className="scroll-mt-36 rounded-2xl border border-line/60 bg-panel/40 p-4 md:p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="max-w-[75ch]">
           <p className="kicker">Seen in orbit</p>
@@ -260,7 +260,7 @@ export function OrbitMediaPanel({ title, lead, items, schematic, galleryInv }: {
         ))}
         {schematic && <SchematicFigure caption={schematic.caption}>{schematic.node}</SchematicFigure>}
       </div>
-      <p className="mt-4 text-xs text-text-3">Photographs and footage give visual context. They are not tied to individual test rows (NASA&apos;s captions name no test numbers), and every value on this page comes from the NASA data files.</p>
+      <p className="mt-4 text-xs text-text-3">Images give context only: NASA&apos;s captions name no test numbers, so none is tied to a data row.</p>
     </section>
   );
 }

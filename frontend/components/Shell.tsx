@@ -11,7 +11,7 @@ import { ROUTES } from "@/lib/routes";
 type NavItem = { href: string; label: string; icon: string; source?: string; match?: string[] };
 export const NAV: { group: string; items: NavItem[] }[] = [
   { group: "Discover", items: [
-    { href: ROUTES.mission, label: "Mission Control", icon: "overview" },
+    { href: ROUTES.mission, label: "Home", icon: "overview" },
     { href: ROUTES.copilot, label: "Research Copilot", icon: "assistant" },
     { href: ROUTES.explorer, label: "Combustion Explorer", icon: "experiments" },
   ] },
@@ -70,23 +70,27 @@ function Pill({ tone, children, title }: { tone: "ok" | "warn" | "crit" | "muted
   return <span title={title} className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 ${cls}`}>{children}</span>;
 }
 
-function StatusBar() {
+/**
+ * System status, kept quiet: a single dot and short label when everything works; a prominent pill only when the
+ * data or API is unavailable. The retrieval mode is in the tooltip; the AI mode is spelled out because it changes
+ * what the Research Copilot can do.
+ */
+function StatusBar({ compact = false }: { compact?: boolean }) {
   const h = useApi<Health>("/health");
   if (h.error) return <Pill tone="crit">API offline: start the backend</Pill>;
-  if (!h.data) return <span className="text-text-3">Checking data…</span>;
+  if (!h.data) return compact ? null : <span className="text-text-3">Checking data…</span>;
   const d = h.data;
+  if (!d.database.ok) return <Pill tone="crit" title="Local NASA database">Data missing</Pill>;
+  if (compact) return null;
+  const date = d.database.ingested_at ? new Date(d.database.ingested_at).toISOString().slice(0, 10) : null;
   return (
-    <span className="flex flex-wrap items-center gap-2">
-      <Pill tone={d.database.ok ? "ok" : "crit"} title="Local NASA database">
-        <span aria-hidden className="relative flex h-1.5 w-1.5">
-          {d.database.ok && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ok opacity-50 [animation-iteration-count:3]" />}
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-current" />
-        </span>
-        {d.database.ok ? "Data loaded" : "Data missing"}
-        {d.database.ingested_at && <span className="text-text-3">{new Date(d.database.ingested_at).toISOString().slice(0, 10)}</span>}
-      </Pill>
-      <Pill tone="muted" title="Evidence retrieval mode">{d.retrieval.mode}</Pill>
-      <Pill tone={d.llm.configured ? "ok" : "warn"} title="AI synthesis status">{d.llm.configured ? "AI synthesis on" : "Evidence-only mode"}</Pill>
+    <span className="flex items-center gap-3 text-text-3" data-testid="status">
+      <span className="inline-flex items-center gap-1.5" title={`NASA data loaded${date ? ` ${date}` : ""} · document search: ${d.retrieval.mode}`}>
+        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-ok" />NASA data loaded
+      </span>
+      <span title="How the Research Copilot answers" className={d.llm.configured ? "text-text-3" : "text-warn"}>
+        {d.llm.configured ? "AI answers on" : "AI: evidence-only mode"}
+      </span>
     </span>
   );
 }
@@ -153,7 +157,7 @@ function Breadcrumbs() {
   const path = usePathname();
   if (path === "/") return null;
   const match = ALL.filter((i) => i.href !== "/" && isActive(i, path)).sort((a, b) => b.href.length - a.href.length)[0];
-  const crumbs: { href?: string; label: string }[] = [{ href: "/", label: "Mission Control" }];
+  const crumbs: { href?: string; label: string }[] = [{ href: "/", label: "Home" }];
   if (match) crumbs.push({ label: match.group });
   if (match) crumbs.push({ href: path === match.href ? undefined : match.href, label: match.label });
   if (HUB_CRUMB[path] && match?.href !== path) crumbs.push({ label: HUB_CRUMB[path] });
@@ -170,6 +174,35 @@ function Breadcrumbs() {
         ))}
       </ol>
     </nav>
+  );
+}
+
+function SiteFooter() {
+  const groups: { title: string; links: [string, string][] }[] = [
+    { title: "Explore", links: [[ROUTES.extinction, "Droplet flames"], [ROUTES.spread, "Flame spread"], [ROUTES.spacecraft, "Spacecraft fire"]] },
+    { title: "Research", links: [[ROUTES.explorer, "Experiments"], [ROUTES.copilot, "Research Copilot"], [ROUTES.documents, "Evidence & literature"], [ROUTES.media, "NASA media"]] },
+    { title: "Trust", links: [[ROUTES.methodology, "Methodology"], [ROUTES.reliability, "Data reliability"], [ROUTES.modeling, "Prediction & modeling"]] },
+  ];
+  return (
+    <footer className="mt-16 border-t border-line/60 bg-void/40" aria-label="Site footer">
+      <div className="mx-auto grid w-full max-w-[1400px] gap-8 px-4 py-10 md:grid-cols-[1.4fr_repeat(3,1fr)] md:px-8">
+        <div className="max-w-[44ch]">
+          <Logo />
+          <p className="mt-3 text-[13.5px] leading-relaxed text-text-3">
+            An independent research tool built on public NASA Physical Sciences Informatics data: FLEX (PSI-69), BASS-II (PSI-25) and SAFFIRE-I (PSI-98).
+            NASA imagery is credited where it appears. Not an official NASA website.
+          </p>
+        </div>
+        {groups.map((g) => (
+          <nav key={g.title} aria-label={`${g.title} links`}>
+            <p className="text-[13px] font-medium text-text-2">{g.title}</p>
+            <ul className="mt-2 flex flex-col gap-1.5 text-[13.5px]">
+              {g.links.map(([href, label]) => <li key={href}><Link href={href} className="text-text-3 no-underline hover:text-text">{label}</Link></li>)}
+            </ul>
+          </nav>
+        ))}
+      </div>
+    </footer>
   );
 }
 
@@ -203,7 +236,6 @@ export default function Shell({ children }: { children: ReactNode }) {
           <div className="sticky top-5 flex max-h-[calc(100vh-2.5rem)] flex-col gap-6 overflow-y-auto pb-4">
             <div className="px-2"><Logo /></div>
             <NavList layoutKey="desk" />
-            <p className="px-3 text-xs leading-relaxed text-text-3">Built on NASA Physical Sciences Informatics data: FLEX (PSI-69), BASS-II (PSI-25) and SAFFIRE-I (PSI-98).</p>
           </div>
         </aside>
 
@@ -232,13 +264,14 @@ export default function Shell({ children }: { children: ReactNode }) {
                 aria-label="Open navigation" aria-expanded={open}><Icon name="menu" />Menu</button>
               <div className="lg:hidden"><Logo /></div>
               <div className="hidden min-w-0 flex-1 items-center gap-5 md:flex"><GlobalSearch /><Breadcrumbs /></div>
-              <div className="ml-auto hidden text-[12.5px] 2xl:block"><StatusBar /></div>
+              <div className="ml-auto hidden shrink-0 text-[12.5px] xl:block"><StatusBar /></div>
+              <div className="ml-auto text-[12px] xl:hidden"><StatusBar compact /></div>
             </div>
-            <div className="border-t border-line/60 px-4 py-1.5 text-[12px] 2xl:hidden md:px-6"><StatusBar /></div>
           </header>
           <ViewTransition key={path} enter="page-enter" exit="page-exit" default="none">
-            <main id="main" className={showcase ? "w-full" : "mx-auto w-full max-w-[1500px] px-4 py-6 md:px-8 md:py-9"}>{children}</main>
+            <main id="main" className={showcase ? "w-full" : "mx-auto w-full max-w-[1400px] px-4 py-7 md:px-8 md:py-10"}>{children}</main>
           </ViewTransition>
+          <SiteFooter />
         </div>
       </div>
     </MotionProvider>

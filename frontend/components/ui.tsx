@@ -73,7 +73,7 @@ export function PageHeader({ title, lead, actions, sections, kicker, source, chi
           <div className="max-w-4xl">
             {kicker && <p className="kicker mb-3">{kicker}</p>}
             <h1 className="display text-[30px] md:text-[42px]">{title}</h1>
-            {lead && <p className="mt-3 max-w-[72ch] text-[16px] leading-relaxed text-text-2">{lead}</p>}
+            {lead && <p className="mt-3 max-w-[62ch] text-[17px] leading-relaxed text-text-2">{lead}</p>}
             {source && <div className="mt-4"><SourceBadge {...source} /></div>}
             {facts && facts.length > 0 && (
               <dl className="mt-6 grid grid-cols-3 gap-x-3 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-8">
@@ -125,8 +125,8 @@ export function Panel({ title, children, aside, className = "", id, tone = "defa
   title?: ReactNode; children: ReactNode; aside?: ReactNode; className?: string; id?: string; tone?: "default" | "feature";
 }) {
   const bg = tone === "feature"
-    ? "border-electric/25 bg-[linear-gradient(160deg,rgba(91,140,255,0.08),rgba(16,30,51,0.92)_45%)]"
-    : "border-line/80 bg-panel/90";
+    ? "border-line/70 bg-panel/70"
+    : "border-line/60 bg-panel/60";
   return (
     <motion.section id={id} className={`hairline-top min-w-0 scroll-mt-36 rounded-xl border ${bg} ${className}`}
       initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.05 }}
