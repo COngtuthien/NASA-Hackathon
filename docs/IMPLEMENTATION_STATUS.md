@@ -1,5 +1,50 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 6 status (branch `feature/spacefire-phase6-interactive-3d`, 2026-11-12): COMPLETE
+Interactive Combustion Lab at `/lab`: three interactive 3D scenes, each beside the real NASA records for its
+investigation. Frontend only: no backend, data, Gemini or verifier change. No Gemini request was made; the API ran
+with `LLM_API_KEY=` blank (health `llm.mode = retrieval_only`). Science, sources, trust model and limitations:
+`docs/INTERACTIVE_3D_SCIENCE.md`.
+
+| Milestone | Status | Evidence |
+|---|---|---|
+| M1 Foundation | DONE | three 0.187.0, @react-three/fiber 9.8.2, @react-three/drei 10.7.9 (exact pins; React 19.3 / Next 16.4 unchanged). Client-only viewport chunk (`next/dynamic`, `ssr: false`). One canvas shared by lazy scene chunks. Frame loop always / demand / never (off-screen, hidden tab). Adaptive DPR. Context-loss recovery. WebGL capability check with static fallback. Error boundary. Disposal registry `window.__spacefireLab` |
+| M2 FLEX droplet (most polished) | DONE | Custom flame-shell shader with limb brightening. Smooth microgravity ↔ 1 g teardrop transition. Radial fuel-out / O₂-in transport vs buoyant updraft. Heptane soot shell. O₂ dot share. mm scale bar. Raycast picking of nested parts. Evidence mode: a real FLEX test drawn at measured D₀ and D_ext. Panel: K in mm²/s with raw header `Burning rate; mm`, flags, nearby real tests for the slider settings |
+| M3 BASS-II flame spread | DONE | Documented 7.6 × 7.6 × 17 cm duct, fan + restrictors, honeycomb + screen, radiometer (downstream top back), igniter, 10 cm ruler. 5 sample geometries. Opposed / concurrent / stagnation flow. Illustrative front labelled "not a measured rate". Evidence: CSV record, Table 5.1/7.1 rows with PDF page, T24 width conflict and nominal-vs-actual widths kept |
+| M4 SAFFIRE-I spacecraft | DONE | Conceptual enclosure (~0.5 × 1 × 1.3 m per NASA Glenn), duct with the 0.4 × 0.94 m card, fans top / straighteners bottom, 2 cameras, diagnostics. Cutaway and exploded views, selectable components. S1/S2 direction from the CSV. SAF-LENGTH-WIDTH and other flags in the evidence table. NASA animation plays only on request |
+| M5 Integration | DONE | Nav entry (Discover). Mission Control "Interactive Combustion Lab" band. Entry cards on the 3 phenomenon pages. "View in 3D lab" on burn-record pages (evidence mode). "Ask AI about this": Copilot `?draft=` pre-fills without sending, `inv` pre-selects the investigation, and a context note explains what will be sent (existing `?q=` links keep asking immediately) |
+| M6 Performance, a11y, polish | DONE | Keyboard camera (arrows, ±, 0), labelled camera toolbar, radio-group scene selector, tablist panels, every component as a button, text alternatives, reduced motion (motion off, on-demand rendering), static view, mobile layout (viewport first, compact selector), aspect-aware camera framing. three.js is in no initial page bundle (checked on `/`, a phenomenon page and `/lab`); the 3D chunk is 912 KB raw / 239 KB gzip, fetched only when the lab viewport mounts |
+| M7 Regression + delivery | DONE | See below |
+
+**Modes.** Two are offered: "Conceptual 3D" and "NASA Evidence". A third, "Validated model", is deliberately omitted:
+the only quantitative droplet relation in SpaceFire is the d²-law consistency check, which is not validated to predict
+a burn.
+
+### Phase 6 verification (2026-11-12)
+- `tsc --noEmit` clean; `eslint .` clean; `next build` OK (19 routes, new `/lab`); `npm audit --omit=dev`: 0
+  vulnerabilities.
+- Playwright on the production build, model disabled: **56 passed, 1 skipped** (opt-in live Gemini). New tests:
+  - `e2e/phase6.spec.ts`, 13 tests: lazy single-scene load; camera drag, keys, buttons and reset; one canvas across
+    scene switches and control changes; selection by 3D click, 3D label and keyboard; FLEX K = API value in mm²/s
+    with the raw header; BASS-II report values and discrepancies; SAFFIRE-I flags and no autoplay; source links;
+    Copilot draft with no auto-send and a bounded request body; renderer disposal after leaving; no-WebGL fallback;
+    reduced motion and static view; all entry points.
+  - `e2e/lab-mobile.spec.ts`: Pixel 7, 390 px.
+- Backend `pytest`: **181 passed**. API smoke: lab, phenomenon, detail, Copilot and media pages, plus the 5 endpoints
+  the lab calls, all HTTP 200.
+- Screenshots reviewed at 1440, 768 and 390 px for each scene, evidence mode and the Copilot hand-off. No console
+  errors in the production E2E runs; the dev server shows R3F's own `THREE.Clock` deprecation warning only.
+
+### Phase 6 known limitations
+- The 3D views are illustrations, not simulations. Flame standoff, teardrop shape, soot shell, flame-front speed and
+  particle speeds are not computed from data.
+- SAFFIRE-I geometry beyond the documented features is assumed; the ignition location is not drawn (not in the local
+  data).
+- In `next dev`, Fast Refresh of a scene module while its labels are mounted logs React "synchronously unmount a root"
+  / `removeChild` errors from drei `<Html>`. This is development only; normal navigation, scene switches and label
+  toggles produce no console errors (asserted in the E2E tests).
+- WebGL tests run on SwiftShader (software rendering). Frame rate was not profiled on a hardware GPU or on a physical phone.
+
 ## Final Gemini validation (on Phase 5, 2026-11-11, 10:20–10:30 UTC): COMPLETE
 This closes the live checks Phase 4 left pending. They ran on branch `feature/spacefire-phase5-scientific-visuals`,
 on top of 8b6dea0. Full report: `docs/LIVE_LLM_EVALUATION_RUN_B.md`.
