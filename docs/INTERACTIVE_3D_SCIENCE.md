@@ -1,5 +1,16 @@
 # SpaceFire AI — Interactive Combustion Lab (Phase 6)
 
+> **Phase 7 update (2026-11-12).** The standalone lab at `/lab` was retired. The three scenes now live inside the
+> Scientific Analysis pages as Interactive Science Studios (`/phenomena/flame-extinction#studio`,
+> `/phenomena/flame-spread#studio`, `/phenomena/spacecraft-fire#studio`), and old `/lab` URLs redirect with their
+> `record`, `mode` and `component` parameters. Sections 1 (architecture), 9 (accessibility), 10 (performance) and 11
+> (validation) below describe the Phase 6 state. For the current architecture, interactions (fuel and material
+> comparison, timelines, d²-law calculation, layers, tours) and tests, see `INTERACTIVE_SCIENTIFIC_ANALYSIS_V2.md`.
+> The scientific content in sections 2–8 (sources, confirmed vs conceptual elements, data mapping, limitations, units)
+> still applies. Phase 7 additions:
+> - FLEX: fuel-vapour and oxygen-transport layers; a fuel explanation sourced to FLEX ERD p.36 and Farouk & Dryer p.2.
+> - BASS-II and SAFFIRE-I: an airflow layer each.
+
 The lab (`/lab`) shows three NASA microgravity combustion investigations as interactive 3D models: FLEX droplet
 combustion, BASS-II flame spread over solids and the SAFFIRE-I spacecraft fire experiment. Each sits beside the real
 NASA records for that investigation. This document describes:

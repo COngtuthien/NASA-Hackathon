@@ -58,7 +58,7 @@ test.describe("Phase 3: phenomenon-first navigation, motion, preserved functions
     await page.goto("/phenomena/flame-extinction");
     await expect(page.getByRole("heading", { name: "Flame Extinction & Burning Dynamics", level: 1 })).toBeVisible();
     await expect(page.getByRole("link", { name: /Source: NASA FLEX PSI-69/ })).toHaveAttribute("href", /PSI-69/);
-    await page.getByRole("radio", { name: "Methanol" }).click();
+    await page.locator("#conditions").getByRole("radio", { name: "Methanol" }).click();   // Phase 7: the 3D studio has its own fuel radio
     await expect(page).toHaveURL(/fuel=Methanol/);
     await expect(page.getByText(/plotted of 157 rows matching filters/)).toBeVisible();
     await page.goto("/phenomena/spacecraft-fire");

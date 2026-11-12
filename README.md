@@ -24,14 +24,19 @@ source badge. Old Phase 1–2 URLs (`/physics/flex`, `/assistant`, `/quality`, .
 | Discover | Mission Control | `/` | Cinematic overview: full-bleed hero with a real BASS-II flame photographed on the ISS, scroll story quoting NASA document pages with matching NASA imagery, three scales of combustion with investigation photos, recomputed findings, "Recorded in orbit" media band, interactive FLEX chart, research workflow |
 | | Research Copilot | `/copilot` | Gemini-written answers (or evidence only) from whitelisted data tools, hybrid document search and optional external literature; every claim's citations and numbers verified in code; live step-by-step progress streamed from the backend; quota-aware fallback |
 | | Combustion Explorer | `/experiments`, `/experiments/{dataset}/{uid}` | Server-side filters/sort/paging, CSV export (normalized or original cells), raw vs parsed values, provenance, flags, report pages |
-| Scientific analysis | Flame Extinction & Burning Dynamics (FLEX) | `/phenomena/flame-extinction` | Condition console, extinction map, outcome bars by O₂ band, d²-law consistency check, Dext/D₀ vs O₂ |
-| | Flame Spread & Material Behavior (BASS-II) | `/phenomena/flame-spread` | Gas balance vs PMMA 5/6 stoichiometry, per-test endpoints, curated Summary Report Tables 5.1, 7.1 and Appendix A, cross-checks of report-only values |
-| | Spacecraft Fire Dynamics (SAFFIRE-I) | `/phenomena/spacecraft-fire` | Airflow/spread-direction schematics from CSV fields, S1/S2 comparison, manifest-derived downlink timeline (no fabricated media) |
+| Scientific analysis | Flame Extinction & Burning Dynamics (FLEX) | `/phenomena/flame-extinction` | **Interactive Science Studio** (3D droplet flame: fuel comparison, Earth vs microgravity, burn timeline, layers, idealized d²-law calculation, guided tour), condition console, extinction map, outcome bars by O₂ band, d²-law consistency check, Dext/D₀ vs O₂, conclusions, literature |
+| | Flame Spread & Material Behavior (BASS-II) | `/phenomena/flame-spread` | **Interactive Science Studio** (3D flow duct: sample types, opposed/concurrent/stagnation flow, spread timeline, two-test material comparison, guided tour), gas balance vs PMMA 5/6 stoichiometry, per-test endpoints, curated Summary Report Tables 5.1, 7.1 and Appendix A, cross-checks, conclusions, literature |
+| | Spacecraft Fire Dynamics (SAFFIRE-I) | `/phenomena/spacecraft-fire` | **Interactive Science Studio** (conceptual 3D duct with camera presets, isolation, S1/S2, NASA footage view, guided tour), airflow/spread-direction schematics, S1/S2 comparison, manifest-derived downlink timeline (no fabricated media), conclusions, literature |
 | Research intelligence | Experiment Intelligence | `/intelligence/similar`, `/intelligence/compare` | Gower similarity on initial conditions only; 2–5 test comparison within one investigation |
 | | Evidence & Literature | `/evidence`, `/evidence/literature`, `/evidence/media` | FTS5 BM25 + local LSA with rank reasons and PDF pages; NASA NTRS + OpenAlex search, Crossref DOI verification; scientific media gallery (verified NASA photos, footage and animation with provenance and filters) |
 | | Prediction & Modeling | `/modeling` | Model card, leakage-safe GroupKFold metrics, gated exploratory FLEX burn-time estimate with interval and OOD refusal |
 | Trust & methods | Data Reliability | `/reliability` | 559 flags across 37 rules: rows carrying flags, review status, problem categories, each flag traced to file/row/column, CSV export |
 | | Methodology | `/methodology` | Pipeline, provenance labels, how AI answers are produced and verified, citation-link confidence, safeguards, limitations, sources (live figures) |
+
+3D studios: each Scientific Analysis page opens with an Interactive Science Studio (`#studio`, three.js loaded only there).
+It has two modes, Conceptual 3D and NASA Evidence: the 3D explains, and measured values stay in the evidence panel.
+The Phase 6 standalone lab was retired; old `/lab?scene=…&record=…` links redirect to the right page with their
+context. Details: `docs/INTERACTIVE_SCIENTIFIC_ANALYSIS_V2.md`.
 
 Scientific media: 15 verified NASA photographs, clips and animations (`frontend/lib/scientific-media.ts`). Each is
 labelled as real experiment media, related NASA media or a schematic, credited, and linked to its original record. None
@@ -111,7 +116,7 @@ the API, logged, or bundled into the frontend.
 ```bash
 cd backend && .venv/Scripts/python -m pytest          # 181 tests: unit, providers (Gemini mocked), API, streaming, quota/cache,
                                                        # FLEX unit guard, 42 golden questions, curation, link reviews, report cross-checks
-cd frontend && npx playwright test                     # 43 browser E2E tests (desktop + 390 px mobile); the model is never called
+cd frontend && npx playwright test                     # 64 browser E2E tests (63 run + 1 opt-in; desktop + 390 px mobile); the model is never called
 E2E_LIVE_LLM=1 npx playwright test -g "live Gemini"    # opt-in: one real Gemini request end to end
 backend/.venv/Scripts/python scripts/smoke_test.py     # against a running backend
 cd frontend && npx tsc --noEmit && npx eslint . && npx next build
@@ -144,9 +149,10 @@ never downloaded or analyzed. The original dataset folders are never modified (t
 ## Demo script (3–4 minutes)
 
 1. Mission Control: scroll the physics story (each step quotes a NASA page), then the three scales; filter the FLEX chart to Methanol.
-2. Flame Extinction & Burning Dynamics: pick Methanol in the condition console, read the outcome bars, check the d²-law (median ratio ≈ 1.05).
-3. Flame Spread & Material Behavior: gas balance vs PMMA stoichiometry; Table 5.1 spread rate vs flow velocity.
-4. Spacecraft Fire Dynamics: S1 concurrent vs S2 opposed, then the downlink timeline; no images exist locally, and the app says so.
+2. Flame Extinction & Burning Dynamics: press "Start guided exploration" in the 3D studio, switch to Earth 1 g and to methanol when asked,
+   then open a real test in NASA Evidence mode and read its idealized d²-law line; below, check the d²-law (median ratio ≈ 1.05).
+3. Flame Spread & Material Behavior: in the studio, play the opposed vs concurrent timeline and compare tests M1 and M2; then gas balance and Table 5.1.
+4. Spacecraft Fire Dynamics: use the studio's camera presets and the NASA footage view, then S1 vs S2 and the downlink timeline; no images exist locally, and the app says so.
 5. Research Copilot: ask "Is the d2 law consistent with the reported FLEX burn times?" and watch the steps run live, then
    click a citation marker; ask for a safe spacecraft O₂ threshold and see the abstention.
 6. Data Reliability: open "Source mismatches" and follow a flag to its source row.

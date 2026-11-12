@@ -1,5 +1,48 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 7 status (branch `feature/spacefire-phase7-premium-analysis`, 2026-11-12): COMPLETE
+The Phase 6 lab is now integrated: each Scientific Analysis page opens with an **Interactive Science Studio**
+(`#studio`), and the standalone `/lab` page and its sidebar item are gone (old URLs redirect with their context).
+Frontend only: no backend, data, Gemini or verifier change. No Gemini request was made; the API ran with `LLM_API_KEY=`
+blank (health `llm.mode = retrieval_only`) and the opt-in live test was not run. Design, semantics and limitations:
+`docs/INTERACTIVE_SCIENTIFIC_ANALYSIS_V2.md`.
+
+| Milestone | Status | Evidence |
+|---|---|---|
+| M1 Navigation and architecture | DONE | Studio embedded in `/phenomena/flame-extinction`, `/flame-spread` and `/spacecraft-fire`. Sidebar lab item removed. `/lab?scene=…` → 307 to the page, keeping `record`, `mode`, `component`. Mission Control band and experiment "Explore in 3D" link to `#studio` (with `record` and `mode=evidence`). `#footage` opens the SAFFIRE-I footage view. The FLEX map and BASS-II gas chart ring the studio's record |
+| M2 FLEX | DONE | Fuel card sourced to FLEX ERD p.36 and Farouk & Dryer p.2. Soot only for sooting n-heptane. Per-fuel slider ranges computed from the CSV. Compare Fuels in one canvas (split viewports, shared camera) with condition matching and an honest verdict. Earth vs microgravity split with NASA imagery. Burn timeline (MDCA needles and igniters, regression, extinction) with play, pause, scrub, speed and restart; the recorded burn time is shown separately. Idealized d²-law calculation (D₀, K in mm²/s, stops at D₀²/K, consistency ratio from the backend). New vapour and oxygen layers |
+| M3 BASS-II | DONE | Sample menu with CSV test counts. Opposed, concurrent and stagnation flow with streamlines. Flame-spread timeline ("Illustrative progression — not measured flame-front motion"), with Table 5.1 rates shown independently. Material comparison of two real tests (CSV, report tables with PDF pages, mismatches flagged, nominal-vs-actual widths kept), drawn side by side |
+| M4 SAFFIRE-I | DONE | Five camera presets. Isolate, hide, exploded and cutaway views. S1/S2 recorded in the URL. 3D model / NASA footage (click-to-load) / Evidence & metadata views without remounting the canvas. Airflow layer |
+| M5 Guided exploration | DONE | `lib/tours.ts` (FLEX 9, BASS-II 9, SAFFIRE-I 8 steps): camera focus, selection, one checked interaction per tour, sources, takeaway. Next, Back, Skip, Restart, Finish, progress, ←/→/Esc, focus on the step heading. Never calls the model |
+| M6 UX and performance polish | DONE | Contextual labels (primary labels or the selection only). Smooth camera fly-to (instant under reduced motion). Alpha-preserving additive flame blending (removes a dark halo) and toned-down intensity. Collapsible inspector on mobile. Fewer particles. Each page loads only its own scene chunk; three.js is in no initial bundle |
+| M7 Verification and delivery | DONE | See below |
+
+### Phase 7 verification (2026-11-12)
+- `tsc --noEmit` clean; `eslint .` clean; `next build` OK (18 routes; `/lab` is now a redirect).
+- Playwright on the production build, model disabled: **63 passed, 1 skipped** (opt-in live Gemini, not run).
+  New tests:
+  - `e2e/phase7.spec.ts` (20): integrated studios, redirects, entry points and chart ring, camera, fuels, Compare Fuels,
+    Earth vs microgravity, timeline, d²-law vs backend, layers, BASS-II material comparison and evidence, SAFFIRE-I
+    presets, footage and data views, tours, Copilot hand-off with a bounded request, disposal, WebGL fallback, reduced
+    motion, source links, conclusions and literature.
+  - `e2e/studio-mobile.spec.ts`: 390 px on all three pages.
+
+  The Phase 6 specs were superseded (assertions carried over). One Phase 3 locator was scoped to the conditions panel
+  because the studio adds a second "Methanol" radio; intent unchanged.
+- Backend `pytest`: **181 passed**. Smoke checks: 7 pages and 5 endpoints used by the studios return 200; the `/lab`
+  redirects return 307 with the query preserved. three.js is in none of the initial chunks of `/` or a phenomenon
+  page.
+- Screenshots reviewed at 1440 px (all three studios, split views, timeline, tour), 768 px and 390 px (no horizontal
+  overflow).
+
+### Phase 7 known limitations
+- Timelines are illustrative sequences on a normalized axis. The d²-law line is an idealized calculation, not a
+  validated model; there is still no "Validated model" mode.
+- Fuel and material comparisons use single tests; no ranking is drawn. Display tolerances are SpaceFire's choice.
+- Frame rate was not profiled on a hardware GPU or a physical phone: browser tests run on SwiftShader.
+- In `next dev`, Fast Refresh of a scene module while its labels are mounted can log drei `<Html>` unmount errors.
+  This is development only; production E2E runs see no console errors.
+
 ## Phase 6 status (branch `feature/spacefire-phase6-interactive-3d`, 2026-11-12): COMPLETE
 Interactive Combustion Lab at `/lab`: three interactive 3D scenes, each beside the real NASA records for its
 investigation. Frontend only: no backend, data, Gemini or verifier change. No Gemini request was made; the API ran
