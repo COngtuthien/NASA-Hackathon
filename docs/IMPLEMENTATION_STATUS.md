@@ -1,5 +1,49 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 8 status (branch `feature/spacefire-phase8-ux-simplification`, 2026-11-12): COMPLETE
+A human-centred simplification pass: progressive disclosure across the site, "Mission Control" renamed **Home**,
+shorter defaults, and scientific warnings kept visible. Frontend only: no backend, data, algorithm, Gemini or verifier
+change. No Gemini request was made; the API ran with `LLM_API_KEY=` blank (health `llm.mode = retrieval_only`) and the
+opt-in live test was not run. Design and page-by-page detail: `docs/UX_SIMPLIFICATION_V1.md`.
+
+| Milestone | Status | Evidence |
+|---|---|---|
+| M1 Audit and design system | DONE | `frontend/scripts/ux-audit.mjs` (visible words, numbers, pills, first-viewport words, height for 15 pages). `components/disclosure.tsx`: `Disclosure` (specific action label, `aria-expanded`/`aria-controls`, body stays mounted but `hidden`, opens on a matching URL hash or a declared inner anchor), `Takeaway`, `MeasureGroup`, `QualityNotice`, `ReadMore`, `SectionIntro`. Calmer type scale, panels and status bar; site footer with attribution |
+| M2 Home | DONE | "Mission Control" → "Home" in navigation and breadcrumbs. Five sections: hero, three phenomena, 3D studios, Copilot (examples pre-fill only), trust. KPI counters, the scroll story and the dashboards moved to the pages they explain |
+| M3 Scientific Analysis pages | DONE | Key question lead, 3D model, key findings as takeaways ("Why we say this" opens evidence, sources, limits), visible data-quality notices (FLEX K header ‘mm’ read as mm²/s; BASS-II nominal vs actual widths; SAFFIRE-I has no local images), "Explore the data" disclosures, literature collapsed. Studio notes shortened, coverage and display settings on request |
+| M4 Experiments | DONE | Explorer: primary filters and key columns first; "Show all filters" (opens itself when an advanced filter is active) and "Show all columns" (`cols=all`, never sent to the API). Detail: key recorded values with units, visible quality notice, raw values, report rows, pages, flags and provenance on request; "Ask about this test" pre-fills |
+| M5 Copilot | DONE | Answer first; three statements then "Show all N"; limitations always visible; sources collapsed (open when there is no AI answer or a citation marker is clicked); tool trace under "How this answer was built" |
+| M6 Research tools | DONE | Reliability leads with the most important warnings (full flag browser opens itself when filtered); Methodology has a four-card summary with sections as disclosures (ids kept); Modeling, Evidence, Literature, Media, Similar and Compare have shorter leads and secondary controls on request |
+| M7 Verification and delivery | DONE | See below |
+
+Density, visible words at 1440 px before → after (`docs/ux-audit-before-1440.json`, `docs/ux-audit-after-1440.json`):
+Home 2047 → 483, flame-extinction 2875 → 784, flame-spread 5268 → 730, spacecraft-fire 1789 → 645, experiments 704 → 311,
+experiment detail 610 → 228, reliability 2104 → 392, methodology 1662 → 377, evidence 590 → 84, modeling 479 → 216.
+Visible numbers on flame-spread 1961 → 53, Home 200 → 21. A 390 px run is in `docs/ux-audit-after-390.json`.
+
+### Phase 8 verification (2026-11-12)
+- `tsc --noEmit` clean; `eslint .` clean; `next build` OK (18 routes).
+- Playwright on the production build, model disabled: **74 passed, 1 skipped** (opt-in live Gemini, not run).
+  New: `e2e/phase8.spec.ts` (11): Home naming, accessible and state-preserving disclosures, deep links into
+  disclosures (including content that loads later), visible scientific warnings, takeaways, Explorer columns and filters
+  in the URL, experiment key values, answer-first Copilot (mocked stream), reliability top warnings, example questions
+  that send no request, and a density budget for seven pages.
+- Updated tests (intent unchanged, they now open the relevant section first via `e2e/helpers.ts` `openSection`):
+  `journeys` (counts asserted from `/api/v1/investigations`, the FLEX chart on its page; provenance, flags, values,
+  report, pages, d², endpoints, manifest, timeline, metrics), `phase2` (deep links `#spread`, `#outcomes`; report and
+  pages), `phase3` (nav "Home"; the Mission Control story test became a calm-Home test; reduced motion without counters;
+  conditions inside the map), `phase4` ("How this answer was built" before the trace; methodology citations and AI),
+  `phase5` (Home hero and credited cards; gallery "More filters"), `phase7` (Home link, "3D model" nav item, fuel
+  coverage and display settings on request, literature, map section), `mobile` (Home heading).
+- Bug found and fixed during testing: the Explorer sent its view-only `cols` URL key to the API (400).
+- Backend `pytest`: **181 passed**. Smoke checks: 7 pages 200, `/lab` 307, 5 API endpoints 200.
+- No horizontal overflow on 15 pages at 390 px and 768 px; screenshots reviewed at 1440, 768 and 390 px.
+
+### Phase 8 known limitations
+- The audit measures density, not comprehension; no study with real users was run.
+- Opened research-level tables (BASS-II endpoints, SAFFIRE-I manifest, flag browser) remain dense by nature.
+- The media gallery keeps captions and credits on every card (attribution is required).
+
 ## Phase 7 status (branch `feature/spacefire-phase7-premium-analysis`, 2026-11-12): COMPLETE
 The Phase 6 lab is now integrated: each Scientific Analysis page opens with an **Interactive Science Studio**
 (`#studio`), and the standalone `/lab` page and its sidebar item are gone (old URLs redirect with their context).

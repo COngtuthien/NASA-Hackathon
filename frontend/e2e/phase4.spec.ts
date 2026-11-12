@@ -1,3 +1,4 @@
+import { openSection } from "./helpers";
 import { expect, test, type Page } from "@playwright/test";
 
 // Phase 4: Gemini synthesis UI (with deterministic mocked streams), live progress, quota states, Methodology,
@@ -52,6 +53,7 @@ test.describe("Phase 4", () => {
     await expect(page.getByText("Answered", { exact: true })).toBeVisible();
     await expect(page.getByText(/Written by gemini-3\.8-flash in 4\.2 s/)).toBeVisible();
     await expect(page.getByText(/1 verified statement/)).toBeVisible();
+    await page.getByText(/How this answer was built/).click();   // Phase 8: the tool trace is build detail, on request
     const trace = page.getByRole("list", { name: "Tools that ran for this answer" });
     await expect(trace.getByText("Write answer with the model")).toBeVisible();
     await expect(trace.getByText("Verify citations and numbers")).toBeVisible();
@@ -81,6 +83,7 @@ test.describe("Phase 4", () => {
   test("real backend stream: live steps, then the final trace", async ({ page }) => {
     await askCopilot(page);
     await expect(page.getByText(/^(Answered|Partial answer|Insufficient evidence|Evidence only)$/)).toBeVisible({ timeout: 90_000 });
+    await page.getByText(/How this answer was built/).click();
     const trace = page.getByRole("list", { name: "Tools that ran for this answer" });
     await expect(trace.getByText("FLEX d²-law check")).toBeVisible();
     await expect(trace.getByText("Search NASA documents")).toBeVisible();
@@ -92,8 +95,10 @@ test.describe("Phase 4", () => {
       "Scientific rules the system follows", "What this system cannot do"]) {
       await expect(page.getByRole("heading", { name: h })).toBeVisible();
     }
+    await openSection(page, "citations");
     await expect(page.getByText(/Reviewed by hand: .*3 cross-reference/)).toBeVisible();
-    await expect(page.getByText(/20 of 20/)).toBeVisible();
+    await openSection(page, "ai");
+    await expect(page.getByText(/20 of 20/).first()).toBeVisible();
     await expect(page.getByRole("navigation", { name: "On this page" }).getByRole("link", { name: "AI answers" })).toBeVisible();
     const ov = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(ov).toBeLessThanOrEqual(1);
@@ -108,7 +113,7 @@ test.describe("Phase 4", () => {
   });
 
   test("experiment detail labels a reviewed cross-reference link", async ({ page }) => {
-    await page.goto("/experiments/bass2/bass2:2");
+    await page.goto("/experiments/bass2/bass2:2#pages");
     await expect(page.getByText(/Reviewed mention/).first()).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText(/named in another test's notes/)).toBeVisible();
   });

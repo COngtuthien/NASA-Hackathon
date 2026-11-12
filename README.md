@@ -21,7 +21,7 @@ source badge. Old Phase 1–2 URLs (`/physics/flex`, `/assistant`, `/quality`, .
 
 | Group | Page | Route | Notes |
 |---|---|---|---|
-| Discover | Mission Control | `/` | Cinematic overview: full-bleed hero with a real BASS-II flame photographed on the ISS, scroll story quoting NASA document pages with matching NASA imagery, three scales of combustion with investigation photos, recomputed findings, "Recorded in orbit" media band, interactive FLEX chart, research workflow |
+| Discover | Home | `/` | A calm start: hero with a real BASS-II flame photographed on the ISS, the three phenomena, the 3D studios, the Research Copilot (example questions only pre-fill) and how the evidence is checked |
 | | Research Copilot | `/copilot` | Gemini-written answers (or evidence only) from whitelisted data tools, hybrid document search and optional external literature; every claim's citations and numbers verified in code; live step-by-step progress streamed from the backend; quota-aware fallback |
 | | Combustion Explorer | `/experiments`, `/experiments/{dataset}/{uid}` | Server-side filters/sort/paging, CSV export (normalized or original cells), raw vs parsed values, provenance, flags, report pages |
 | Scientific analysis | Flame Extinction & Burning Dynamics (FLEX) | `/phenomena/flame-extinction` | **Interactive Science Studio** (3D droplet flame: fuel comparison, Earth vs microgravity, burn timeline, layers, idealized d²-law calculation, guided tour), condition console, extinction map, outcome bars by O₂ band, d²-law consistency check, Dext/D₀ vs O₂, conclusions, literature |
@@ -116,7 +116,7 @@ the API, logged, or bundled into the frontend.
 ```bash
 cd backend && .venv/Scripts/python -m pytest          # 181 tests: unit, providers (Gemini mocked), API, streaming, quota/cache,
                                                        # FLEX unit guard, 42 golden questions, curation, link reviews, report cross-checks
-cd frontend && npx playwright test                     # 64 browser E2E tests (63 run + 1 opt-in; desktop + 390 px mobile); the model is never called
+cd frontend && npx playwright test                     # 75 browser E2E tests (74 run + 1 opt-in; desktop + 390 px mobile); the model is never called
 E2E_LIVE_LLM=1 npx playwright test -g "live Gemini"    # opt-in: one real Gemini request end to end
 backend/.venv/Scripts/python scripts/smoke_test.py     # against a running backend
 cd frontend && npx tsc --noEmit && npx eslint . && npx next build
@@ -148,14 +148,14 @@ never downloaded or analyzed. The original dataset folders are never modified (t
 
 ## Demo script (3–4 minutes)
 
-1. Mission Control: scroll the physics story (each step quotes a NASA page), then the three scales; filter the FLEX chart to Methanol.
+1. Home: read the three phenomena, then open Flame Extinction; on its page, open "Explore the extinction map" and filter to Methanol.
 2. Flame Extinction & Burning Dynamics: press "Start guided exploration" in the 3D studio, switch to Earth 1 g and to methanol when asked,
    then open a real test in NASA Evidence mode and read its idealized d²-law line; below, check the d²-law (median ratio ≈ 1.05).
 3. Flame Spread & Material Behavior: in the studio, play the opposed vs concurrent timeline and compare tests M1 and M2; then gas balance and Table 5.1.
 4. Spacecraft Fire Dynamics: use the studio's camera presets and the NASA footage view, then S1 vs S2 and the downlink timeline; no images exist locally, and the app says so.
 5. Research Copilot: ask "Is the d2 law consistent with the reported FLEX burn times?" and watch the steps run live, then
    click a citation marker; ask for a safe spacecraft O₂ threshold and see the abstention.
-6. Data Reliability: open "Source mismatches" and follow a flag to its source row.
+6. Data Reliability: read the most important warnings, then open the flag browser and follow a flag to its source row.
 
 ## Retrieval options
 

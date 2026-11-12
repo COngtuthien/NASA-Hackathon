@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("mobile navigation drawer opens, navigates and has no horizontal page scroll", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Understanding Fire Beyond Gravity" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Understanding Fire Beyond Earth" })).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
   await page.getByRole("button", { name: "Open navigation" }).click();

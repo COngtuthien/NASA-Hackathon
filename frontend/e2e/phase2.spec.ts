@@ -1,21 +1,24 @@
+import { openSection } from "./helpers";
 import { expect, test } from "@playwright/test";
 
 test.describe("Phase 2: curated report data, citation confidence, UI refinements", () => {
   test("BASS-II lab shows Table 5.1 spread rates and Table 7.1 outcomes with BASS (I) rows unlinked", async ({ page }) => {
-    await page.goto("/physics/bass-ii");
+    await page.goto("/physics/bass-ii#spread");
     await expect(page.locator("#spread .js-plotly-plot")).toBeVisible();
     await expect(page.locator("#spread")).toContainText(/n = \d+ stages from \d+ tests/);
     const bass1 = page.locator("#outcomes tr", { hasText: "GMT96-T8" });
     await expect(bass1).toContainText("Different investigation");
     await expect(bass1.getByRole("link")).toHaveCount(0);
     await expect(page.locator("#outcomes tr", { hasText: "GMT175-T9" })).toContainText("No ignition");
-    await page.getByRole("link", { name: "SIBAL outcomes (Table 7.1)" }).click();
-    await expect(page).toHaveURL(/#outcomes$/);
+    await page.goto("/phenomena/flame-spread#outcomes");   // deep links still open the report tables
+    await expect(page.locator("#outcomes")).toBeVisible();
   });
 
   test("experiment detail shows verified report rows and link-confidence badges", async ({ page }) => {
     await page.goto("/experiments/bass2/bass2%3A33");
     await expect(page.getByRole("heading", { name: "Values printed in the NASA Summary Report" })).toBeVisible();
+    await openSection(page, "report");
+    await openSection(page, "pages");
     await expect(page.getByText("Table 5.1, row M7")).toBeVisible();
     await expect(page.getByText("Verified against CSV").first()).toBeVisible();
     await expect(page.getByText("Verified table row").first()).toBeVisible();

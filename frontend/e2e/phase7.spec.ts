@@ -1,3 +1,4 @@
+import { openSection } from "./helpers";
 import { expect, test, type Page } from "@playwright/test";
 import { SCENES } from "../lib/lab-models";
 import { SOURCES } from "../lib/lab-scientific-metadata";
@@ -42,7 +43,7 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
       await expect(page.getByTestId("lab-viewport")).toHaveAttribute("data-scene", id);
       await expect(page.getByTestId("mode-banner")).toHaveText(/Conceptual visualization — not measured NASA output\./);
       await expect(studio.getByRole("radio", { name: /Validated/ })).toHaveCount(0);
-      await expect(page.getByRole("navigation", { name: "On this page" }).getByRole("link", { name: /3D studio/ })).toBeVisible();
+      await expect(page.getByRole("navigation", { name: "On this page" }).getByRole("link", { name: /3D model/ })).toBeVisible();
       expect(await page.locator("canvas").count()).toBe(1);
       expect(Object.keys((await stats(page))!.sceneLoads)).toEqual([id]);   // only this page's scene is mounted
     }
@@ -68,7 +69,7 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
     await expect(page).toHaveURL(/\/phenomena\/flame-extinction/);
   });
 
-  test("entry points: Mission Control and experiment records open the matching studio, and the chart rings the record", async ({ page }) => {
+  test("entry points: Home and experiment records open the matching studio, and the chart rings the record", async ({ page }) => {
     await page.goto("/");
     const band = page.locator('section[aria-labelledby="lab-title"]');
     await band.scrollIntoViewIfNeeded();
@@ -77,6 +78,7 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
     await page.getByRole("link", { name: "Explore in 3D" }).click();
     await expect(page).toHaveURL(/\/phenomena\/flame-extinction\?record=flex%3A180&mode=evidence/);
     await expect(page.getByTestId("evidence-record").getByRole("heading", { name: /^Test C02H101/ })).toBeVisible({ timeout: 60_000 });
+    await openSection(page, "map");   // Phase 8: the map is an explore-level section
     const map = page.locator("#map");
     await map.scrollIntoViewIfNeeded();
     await expect(map.getByText("Selected in the 3D studio: C02H101")).toBeVisible({ timeout: 30_000 });
@@ -108,13 +110,14 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
     const n = (f: string) => map.points.filter((p: { fuel: string }) => p.fuel === f).length;
     const info = page.getByTestId("fuel-info");
     await expect(info.getByRole("heading", { name: /n-Heptane/ })).toBeVisible();
-    await expect(info.getByText(/wide range of sooting behaviour/)).toBeVisible();
+    await expect(info.getByText(/wide range of sooting behaviour/).first()).toBeVisible();
+    await page.getByText("Data coverage for this fuel").click();   // Phase 8: coverage is on request
     await expect(info.locator('img[src^="/media/flex-heptane-soot-composite/"]')).toHaveCount(1);
     await expect(page.getByTestId("fuel-coverage")).toContainText(`${n("Heptane")} FLEX n-heptane tests`);
 
     await page.getByRole("radio", { name: "Methanol" }).first().click();
     await expect(info.getByRole("heading", { name: /Methanol/ })).toBeVisible();
-    await expect(info.getByText("A non-sooting alcohol fuel.")).toBeVisible();
+    await expect(info.getByText("A non-sooting alcohol fuel.").first()).toBeVisible();
     await expect(info.getByText(/has no NASA image that names a methanol FLEX droplet/)).toBeVisible();
     await expect(page.getByTestId("fuel-coverage")).toContainText(`${n("Methanol")} FLEX methanol tests`);
     await page.getByRole("tab", { name: "Layers" }).click();
@@ -357,8 +360,8 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
 
   test("leaving a page disposes the renderer", async ({ page }) => {
     await openStudio(page, PAGE.bass);
-    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Mission Control" }).click();
-    await expect(page.getByRole("heading", { name: "Understanding Fire Beyond Gravity" })).toBeVisible();
+    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Home" }).click();
+    await expect(page.getByRole("heading", { name: "Understanding Fire Beyond Earth" })).toBeVisible();
     await expect.poll(async () => (await stats(page))?.live).toBe(0);
     const s = (await stats(page))!;
     expect(s.disposed).toBe(s.mounts);
@@ -387,6 +390,7 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
     const ctx = await browser.newContext({ reducedMotion: "reduce", viewport: { width: 1440, height: 900 } });
     const page = await ctx.newPage();
     await openStudio(page, PAGE.saffire);
+    await page.getByTestId("display-settings").locator("summary").click();
     await expect(page.getByRole("switch", { name: "Decorative motion" })).toHaveAttribute("aria-checked", "false");
     await expect(page.locator("[data-frameloop]")).toHaveAttribute("data-frameloop", "demand");
     await page.getByRole("toolbar", { name: "Camera presets" }).getByRole("button", { name: "Fabric sample" }).click();
@@ -412,8 +416,8 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
       await c.scrollIntoViewIfNeeded();
       await expect(c.getByRole("heading", { name: "Key findings" })).toBeVisible({ timeout: 60_000 });
       await expect(c.getByRole("heading", { name: "Uncertainties and limits" })).toBeVisible();
+      await openSection(page, "literature");
       const lit = page.locator("#literature");
-      await lit.scrollIntoViewIfNeeded();
       await expect(lit.getByTestId("publications").locator("li").first()).toBeVisible();
       await expect(lit.getByTestId("literature-ask")).toHaveAttribute("href", /draft=/);
     }

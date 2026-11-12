@@ -19,20 +19,20 @@ test.describe("Phase 5: scientific media", () => {
     }
   });
 
-  test("Mission Control hero is a labelled real NASA photo; story steps carry sourced media", async ({ page }) => {
+  test("Home hero is a labelled real NASA photo; phenomenon cards carry credited NASA media", async ({ page }) => {
     await page.goto("/");
     const hero = page.locator('section[aria-labelledby="hero-title"] figure');
     await expect(hero.getByText("Experiment media")).toBeVisible();
     await expect(hero.getByRole("link", { name: /iss040e088023/ })).toHaveAttribute("href", "https://images.nasa.gov/details/iss040e088023");
-    const story = page.locator("#physics");
-    await story.scrollIntoViewIfNeeded();
-    await expect(story.locator('figure:has(img[src^="/media/"])')).toHaveCount(4);
-    await expect(story.locator("blockquote a")).toHaveCount(4);  // the document citations are kept
+    const explore = page.locator("#explore");
+    await explore.scrollIntoViewIfNeeded();
+    await expect(explore.locator('[data-testid="phenomenon-card"] img[src^="/media/"]')).toHaveCount(3);
+    await expect(explore.getByRole("link", { name: /images\.nasa\.gov|NASA/ }).first()).toBeVisible();   // credits stay visible
     // every image on the page decodes and reserves its size
-    for (let y = 0; y < 12000; y += 900) { await page.evaluate((v) => window.scrollTo(0, v), y); await page.waitForTimeout(80); }
+    for (let y = 0; y < 5000; y += 700) { await page.evaluate((v) => window.scrollTo(0, v), y); await page.waitForTimeout(80); }
     const imgs = await page.evaluate(() => [...document.querySelectorAll('img[src^="/media/"]')].map((i) => ({
       ok: (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0, sized: !!i.getAttribute("width") && !!i.getAttribute("height") })));
-    expect(imgs.length).toBeGreaterThan(10);
+    expect(imgs.length).toBeGreaterThanOrEqual(5);
     expect(imgs.every((i) => i.ok && i.sized)).toBe(true);
     // each figure on the page names its source with a working external link
     const missing = await page.evaluate(() => [...document.querySelectorAll("figure")].filter((f) => f.querySelector('img[src^="/media/"]'))
@@ -68,6 +68,7 @@ test.describe("Phase 5: scientific media", () => {
     await group.getByRole("button", { name: /^Related NASA media/ }).click();
     await expect(page.getByText(/^0 of \d+ items$/)).toBeVisible();  // SAFFIRE-I media are all real experiment media
     await page.getByRole("button", { name: "Clear filters" }).first().click();
+    await group.getByText("More filters: investigation and media type").click();   // Phase 8: secondary filters on request
     await group.getByRole("button", { name: /^Video/ }).click();
     await page.getByRole("button", { name: /Saffire-I Experiment Burns in Space \(video\): open/ }).click();
     const dialog = page.getByRole("dialog");

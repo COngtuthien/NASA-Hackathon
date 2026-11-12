@@ -1,3 +1,4 @@
+import { openSection } from "./helpers";
 import { expect, test } from "@playwright/test";
 
 test.describe("SpaceFire AI user journeys", () => {
@@ -7,15 +8,16 @@ test.describe("SpaceFire AI user journeys", () => {
     });
   });
 
-  test("overview shows real counts and the chart responds to the fuel filter", async ({ page }) => {
+  // Phase 8: Home no longer shows statistics; the real counts and the fuel-filtered chart live on the FLEX page.
+  test("real counts appear where they belong and the FLEX chart responds to the fuel filter", async ({ page }) => {
     await page.goto("/");
-    const flex = page.locator("article", { hasText: "PSI-69" });
-    await expect(flex).toContainText("274");
-    await expect(page.locator("article", { hasText: "PSI-25" })).toContainText("129");
-    await expect(page.locator("article", { hasText: "PSI-98" })).toContainText("2");
-    await expect(page.getByText("54 of 54 methanol tests")).toBeVisible();
+    await expect(page.locator('#explore a[href="/phenomena/flame-extinction"]')).toBeVisible();
+    const inv = await (await page.request.get("/api/v1/investigations")).json();
+    expect(Object.fromEntries(inv.items.map((i: { investigation_id: string; burns: number }) => [i.investigation_id, i.burns])))
+      .toMatchObject({ "PSI-69": 274, "PSI-25": 129, "PSI-98": 2 });
+    await page.goto("/phenomena/flame-extinction#map");
     await expect(page.getByText(/n = 262 plotted of 274 rows/)).toBeVisible();
-    await page.getByRole("button", { name: "Methanol" }).click();
+    await page.locator("#conditions").getByRole("radio", { name: "Methanol" }).click();
     await expect(page.getByText(/plotted of 157 rows/)).toBeVisible();
   });
 
@@ -33,14 +35,19 @@ test.describe("SpaceFire AI user journeys", () => {
     await page.getByRole("link", { name: "193F001" }).first().click();
     await expect(page.getByRole("heading", { name: "FLEX 193F001" })).toBeVisible();
     await expect(page.getByText(/also appears on/)).toBeVisible();
+    await openSection(page, "provenance");
     await expect(page.getByText("FLEX/PSI-69_Experimental table_FLEX.csv").first()).toBeVisible();
+    await openSection(page, "flags");
     await expect(page.getByText("FLEX-DUP-ID").first()).toBeVisible();
   });
 
   test("BASS-II detail shows GMT as day of year and report pages with links", async ({ page }) => {
     await page.goto("/experiments/bass2/bass2%3A31");
     await expect(page.getByRole("heading", { name: "BASS-II M5" })).toBeVisible();
+    await openSection(page, "values");
     await expect(page.getByText("Day-of-year (NOT a clock time)").first()).toBeVisible();
+    await openSection(page, "report");
+    await openSection(page, "pages");
     const docLink = page.getByRole("link", { name: /BASS-II Summary Report.*PDF p\.\d+/ }).first();
     await expect(docLink).toHaveAttribute("href", /\/api\/v1\/documents\/bass-ii-summary-report\/file#page=\d+/);
   });
@@ -108,17 +115,19 @@ test.describe("SpaceFire AI user journeys", () => {
   });
 
   test("FLEX physics lab: extinction map and d²-law consistency", async ({ page }) => {
-    await page.goto("/physics/flex");
+    await page.goto("/physics/flex#map");
     await expect(page.getByText(/n = 262 plotted of 274 rows/)).toBeVisible();
+    await openSection(page, "d2");
     await expect(page.locator("#d2")).toContainText("NOT an independent prediction");
     await expect(page.locator("#d2")).toContainText(/Median reported \/ estimated time: 1\.0\d+/);
     await expect(page.locator("#d2 .js-plotly-plot")).toBeVisible();
   });
 
   test("BASS-II lab: gas analysis with exclusions and raw non-numeric cells", async ({ page }) => {
-    await page.goto("/physics/bass-ii");
+    await page.goto("/physics/bass-ii#gas");
     await expect(page.getByText(/5 excluded as unphysical/)).toBeVisible();
     await expect(page.getByText("PMMA complete combustion").first()).toBeVisible();
+    await openSection(page, "endpoints");
     const m5 = page.locator("tr", { has: page.getByRole("link", { name: "M5", exact: true }) });
     await expect(m5).toContainText(">500");
   });
@@ -126,7 +135,9 @@ test.describe("SpaceFire AI user journeys", () => {
   test("SAFFIRE-I timeline comes from the real manifest; no images", async ({ page }) => {
     await page.goto("/physics/saffire-i");
     await expect(page.getByText(/no manifest frame is shown or reconstructed/)).toBeVisible();
+    await openSection(page, "manifest");
     await expect(page.locator("tr", { hasText: "S1 burn (concurrent)" }).filter({ hasText: "S1C1" })).toContainText("18,124");
+    await openSection(page, "timeline");
     await page.getByLabel("Image set").selectOption("Sample2");
     await expect(page.locator("#timeline .js-plotly-plot")).toBeVisible();
     await expect(page.getByRole("link", { name: "Download timeline CSV" })).toHaveAttribute("href", /timeline\.csv/);
@@ -151,6 +162,7 @@ test.describe("SpaceFire AI user journeys", () => {
   test("ML page shows gate result and validation metrics", async ({ page }) => {
     await page.goto("/ml/flex");
     await expect(page.getByText(/Prediction (enabled \(exploratory\)|disabled)\./)).toBeVisible();
-    await expect(page.getByText(/GroupKFold/).first()).toBeVisible();
+    await openSection(page, "metrics");
+    await expect(page.locator("#metrics").getByText(/GroupKFold/).first()).toBeVisible();
   });
 });
