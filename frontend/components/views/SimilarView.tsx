@@ -58,7 +58,7 @@ export default function SimilarView() {
   return (
     <>
       <PageHeader kicker="Experiment Intelligence" title="Find similar experiments"
-        lead="Finds the tests with the closest initial conditions within the same investigation. Outcomes (burn time, extinction diameter, final gases) are never used to measure similarity." />
+        lead="Find the tests whose starting conditions are closest to one you choose. Outcomes are never used to measure similarity." />
       <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
         <div className="flex flex-col gap-5">
           <Panel title="Start from a test">

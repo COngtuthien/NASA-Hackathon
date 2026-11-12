@@ -57,7 +57,7 @@ export default function EvidenceView() {
   return (
     <>
       <PageHeader kicker="Evidence & Literature" title="NASA document evidence"
-        lead="Hybrid search over 20 NASA source documents: keyword ranking (BM25) fused with a local semantic index. Every hit is a verbatim passage with its PDF page; rank labels describe retrieval relevance, not whether a claim is true." />
+        lead="Search the NASA source documents. Every result is an exact passage with its page number." />
       <form onSubmit={submit} className="mb-4 grid gap-3 rounded-lg border border-line bg-panel p-4 md:grid-cols-[1fr_180px_180px_auto] md:items-end">
         <Field label="Search" htmlFor="eq"><input id="eq" className={inputCls} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="e.g. M5, BASS-II Table 5.1, FLEX d²-law, SIBAL" /></Field>
         <Field label="Investigation" htmlFor="einv">
@@ -81,7 +81,7 @@ export default function EvidenceView() {
             <Loadable state={res} rows={8}>
               {(d) => (
                 <Panel title={`${d.total} passages`} aside={`Mode: ${d.retrieval_mode}`}>
-                  <p className="mb-3 text-xs text-text-3">{d.score_note}</p>
+                  <details className="mb-3 text-xs text-text-3"><summary className="cursor-pointer">How results are ranked</summary><p className="mt-1">{d.score_note} Rank labels describe retrieval relevance, not whether a claim is true.</p></details>
                   {d.experiment_matches.length > 0 && (
                     <div className="mb-3"><Callout>Experiment records with this ID: {d.experiment_matches.map((e) => (
                       <Link key={e.experiment_uid} className="mr-3" href={expHref(e.experiment_uid)}>{INV_LABEL[e.investigation_id]} {e.display_id} (row {e.source_row})</Link>))}</Callout></div>
@@ -99,7 +99,7 @@ export default function EvidenceView() {
                           <p className="mt-1 font-semibold">{r.citation}</p>
                           {r.section && <p className="text-xs text-text-3">Section: {r.section}</p>}
                           <p className="mt-1 text-sm text-text-2 [overflow-wrap:anywhere]"><Highlight text={r.snippet} terms={d.terms} /></p>
-                          <p className="mt-1 text-xs text-text-3">Why ranked here: {r.reasons.join("; ")}</p>
+                          <details className="mt-1 text-xs text-text-3"><summary className="cursor-pointer">Why ranked here</summary><p className="mt-0.5">{r.reasons.join("; ")}</p></details>
                           <div className="mt-1 flex flex-wrap gap-x-4 text-sm">
                             {r.chunk_id && <button className="text-link" onClick={() => set({ chunk: r.chunk_id })}>Read full passage</button>}
                             {r.source_url && <a href={r.source_url} target="_blank" rel="noreferrer">{r.result_type === "nasa_document" ? "Open source file at this page" : "Open publication"}</a>}
@@ -137,7 +137,9 @@ export default function EvidenceView() {
           <Panel title="Indexed documents">
             <Loadable state={docs} rows={6}>
               {(d) => (
-                <ul className="flex flex-col gap-2 text-sm">
+                <details className="text-sm">
+                <summary className="cursor-pointer text-text-2">Show the {d.items.length} NASA documents searched</summary>
+                <ul className="mt-2 flex flex-col gap-2 text-sm">
                   {d.items.map((x) => (
                     <li key={x.document_id}>
                       <a href={x.file_url} target="_blank" rel="noreferrer">{x.title}</a>
@@ -146,6 +148,7 @@ export default function EvidenceView() {
                     </li>
                   ))}
                 </ul>
+                </details>
               )}
             </Loadable>
           </Panel>

@@ -83,7 +83,7 @@ export default function ResearchView() {
   return (
     <>
       <PageHeader kicker="Evidence & Literature" title="External scientific literature"
-        lead="Search NASA's Technical Reports Server and OpenAlex. Results with the same DOI are merged. SpaceFire reads abstracts only when the provider supplies them, and never claims a paper's full-text findings." />
+        lead="Search published research in NASA's Technical Reports Server and OpenAlex. SpaceFire shows abstracts where available and never claims a paper's full-text findings." />
       <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
         <div className="flex flex-col gap-5">
           <Panel title="Search">

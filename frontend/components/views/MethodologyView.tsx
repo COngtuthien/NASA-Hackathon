@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Disclosure } from "@/components/disclosure";
 import type { ReactNode } from "react";
 import { Icon } from "@/components/icons";
 import { CountUp, Reveal, Stagger, StaggerItem } from "@/components/motion";
@@ -20,21 +21,12 @@ type Method = {
 };
 type Doc = { document_id: string; title: string; investigation_id: string; relative_path: string; scope_note: string | null };
 
+
 const SECTIONS = [
-  { id: "pipeline", label: "Pipeline" }, { id: "labels", label: "Provenance" }, { id: "ai", label: "AI answers" },
-  { id: "citations", label: "Citation links" }, { id: "safeguards", label: "Safeguards" }, { id: "limits", label: "Limitations" },
-  { id: "sources", label: "Sources" },
+  { id: "glance", label: "At a glance" }, { id: "pipeline", label: "Pipeline" }, { id: "ai", label: "AI answers" },
+  { id: "limits", label: "Limitations" }, { id: "sources", label: "Sources" },
 ];
 
-function SectionTitle({ id, kicker, title, lead }: { id: string; kicker: string; title: string; lead?: ReactNode }) {
-  return (
-    <Reveal id={id} className="scroll-mt-36 pb-5 pt-14 first:pt-2">
-      <p className="kicker mb-2">{kicker}</p>
-      <h2 className="display text-[26px] md:text-[32px]">{title}</h2>
-      {lead && <p className="mt-2 max-w-[72ch] text-text-2">{lead}</p>}
-    </Reveal>
-  );
-}
 
 /** The real processing chain, left to right; counts are live from /health and /methodology. */
 function Pipeline({ h, m }: { h: Health | null; m: Method | null }) {
@@ -199,6 +191,17 @@ const SAFEGUARDS: { inv: string; rules: string[] }[] = [
   ] },
 ];
 
+const GLANCE = [
+  { title: "How SpaceFire uses NASA data", href: "#pipeline", link: "See the pipeline",
+    body: "It reads NASA's FLEX, BASS-II and SAFFIRE-I files as published, keeps every original cell, and adds labels and checks on top. It never edits a measured value." },
+  { title: "How evidence is verified", href: "#labels", link: "See the provenance labels",
+    body: "Every value says where it came from: a data row, a document page, a report table or a calculation. Links between documents and tests carry a confidence level." },
+  { title: "What the AI can and cannot conclude", href: "#ai", link: "See how answers are checked",
+    body: "The Copilot can summarise what the retrieved evidence says. It cannot add facts, make predictions or answer without a source, and it says so when evidence is missing." },
+  { title: "Main limitations", href: "#limits", link: "See all limitations",
+    body: "The local data has no flame time series for SAFFIRE-I, some BASS-II values exist only in reports, and some NASA column headers are wrong and must be interpreted." },
+];
+
 const LIMITS = [
   "The language model is optional and limited by the provider's quota; on the Gemini free tier this is 20 requests per day for the configured model, after which answers are evidence only until the reset.",
   "The verifier checks citations and numbers, not reasoning. A statement can cite the right passage and still over-generalize; claims are labelled by kind so readers can weigh them.",
@@ -211,22 +214,31 @@ export default function MethodologyView() {
   const h = useApi<Health>("/health");
   const m = useApi<Method>("/methodology");
   const docs = useApi<{ items: Doc[] }>("/documents");
-  const c = h.data?.database.counts;
   return (
     <>
       <PageHeader kicker="Trust & methods" title="Methodology" sections={SECTIONS}
-        lead="How SpaceFire turns NASA files into searchable, citable evidence, how AI answers are produced and checked, and the rules that keep anything from being invented."
-        facts={c && m.data ? [
-          { value: <CountUp value={c.chunks} />, label: "page-cited passages" },
-          { value: <CountUp value={m.data.quality.flags} />, label: "quality flags from " + m.data.quality.rules + " rules" },
-          { value: <CountUp value={c.evidence_links} />, label: "test-ID links, none unreviewed" },
-        ] : undefined} />
+        lead="How SpaceFire turns NASA files into evidence you can check, how AI answers are verified, and what the system cannot do." />
 
-      <SectionTitle id="pipeline" kicker="Pipeline" title="From NASA files to a cited answer"
-        lead="Each stage only adds labelled information on top of the original values; nothing downstream can change a measured cell." />
-      <Pipeline h={h.data} m={m.data} />
+      <section aria-labelledby="glance" className="mb-8">
+        <h2 id="glance" className="sr-only">Methodology at a glance</h2>
+        <ul className="grid gap-4 md:grid-cols-2" data-testid="method-glance">
+          {GLANCE.map((g) => (
+            <li key={g.title} className="rounded-2xl border border-line/60 bg-panel/50 p-5">
+              <h3 className="subhead text-[17px]">{g.title}</h3>
+              <p className="mt-1.5 text-[15px] leading-relaxed text-text-2">{g.body}</p>
+              <a href={g.href} className="mt-2 inline-block text-[13.5px]">{g.link}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-      <SectionTitle id="labels" kicker="Provenance" title="Every value says where it came from" />
+      <div className="flex flex-col gap-4">
+        <Disclosure id="pipeline" title="From NASA files to a cited answer" action="Show the pipeline"
+          summary="Each stage only adds labelled information on top of the original values; nothing downstream can change a measured cell.">
+          <Pipeline h={h.data} m={m.data} />
+        </Disclosure>
+        <Disclosure id="labels" title="Every value says where it came from" action="Show the provenance labels"
+          summary="Measured, computed, document, report table, external, hypothesis: what each label means.">
       <Stagger className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {LABELS.map(([k, t]) => (
           <StaggerItem key={k} className="rounded-xl border border-line/80 bg-panel/90 p-4 text-sm">
@@ -234,16 +246,17 @@ export default function MethodologyView() {
           </StaggerItem>
         ))}
       </Stagger>
-
-      <SectionTitle id="ai" kicker="AI answers" title="The model phrases; code verifies"
-        lead="The Research Copilot can use a language model to write the answer, but only from evidence the tools retrieved, and only statements that pass a deterministic check are shown." />
-      <Loadable state={m} rows={6}>{(d) => <AiSection m={d} />}</Loadable>
-
-      <SectionTitle id="citations" kicker="Citation links" title="How strongly a passage is tied to a test"
-        lead="When a document mentions a test ID, the link carries the evidence for it. The 28 bare mentions that were once unreviewed have been checked by hand." />
-      <Loadable state={m} rows={6}>{(d) => <Citations m={d} />}</Loadable>
-
-      <SectionTitle id="safeguards" kicker="Safeguards" title="Scientific rules the system follows" />
+        </Disclosure>
+        <Disclosure id="ai" title="The model phrases; code verifies" action="Show how AI answers are checked"
+          summary="The Copilot writes only from evidence its tools retrieved, and shows only statements that pass a deterministic citation and number check.">
+          <Loadable state={m} rows={6}>{(d) => <AiSection m={d} />}</Loadable>
+        </Disclosure>
+        <Disclosure id="citations" title="How strongly a passage is tied to a test" action="Show citation-link confidence"
+          summary="When a document mentions a test ID, the link carries its evidence. Every bare mention has been checked by hand.">
+          <Loadable state={m} rows={6}>{(d) => <Citations m={d} />}</Loadable>
+        </Disclosure>
+        <Disclosure id="safeguards" title="Scientific rules the system follows" action="Show the safeguards"
+          summary="Per-investigation rules: units, header interpretations, what is never inferred.">
       <Stagger className="grid gap-3 md:grid-cols-2">
         {SAFEGUARDS.map((g) => (
           <StaggerItem key={g.inv} className="rounded-xl border border-line/80 bg-panel/90 p-4">
@@ -252,15 +265,17 @@ export default function MethodologyView() {
           </StaggerItem>
         ))}
       </Stagger>
-
-      <SectionTitle id="limits" kicker="Limitations" title="What this system cannot do" />
+        </Disclosure>
+        <Disclosure id="limits" title="What this system cannot do" action="Show all limitations"
+          summary={LIMITS[0]}>
       <Reveal>
         <ul className="grid gap-2 md:grid-cols-2">
           {LIMITS.map((l) => <li key={l} className="rounded-lg border border-warn/25 bg-warn/[0.04] p-3 text-sm text-text-2">{l}</li>)}
         </ul>
       </Reveal>
-
-      <SectionTitle id="sources" kicker="Sources" title="Data, documents and system state" />
+        </Disclosure>
+        <Disclosure id="sources" title="Data, documents and system state" action="Show sources and system state"
+          summary="The NASA investigations, the indexed documents and the current data import.">
       <div className="grid gap-5 xl:grid-cols-2">
         <Panel title="System state">
           <Loadable state={h} rows={4}>
@@ -295,6 +310,8 @@ export default function MethodologyView() {
             )}
           </Loadable>
         </Panel>
+      </div>
+        </Disclosure>
       </div>
     </>
   );

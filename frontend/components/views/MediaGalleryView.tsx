@@ -77,17 +77,20 @@ export default function MediaGalleryView() {
   return (
     <>
       <PageHeader kicker="Evidence & literature" title="Scientific media"
-        lead="Photographs, footage and animation that NASA published from the three investigations and from closely related experiments. Each item says whether it is real experiment media or related context, and links to its original NASA record. Images give context; SpaceFire's numbers come from the data files."
-        facts={[
-          { value: MEDIA.length, label: "verified media items" },
-          { value: MEDIA.filter((m) => m.relation === "experimental").length, label: "real media of FLEX, BASS-II or SAFFIRE-I" },
-          { value: 0, label: "items attached to a test ID (NASA captions name none)" },
-        ]} />
+        lead="Photographs and footage NASA published from these experiments. Each item says whether it shows the experiment itself or related context, and links to its NASA record." />
       <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-line/80 bg-panel/70 p-4" role="group" aria-label="Filter the media">
         <div className="flex flex-wrap items-center gap-2"><span className="w-28 text-sm text-text-3">Phenomenon</span>
           {PHEN_OPTIONS.map(([inv, label]) => (
             <Chip key={inv} on={val("phenomenon") === inv} onClick={() => set("phenomenon", inv)} count={count("phenomenon", inv, (m) => m.datasetInv)}>{label}</Chip>))}
         </div>
+        <div className="flex flex-wrap items-center gap-2"><span className="w-28 text-sm text-text-3">Relation</span>
+          {(["experimental", "related"] as const).map((x) => (
+            <Chip key={x} on={val("relation") === x} onClick={() => set("relation", x)} count={count("relation", x, (m) => m.relation)}>{RELATION_LABEL[x].label}</Chip>))}
+          {active && <button type="button" className="ml-auto text-sm text-link hover:underline" onClick={() => router.replace(path, { scroll: false })}>Clear filters</button>}
+        </div>
+        <details className="group/more" open={!!(val("investigation") || val("type")) || undefined}>
+        <summary className="cursor-pointer text-[13.5px] text-link">More filters: investigation and media type</summary>
+        <div className="mt-3 flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2"><span className="w-28 text-sm text-text-3">Investigation</span>
           {investigations.map((x) => (
             <Chip key={x} on={val("investigation") === x} onClick={() => set("investigation", x)} count={count("investigation", x, (m) => m.investigation)}>{x}</Chip>))}
@@ -96,11 +99,9 @@ export default function MediaGalleryView() {
           {types.map((x) => (
             <Chip key={x} on={val("type") === x} onClick={() => set("type", x)} count={count("type", x, (m) => m.type)}>{TYPE_LABEL[x] ?? x}</Chip>))}
         </div>
-        <div className="flex flex-wrap items-center gap-2"><span className="w-28 text-sm text-text-3">Relation</span>
-          {(["experimental", "related"] as const).map((x) => (
-            <Chip key={x} on={val("relation") === x} onClick={() => set("relation", x)} count={count("relation", x, (m) => m.relation)}>{RELATION_LABEL[x].label}</Chip>))}
-          {active && <button type="button" className="ml-auto text-sm text-link hover:underline" onClick={() => router.replace(path, { scroll: false })}>Clear filters</button>}
         </div>
+        </details>
+
       </div>
       <p className="mb-3 text-sm text-text-3" aria-live="polite">{shown.length} of {MEDIA.length} items</p>
       {shown.length === 0 ? (
@@ -114,7 +115,9 @@ export default function MediaGalleryView() {
           </ul>
         </LayoutGroup>
       )}
-      <section className="mt-10 grid gap-4 rounded-2xl border border-line/80 bg-panel/60 p-5 text-sm text-text-2 md:grid-cols-3">
+      <details className="mt-10 rounded-2xl border border-line/60 bg-panel/40 p-5 text-sm text-text-2">
+      <summary className="cursor-pointer text-text">What the media labels mean</summary>
+      <section className="mt-4 grid gap-4 md:grid-cols-3">
         {(["experimental", "related", "illustration"] as const).map((r) => (
           <div key={r}><RelationBadge relation={r} /><p className="mt-2">{RELATION_LABEL[r].note}</p></div>
         ))}
@@ -123,6 +126,7 @@ export default function MediaGalleryView() {
           analysis of why no photo is tied to a test number: <Link href="/methodology#sources">Methodology</Link> and <span className="raw">docs/SCIENTIFIC_MEDIA_SOURCES.md</span>.
         </p>
       </section>
+      </details>
       {open && <MediaLightbox m={open} open onClose={() => setOpen(null)} />}
     </>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { Disclosure } from "@/components/disclosure";
 import { useState, type FormEvent } from "react";
 import { Button, Callout, ErrorState, Field, inputCls, Loadable, PageHeader, Panel } from "@/components/ui";
 import { apiFetch, ApiError, fmt, useApi } from "@/lib/api";
@@ -56,47 +57,15 @@ export default function MlView() {
   return (
     <>
       <PageHeader kicker="Research intelligence" title="Prediction & Modeling"
-        lead="Exploratory statistical models trained on NASA experiment rows. A model is released only if it beats a trivial predictor under leakage-safe, grouped validation, and every estimate carries its interval, its training range and its limitations. Nothing here is a validated scientific or safety result."
-        sections={[{ id: "card", label: "Model card" }, { id: "metrics", label: "Validation" }, { id: "estimate", label: "Try an estimate" }, { id: "limits", label: "Leakage & limitations" }]} />
+        lead="An exploratory statistical estimate of how long a FLEX droplet burns, from its starting conditions. It is not a physical simulation and not a validated scientific or safety result."
+        sections={[{ id: "estimate", label: "Try an estimate" }, { id: "card", label: "Model card" }, { id: "metrics", label: "Validation" }, { id: "limits", label: "Leakage & limitations" }]} />
       <Loadable state={m} rows={10}>
         {(d) => (
           <div className="flex flex-col gap-5">
-            <Panel id="card" tone="feature" title="FLEX burn-time model" aside={<span className={d.prediction_enabled ? "text-warn" : "text-crit"}>{d.prediction_enabled ? "Exploratory, gated" : "Disabled"}</span>}>
-              <dl className="grid gap-x-8 gap-y-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
-                <div><dt className="text-text-3">Purpose</dt><dd className="mt-1 text-text">Estimate how long an isolated FLEX droplet burns from its initial conditions, to explore trends in the test matrix.</dd></div>
-                <div><dt className="text-text-3">Inputs (pre-test only)</dt><dd className="mt-1 text-text">{d.features.join(", ")}</dd></div>
-                <div><dt className="text-text-3">Target and data</dt><dd className="mt-1 text-text">{d.metrics.regression.target}; {d.metrics.regression.n} FLEX rows in {d.metrics.regression.groups} atmosphere groups</dd></div>
-                <div><dt className="text-text-3">Validation</dt><dd className="mt-1 text-text">{d.metrics.regression.cv}; {d.interval.level} with {fmt(d.interval.oof_coverage * 100)} % out-of-fold coverage</dd></div>
-              </dl>
-              <p className="mt-4 text-xs text-text-3">Source: NASA FLEX (PSI-69) experimental table, SHA-256 {d.source_sha256.slice(0, 12)}…; run {d.run_id}. No model is offered for BASS-II or SAFFIRE-I.</p>
-            </Panel>
             <Callout tone={d.prediction_enabled ? "warn" : "crit"}>
               <b className="text-text">{d.prediction_enabled ? "Prediction enabled (exploratory)." : "Prediction disabled."}</b> Gate: {d.metrics.gate.rule}. Result: {d.metrics.gate.passed ? "passed" : "failed"} (Ridge improves on the dummy by {fmt(d.metrics.regression.ridge_improvement_vs_dummy * 100)} %). {d.status_label}
             </Callout>
-            <div id="metrics" className="grid scroll-mt-36 gap-5 xl:grid-cols-2">
-              <Panel title="Burn-time regression" aside={`n = ${d.metrics.regression.n}, ${d.metrics.regression.groups} atmosphere groups, ${d.metrics.regression.cv}`}>
-                <div className="overflow-x-auto"><table className="data"><thead><tr><th>Model</th><th className="num">MAE log(t)</th><th className="num">MAE (s)</th><th className="num">Median abs. error (%)</th></tr></thead>
-                  <tbody>{Object.entries(d.metrics.regression.models).map(([k, v]) => <tr key={k}><td>{LABEL[k] ?? k}</td><td className="num">{fmt(v.mae_log)}</td><td className="num">{fmt(v.mae_s)}</td><td className="num">{fmt(v.median_ape_pct)}</td></tr>)}</tbody></table></div>
-                <p className="mt-2 text-xs text-text-3">Target: {d.metrics.regression.target}. Rows: Extinction/Completion with an exact numeric burn time. Gradient boosting scores better but is not deployed, because the transparent linear model is preferred for an exploratory tool.</p>
-              </Panel>
-              <Panel title="Extinction vs completion (evaluation only)" aside={`n = ${d.metrics.classification.n}`}>
-                <div className="overflow-x-auto"><table className="data"><thead><tr><th>Model</th><th className="num">Balanced accuracy</th><th className="num">Macro F1</th></tr></thead>
-                  <tbody>{Object.entries(d.metrics.classification.models).map(([k, v]) => <tr key={k}><td>{LABEL[k] ?? k}</td><td className="num">{fmt(v.balanced_accuracy)}</td><td className="num">{fmt(v.macro_f1)}</td></tr>)}</tbody></table></div>
-                <p className="mt-2 text-xs text-text-3">Classes: {Object.entries(d.metrics.classification.class_counts).map(([k, v]) => `${k} ${v}`).join(", ")}. Disruption excluded (undefined). {d.metrics.classification.decision}.</p>
-              </Panel>
-            </div>
-            <div className="grid gap-5 xl:grid-cols-[1fr_420px]">
-              <Panel id="limits" title="Leakage review and reproducibility">
-                <ul className="list-disc pl-5 text-sm text-text-2">
-                  <li>Features (pre-test conditions only): {d.metrics.leakage_review.features.join(", ")}.</li>
-                  <li>Excluded outcomes: {d.metrics.leakage_review.forbidden_outcomes_excluded.join(", ")} (K, Dext and burn time are algebraically linked by the d²-law).</li>
-                  <li>Split: {d.metrics.leakage_review.group_split}, so repeat tests of one atmosphere never sit in both train and test.</li>
-                  <li>Uncertainty: {d.interval.level}; out-of-fold coverage {fmt(d.interval.oof_coverage * 100)} %.</li>
-                  <li>Run {d.run_id}, seed {d.seed}, source SHA-256 {d.source_sha256.slice(0, 16)}…, built {d.created_at}.</li>
-                </ul>
-                <h3 className="subhead mt-3 text-[15px]">Limitations</h3>
-                <ul className="mt-1 list-disc pl-5 text-sm text-text-2">{d.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
-              </Panel>
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,560px)_1fr]">
               <Panel id="estimate" title="Try an exploratory estimate">
                 <form onSubmit={predict} className="grid grid-cols-2 gap-2">
                   <Field label="Fuel" htmlFor="mf"><select id="mf" className={inputCls} value={form.fuel} onChange={(e) => setForm({ ...form, fuel: e.target.value })} disabled={!d.prediction_enabled}>
@@ -110,7 +79,50 @@ export default function MlView() {
                 {err && <div className="mt-3"><ErrorState error={err} /></div>}
                 {pred && <Estimate pred={pred} />}
               </Panel>
+              <section id="card" className="scroll-mt-36 rounded-xl border border-line/60 bg-panel/40 p-5">
+                <h2 className="subhead text-[18px]">FLEX burn-time model <span className={`ml-2 text-[13px] font-normal ${d.prediction_enabled ? "text-warn" : "text-crit"}`}>{d.prediction_enabled ? "Exploratory, gated" : "Disabled"}</span></h2>
+                <p className="mt-2 text-[14.5px] leading-relaxed text-text-2">Trained on {d.metrics.regression.n} FLEX tests and released only because it beats a trivial predictor under grouped, leakage-safe validation. Every estimate carries an interval and is refused outside the training range.</p>
+                <details className="mt-3 text-[14px]">
+                  <summary className="cursor-pointer text-link">Show the full model card</summary>
+                  <div className="mt-3">
+              <dl className="grid gap-x-8 gap-y-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
+                <div><dt className="text-text-3">Purpose</dt><dd className="mt-1 text-text">Estimate how long an isolated FLEX droplet burns from its initial conditions, to explore trends in the test matrix.</dd></div>
+                <div><dt className="text-text-3">Inputs (pre-test only)</dt><dd className="mt-1 text-text">{d.features.join(", ")}</dd></div>
+                <div><dt className="text-text-3">Target and data</dt><dd className="mt-1 text-text">{d.metrics.regression.target}; {d.metrics.regression.n} FLEX rows in {d.metrics.regression.groups} atmosphere groups</dd></div>
+                <div><dt className="text-text-3">Validation</dt><dd className="mt-1 text-text">{d.metrics.regression.cv}; {d.interval.level} with {fmt(d.interval.oof_coverage * 100)} % out-of-fold coverage</dd></div>
+              </dl>
+              <p className="mt-4 text-xs text-text-3">Source: NASA FLEX (PSI-69) experimental table, SHA-256 {d.source_sha256.slice(0, 12)}…; run {d.run_id}. No model is offered for BASS-II or SAFFIRE-I.</p>
+                  </div>
+                </details>
+              </section>
             </div>
+            <Disclosure id="metrics" title="Validation results" action="Show the validation metrics"
+              summary={<>Cross-validated errors for every candidate model ({d.metrics.regression.cv}), and why the simpler model is the one offered.</>}>
+            <div className="grid gap-5 xl:grid-cols-2">
+              <Panel title="Burn-time regression" aside={`n = ${d.metrics.regression.n}, ${d.metrics.regression.groups} atmosphere groups, ${d.metrics.regression.cv}`}>
+                <div className="overflow-x-auto"><table className="data"><thead><tr><th>Model</th><th className="num">MAE log(t)</th><th className="num">MAE (s)</th><th className="num">Median abs. error (%)</th></tr></thead>
+                  <tbody>{Object.entries(d.metrics.regression.models).map(([k, v]) => <tr key={k}><td>{LABEL[k] ?? k}</td><td className="num">{fmt(v.mae_log)}</td><td className="num">{fmt(v.mae_s)}</td><td className="num">{fmt(v.median_ape_pct)}</td></tr>)}</tbody></table></div>
+                <p className="mt-2 text-xs text-text-3">Target: {d.metrics.regression.target}. Rows: Extinction/Completion with an exact numeric burn time. Gradient boosting scores better but is not deployed, because the transparent linear model is preferred for an exploratory tool.</p>
+              </Panel>
+              <Panel title="Extinction vs completion (evaluation only)" aside={`n = ${d.metrics.classification.n}`}>
+                <div className="overflow-x-auto"><table className="data"><thead><tr><th>Model</th><th className="num">Balanced accuracy</th><th className="num">Macro F1</th></tr></thead>
+                  <tbody>{Object.entries(d.metrics.classification.models).map(([k, v]) => <tr key={k}><td>{LABEL[k] ?? k}</td><td className="num">{fmt(v.balanced_accuracy)}</td><td className="num">{fmt(v.macro_f1)}</td></tr>)}</tbody></table></div>
+                <p className="mt-2 text-xs text-text-3">Classes: {Object.entries(d.metrics.classification.class_counts).map(([k, v]) => `${k} ${v}`).join(", ")}. Disruption excluded (undefined). {d.metrics.classification.decision}.</p>
+              </Panel>
+            </div>
+            </Disclosure>
+            <Disclosure id="limits" title="Leakage review and limitations" action="Show leakage review and limitations"
+              summary="Which inputs the model may use, how train and test data are kept apart, and what it cannot tell you.">
+                <ul className="list-disc pl-5 text-sm text-text-2">
+                  <li>Features (pre-test conditions only): {d.metrics.leakage_review.features.join(", ")}.</li>
+                  <li>Excluded outcomes: {d.metrics.leakage_review.forbidden_outcomes_excluded.join(", ")} (K, Dext and burn time are algebraically linked by the d²-law).</li>
+                  <li>Split: {d.metrics.leakage_review.group_split}, so repeat tests of one atmosphere never sit in both train and test.</li>
+                  <li>Uncertainty: {d.interval.level}; out-of-fold coverage {fmt(d.interval.oof_coverage * 100)} %.</li>
+                  <li>Run {d.run_id}, seed {d.seed}, source SHA-256 {d.source_sha256.slice(0, 16)}…, built {d.created_at}.</li>
+                </ul>
+                <h3 className="subhead mt-3 text-[15px]">Limitations</h3>
+                <ul className="mt-1 list-disc pl-5 text-sm text-text-2">{d.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
+            </Disclosure>
           </div>
         )}
       </Loadable>

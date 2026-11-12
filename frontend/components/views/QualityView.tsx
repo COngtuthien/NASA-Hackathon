@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { Disclosure } from "@/components/disclosure";
 import { BarChart } from "@/components/charts";
-import { Field, inputCls, Loadable, PageHeader, Pager, Panel, Severity } from "@/components/ui";
+import { Field, inputCls, Loadable, PageHeader, Pager, Panel, Severity, Skeleton } from "@/components/ui";
 import { PHENOMENA } from "@/lib/routes";
 import { expHref, INV_LABEL, qs, useApi } from "@/lib/api";
 
@@ -98,6 +99,42 @@ function Completeness({ s }: { s: Summary }) {
   );
 }
 
+type FlagItem = { flag_id: string; rule_id: string; severity: string; description: string; investigation_id: string };
+
+/**
+ * The most important warnings, in plain words: one entry per critical or warning rule, with its count. Shown by
+ * default so serious data problems are never hidden behind a summary.
+ */
+function TopWarnings({ s, onRule }: { s: Summary; onRule: (r: string) => void }) {
+  const crit = useApi<{ items: FlagItem[] }>("/quality/flags?severity=critical&page_size=200");
+  const warn = useApi<{ items: FlagItem[] }>("/quality/flags?severity=warning&page_size=200");
+  const byRule = new Map<string, { rule: string; severity: string; text: string; inv: string; n: number }>();
+  for (const f of [...(crit.data?.items ?? []), ...(warn.data?.items ?? [])]) {
+    if (!byRule.has(f.rule_id)) byRule.set(f.rule_id, { rule: f.rule_id, severity: f.severity, text: f.description, inv: f.investigation_id,
+      n: s.rules.filter((r) => r.rule_id === f.rule_id).reduce((a, r) => a + r.n, 0) });
+  }
+  const rows = [...byRule.values()].sort((a, b) => (a.severity === b.severity ? b.n - a.n : a.severity === "critical" ? -1 : 1));
+  return (
+    <section aria-labelledby="top-warn" className="mb-6">
+      <h2 id="top-warn" className="subhead text-[20px]">Most important warnings</h2>
+      <p className="mt-1 max-w-[65ch] text-[14.5px] text-text-2">Problems that change how a value can be used. Each is flagged, never silently corrected.</p>
+      {crit.loading || warn.loading ? <div className="mt-3"><Skeleton rows={3} /></div> : (
+        <ul className="mt-3 grid gap-2 md:grid-cols-2" data-testid="top-warnings">
+          {rows.slice(0, 8).map((r) => (
+            <li key={r.rule} className="flex flex-col gap-1 rounded-xl border border-line/60 bg-panel/40 p-3 text-[14px]">
+              <span className="flex flex-wrap items-center gap-2"><Severity level={r.severity} count={r.n} />
+                <button type="button" className="text-[13px] text-link hover:underline" onClick={() => onRule(r.rule)}>{r.rule}</button>
+                <span className="text-[12px] text-text-3">{INV_LABEL[r.inv]}</span></span>
+              <span className="text-text-2">{r.text.length > 220 ? `${r.text.slice(0, 220)}…` : r.text}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {rows.length > 8 && <p className="mt-2 text-[13px] text-text-3">{rows.length - 8} more warning rules in the full list below.</p>}
+    </section>
+  );
+}
+
 export default function QualityView() {
   const sp = useSearchParams();
   const router = useRouter();
@@ -121,23 +158,28 @@ export default function QualityView() {
   return (
     <>
       <PageHeader kicker="Trust & methods" title="Data Reliability"
-        sections={[{ id: "overview", label: "Reliability overview" }, { id: "flags", label: "Flags" }, { id: "rules", label: "Rules" }]}
-        lead="Automated rules that flag missing, ambiguous, duplicated, inconsistent or physically implausible values, and conflicts between the CSVs and the NASA documents. Flags annotate the data; nothing in the original files is changed."
-        actions={<a className="inline-flex min-h-9 items-center rounded-md border border-line-strong bg-raised px-3 text-sm text-text no-underline hover:border-flame/70"
-          href={`/api/v1/quality/flags.csv${qs(f)}`}>Export these flags (CSV)</a>} />
+        sections={[{ id: "overview", label: "Overview" }, { id: "stats", label: "Statistics" }, { id: "flags", label: "All flags" }]}
+        lead="Automated checks find missing, ambiguous, inconsistent or implausible values, and places where NASA sources disagree. Flags annotate the data; the original files are never changed." />
       <Loadable state={sum} rows={4}>
         {(s) => (
-          <div id="overview" className="mb-5 grid scroll-mt-36 gap-4 md:grid-cols-3">
+          <>
+          <div id="overview" className="mb-6 grid scroll-mt-36 gap-4 md:grid-cols-3">
             {["PSI-69", "PSI-25", "PSI-98"].map((inv) => (
               <button key={inv} onClick={() => set({ investigation: f.investigation === inv ? null : inv })} aria-pressed={f.investigation === inv}
                 className={`lift press hairline-top rounded-xl border bg-panel/80 p-4 text-left ${f.investigation === inv ? "border-flame shadow-[0_0_0_1px_var(--flame)]" : "border-line hover:border-line-strong"}`}>
                 <span className="subhead text-[17px]">{PHENOMENA.find((p) => p.inv === inv)?.short}</span> <span className="text-sm text-text-3">{INV_LABEL[inv]}</span>
                 <span className="block text-sm text-text-2">{s.per_investigation[inv]?.flags ?? 0} flags on {s.per_investigation[inv]?.experiments_affected ?? 0} rows</span>
-                <span className="mt-2 flex flex-wrap gap-1.5">{["critical", "warning", "info"].map((sv) => s.by_investigation_severity[`${inv}|${sv}`] ?
-                  <Severity key={sv} level={sv} count={s.by_investigation_severity[`${inv}|${sv}`]} /> : null)}</span>
+                <span className="mt-2 flex flex-wrap gap-1.5">{["critical", "warning"].map((sv) => s.by_investigation_severity[`${inv}|${sv}`] ?
+                  <Severity key={sv} level={sv} count={s.by_investigation_severity[`${inv}|${sv}`]} /> : null)}
+                  <span className="text-[12px] text-text-3">{s.by_investigation_severity[`${inv}|info`] ?? 0} informational</span></span>
               </button>
             ))}
-            <div className="md:col-span-3"><Completeness s={s} /></div>
+          </div>
+          <TopWarnings s={s} onRule={(r) => set({ rule_id: r })} />
+          <Disclosure id="stats" title="Flag statistics" action="Show the statistics" className="mb-6"
+            summary={<>{s.total} flags in total. Most are informational: a blank optional cell, or a multi-stage value kept as text.</>}>
+          <div className="grid gap-5">
+            <div><Completeness s={s} /></div>
             <div className="md:col-span-3">
               <Panel title="Flags by investigation and severity" aside={`n = ${s.total} flags`}>
                 <BarChart x={["FLEX", "BASS-II", "SAFFIRE-I"]} stack xTitle="Investigation" yTitle="Flags (count)" height={260}
@@ -151,11 +193,16 @@ export default function QualityView() {
               </Panel>
             </div>
           </div>
+          </Disclosure>
+          </>
         )}
       </Loadable>
 
-      <div className="grid gap-5 xl:grid-cols-[1fr_420px]">
-        <Panel id="flags" title="Flags" aside={list.data ? `${list.data.total} matching` : undefined}>
+      <Disclosure id="flags" level="explore" title="All flags" action="Browse all flags" defaultOpen={KEYS.some((k) => !!f[k])}
+        summary="Filter every flag by severity, category, status, rule or test ID; each one traces to its file, row and column.">
+      <p className="mb-3 text-[13px]"><a href={`/api/v1/quality/flags.csv${qs(f)}`}>Export these flags (CSV)</a></p>
+      <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
+        <Panel title="Flags" aside={list.data ? `${list.data.total} matching` : undefined}>
           <div className="mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <Field label="Severity" htmlFor="qs"><select id="qs" className={inputCls} value={f.severity ?? ""} onChange={(e) => set({ severity: e.target.value || null })}>
               <option value="">All</option><option>critical</option><option>warning</option><option>info</option></select></Field>
@@ -207,6 +254,7 @@ export default function QualityView() {
           </Loadable>
         </Panel>
       </div>
+      </Disclosure>
     </>
   );
 }

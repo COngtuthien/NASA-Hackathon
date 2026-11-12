@@ -51,7 +51,7 @@ export default function CompareView() {
   return (
     <>
       <PageHeader kicker="Experiment Intelligence" title="Compare experiments"
-        lead="Put 2 to 5 tests side by side. Numeric deltas and charts appear only for tests from the same investigation; mixing investigations gives a qualitative comparison instead." />
+        lead="Put two to five tests side by side. Numbers are compared only within one investigation; across investigations the comparison is qualitative." />
 
       <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
         <Panel title={`Selected (${uids.length}/5)`}>
