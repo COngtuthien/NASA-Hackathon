@@ -1,19 +1,22 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
-import { stageAt, useTimeline, type Stage, type TimelineStore } from "@/lib/timeline";
+import { goToStage, stageAt, useTimeline, type Stage, type TimelineStore } from "@/lib/timeline";
 
 /**
  * Play / pause / replay / scrub / speed for an ILLUSTRATIVE sequence. The axis is normalized progress, never seconds
  * of a test; a measured duration (if any) is shown separately by the caller as `measured`.
  */
-export default function TimelineBar({ store, stages, title, caveat, measured }: {
+export default function TimelineBar({ store, stages, title, caveat, measured, children }: {
   store: TimelineStore; stages: Stage[]; title: string; caveat: string; measured?: ReactNode;
+  /** Stage explanation (Phase 10). Passed as a stable element, so it re-renders on stage changes only. */
+  children?: ReactNode;
 }) {
   const t = useTimeline(store);
   const id = useId();
   const stage = stageAt(stages, t.p);
   const pct = Math.round(t.p * 100);
+  const idx = stages.findIndex((s) => s.id === stage.id);
 
   function play() {
     if (t.p >= 1) store.set({ p: 0, playing: true, active: true });
@@ -33,6 +36,12 @@ export default function TimelineBar({ store, stages, title, caveat, measured }: 
         </button>
         <button type="button" onClick={() => store.set({ p: 0, playing: false, active: true })} data-testid="timeline-reset"
           className="press inline-flex h-9 items-center rounded-lg border border-line-strong px-3 text-sm text-text-2 hover:text-text">Restart</button>
+        <span className="inline-flex rounded-lg border border-line-strong" role="group" aria-label="Step through the stages">
+          <button type="button" onClick={() => goToStage(store, stages, t.active ? idx - 1 : 0)} disabled={t.active && idx === 0} data-testid="stage-prev"
+            aria-label="Previous stage" className="press inline-flex h-9 items-center px-2.5 text-sm text-text-2 hover:text-text disabled:opacity-40">‹ Prev</button>
+          <button type="button" onClick={() => goToStage(store, stages, t.active ? idx + 1 : 0)} disabled={t.active && idx === stages.length - 1} data-testid="stage-next"
+            aria-label="Next stage" className="press inline-flex h-9 items-center border-l border-line-strong px-2.5 text-sm text-text-2 hover:text-text disabled:opacity-40">Next ›</button>
+        </span>
         <label className="flex items-center gap-1.5 text-[12.5px] text-text-2">Speed
           <select value={t.speed} onChange={(e) => store.set({ speed: Number(e.target.value) })} data-testid="timeline-speed"
             className="min-h-8 rounded-md border border-line-strong bg-ink px-1.5 text-[12.5px] text-text">
@@ -58,15 +67,17 @@ export default function TimelineBar({ store, stages, title, caveat, measured }: 
         <ol className="mt-0.5 flex text-[10.5px] text-text-3" aria-label="Stages">
           {stages.map((s) => (
             <li key={s.id} style={{ width: `${(s.to - s.from) * 100}%` }} className="min-w-0">
-              <button type="button" onClick={() => store.set({ p: s.from + 0.001, playing: false, active: true })}
-                className={`block w-full truncate text-left hover:text-text ${s.id === stage.id && t.active ? "font-medium text-flame" : ""}`} title={s.label}>{s.label}</button>
+              <button type="button" onClick={() => store.set({ p: s.from + 0.001, playing: false, active: true })} aria-current={s.id === stage.id && t.active ? "step" : undefined}
+                className={`block min-h-6 w-full truncate text-left hover:text-text ${s.id === stage.id && t.active ? "font-medium text-flame" : ""}`} title={s.label}>{s.label}</button>
             </li>
           ))}
         </ol>
       </div>
-      <p className="mt-2 text-[13px] leading-snug text-text-2" aria-live="polite" data-testid="timeline-stage">
-        <b className="text-text">{t.active ? stage.label : "Timeline off"}:</b> {t.active ? stage.text : "Press Play or drag the slider to step through the conceptual sequence."}
-      </p>
+      {children ?? (
+        <p className="mt-2 text-[13px] leading-snug text-text-2" aria-live="polite" data-testid="timeline-stage">
+          <b className="text-text">{t.active ? stage.label : "Timeline off"}:</b> {t.active ? stage.text : "Press Play or drag the slider to step through the conceptual sequence."}
+        </p>
+      )}
       {measured && <div className="mt-2 border-t border-line/70 pt-2 text-[12.5px] text-text-2">{measured}</div>}
     </section>
   );

@@ -12,6 +12,7 @@ import SplitView from "@/components/3d/SplitView";
 import type { BassSceneProps, FlexSceneProps, SaffireSceneProps } from "@/components/3d/types";
 import { hasWebGL, labStats } from "@/components/3d/webgl";
 import { Icon } from "@/components/icons";
+import { useMedia } from "@/components/motion";
 import { SCENE_BY_ID, type SceneId } from "@/lib/lab-models";
 import { MODES, type Mode } from "@/lib/lab-scientific-metadata";
 import { CAMERA_HOME } from "@/lib/studio-camera";
@@ -64,6 +65,8 @@ function CamButton({ label, onClick, children }: { label: string; onClick: () =>
 }
 
 export type StudioViewportProps = {
+  /** Active stage or walkthrough step, shown as a small chip (the explainer below carries the text). */
+  stageChip?: string | null;
   sceneId: SceneId;
   mode: Mode;
   animate: boolean;
@@ -79,7 +82,9 @@ export type StudioViewportProps = {
   presets?: { id: string; label: string; onSelect: () => void }[];
 };
 
-export default function StudioViewport({ sceneId, mode, animate, measuredLabel, onStatic, cameraRef, single, split, legend, timeline, presets }: StudioViewportProps) {
+export default function StudioViewport({ sceneId, mode, animate, measuredLabel, onStatic, cameraRef, single, split, legend, timeline, presets, stageChip }: StudioViewportProps) {
+  // Phones: a comparison is stacked (top / bottom) instead of two narrow halves; same canvas and camera.
+  const stacked = useMedia("(max-width: 639px)");
   const [webgl] = useState(hasWebGL);
   const [lost, setLost] = useState(0);
   const [restoreKey, setRestoreKey] = useState(0);
@@ -124,7 +129,7 @@ export default function StudioViewport({ sceneId, mode, animate, measuredLabel, 
             {timeline && <TimelineDriver store={timeline} />}
             <Suspense fallback={null}>
               <Mounted id={sceneId} />
-              {split ? <SplitView left={<Scene id={sceneId} props={split.left} />} right={<Scene id={sceneId} props={split.right} />} />
+              {split ? <SplitView stacked={stacked} left={<Scene id={sceneId} props={split.left} />} right={<Scene id={sceneId} props={split.right} />} />
                 : single ? <Scene id={sceneId} props={single} /> : null}
             </Suspense>
           </SceneCanvas>
@@ -135,10 +140,11 @@ export default function StudioViewport({ sceneId, mode, animate, measuredLabel, 
       {/* split captions */}
       {split && !failed && (
         <>
-          <div aria-hidden className="pointer-events-none absolute inset-y-0 left-1/2 z-20 w-px bg-line-strong/80" />
-          <div className="pointer-events-none absolute left-0 right-0 top-[64px] z-30 grid grid-cols-2 px-3 text-center" data-testid="split-captions" aria-label="Both views share one camera">
-            <p className="mx-auto rounded-full border border-line-strong/80 bg-void/80 px-3 py-0.5 text-[12.5px] font-medium text-text backdrop-blur-md">{split.leftLabel}</p>
-            <p className="mx-auto rounded-full border border-line-strong/80 bg-void/80 px-3 py-0.5 text-[12.5px] font-medium text-text backdrop-blur-md">{split.rightLabel}</p>
+          <div aria-hidden className={`pointer-events-none absolute z-20 bg-line-strong/80 ${stacked ? "inset-x-0 top-1/2 h-px" : "inset-y-0 left-1/2 w-px"}`} />
+          <div className={`pointer-events-none absolute inset-0 z-30 px-3 text-center ${stacked ? "" : "grid grid-cols-2 items-start pt-[64px]"}`}
+            data-testid="split-captions" data-layout={stacked ? "stacked" : "side-by-side"} aria-label="Both views share one camera">
+            <p className={`mx-auto w-fit rounded-full border border-line-strong/80 bg-void/80 px-3 py-0.5 text-[12.5px] font-medium text-text backdrop-blur-md ${stacked ? "absolute left-3 top-[calc(50%-34px)]" : ""}`}>{split.leftLabel}</p>
+            <p className={`mx-auto w-fit rounded-full border border-line-strong/80 bg-void/80 px-3 py-0.5 text-[12.5px] font-medium text-text backdrop-blur-md ${stacked ? "absolute left-3 top-[calc(50%+8px)]" : ""}`}>{split.rightLabel}</p>
           </div>
           {split.note && <p className="absolute bottom-[60px] left-1/2 z-30 w-[min(92%,560px)] -translate-x-1/2 rounded-md bg-void/80 px-2.5 py-1 text-center text-[11.5px] text-text-2 backdrop-blur-md md:bottom-[64px]" data-testid="split-note">{split.note}</p>}
         </>
@@ -150,7 +156,10 @@ export default function StudioViewport({ sceneId, mode, animate, measuredLabel, 
           mode === "conceptual" ? "border-warn/50 bg-void/75 text-warn" : "border-data/50 bg-void/75 text-data"}`}>
           {MODES[mode].banner}{mode === "evidence" && measuredLabel && <span className="mt-0.5 block font-normal text-text-2">Drawn to measured size: {measuredLabel}</span>}
         </p>
-        <span className="rounded-full border border-line-strong/70 bg-void/70 px-2.5 py-0.5 text-[11.5px] text-text-2 backdrop-blur-md">{s.scale}</span>
+        <span className="flex flex-col items-end gap-1.5">
+          <span className="rounded-full border border-line-strong/70 bg-void/70 px-2.5 py-0.5 text-[11.5px] text-text-2 backdrop-blur-md">{s.scale}</span>
+          {stageChip && <span aria-hidden className="rounded-full border border-flame/60 bg-void/80 px-2.5 py-0.5 text-[11.5px] font-medium text-text backdrop-blur-md" data-testid="stage-chip">{stageChip}</span>}
+        </span>
       </div>
 
       {!failed && (

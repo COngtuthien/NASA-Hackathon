@@ -22,6 +22,7 @@ import GuidedTour from "@/components/studio/GuidedTour";
 import LayerInspector from "@/components/studio/LayerInspector";
 import type { AnySceneProps } from "@/components/studio/StudioViewport";
 import TimelineBar from "@/components/studio/TimelineBar";
+import { SaffireWalkthrough, StageExplainer } from "@/components/studio/StageExplainer";
 import { Term } from "@/components/glossary";
 import { JourneyCard, useJourney } from "@/components/journey";
 import { Segmented } from "@/components/ui";
@@ -34,7 +35,9 @@ import {
 } from "@/lib/lab-presets";
 import { MODES, type Mode } from "@/lib/lab-scientific-metadata";
 import { bassFocus, CAMERA_HOME, flexFocus, SAFFIRE_PRESETS, saffireFocus, type Shot } from "@/lib/studio-camera";
-import { BASS_STAGES, createTimeline, FLEX_STAGES, useTimeline } from "@/lib/timeline";
+import { bassInfo, stageFocus, d2ZeroTime, FLEX_FUEL_NOTE, FLEX_GRAVITY, FLEX_INFO, flexOutcomeText, saffireWalk } from "@/lib/stages";
+import { bassWidthConflict } from "@/lib/record-facts";
+import { BASS_STAGES, createTimeline, FLEX_STAGES, goToStage, useStageId, useTimelineValue } from "@/lib/timeline";
 import { TOURS, type TourStep } from "@/lib/tours";
 
 function ViewportLoading() {
@@ -153,7 +156,14 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
   const [cmpB, setCmpB] = useState<string | null>(null);
   const [tourIdx, setTourIdx] = useState<number | null>(null);
   const [timeline] = useState(() => createTimeline(sceneId === "bass" ? 12 : 14));
-  const tl = useTimeline(timeline);
+  const tlPlaying = useTimelineValue(timeline, (s) => s.playing, false);
+  const tlFrontMoved = useTimelineValue(timeline, (s) => s.active && s.p > 0.14, false);
+  // --- Phase 10: the active stage, derived from the one timeline store (FLEX, BASS-II) ----------------------------
+  const STAGES = sceneId === "flex" ? FLEX_STAGES : BASS_STAGES;
+  const stageId = useStageId(sceneId === "saffire" ? null : timeline, STAGES);
+  const [follow, setFollow] = useState(false);
+  const [whyDifferent, setWhyDifferent] = useState(false);
+  const [walk, setWalk] = useState<number | null>(null);
   const [cam, setCam] = useState<CameraApi | null>(null);
   const section = useRef<HTMLElement>(null);
 
@@ -287,20 +297,26 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
       case "methanol": return flex.fuel === "Methanol";
       case "record": return !!recordUid && sceneId !== "saffire";
       case "rod": return bass.sample === "rod";
-      case "concurrent": return bass.flow === "concurrent" && tl.active && tl.p > 0.14;
+      case "concurrent": return bass.flow === "concurrent" && tlFrontMoved;
       case "footage": return view === "footage";
       default: return false;
     }
   };
 
   // --- scene props ---------------------------------------------------------------------------------------------
-  const base: SceneCommonProps = {
-    common: commonView, animate: motionOn, mode, selected, onSelect: (id: string) => select(id), hidden, isolate, interactive: true,
-    timeline: sceneId === "saffire" ? null : timeline,
-  };
-  const passive: SceneCommonProps = { ...base, selected: null, hidden: [], isolate: false, interactive: false };
   const bassView: BassState = mode === "evidence" && bassMeasured
     ? { ...bass, sample: bassSampleOf(detail?.normalized.material_class as string) ?? bass.sample, flow: flowOf(bassMeasured.flow, bass.flow) } : bass;
+  const stageInfo = sceneId === "flex" ? FLEX_INFO : sceneId === "bass" ? bassInfo(bassView.sample, bassView.flow) : null;
+  const walkSteps = sceneId === "saffire" ? saffireWalk(burn) : [];
+  const activeInfo = stageId && stageInfo ? stageInfo[stageId] : walk !== null ? walkSteps[walk] : null;
+  const gravityStage = sceneId === "flex" && view === "gravity" && stageId ? FLEX_GRAVITY[stageId] : null;
+  // emphasis follows the stage; "Why are they different?" moves it to the transport regions it explains
+  const focusKey = stageFocus(sceneId, stageId, walk, view === "gravity" && whyDifferent);
+  const base: SceneCommonProps = {
+    common: commonView, animate: motionOn, mode, selected, onSelect: (id: string) => select(id), hidden, isolate, interactive: true,
+    timeline: sceneId === "saffire" ? null : timeline, focus: focusKey ? focusKey.split("|") : undefined,
+  };
+  const passive: SceneCommonProps = { ...base, selected: null, hidden: [], isolate: false, interactive: false };
 
   let single: AnySceneProps | undefined;
   let split: { left: AnySceneProps; right: AnySceneProps; leftLabel: string; rightLabel: string; note?: string } | undefined;
@@ -314,10 +330,10 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
       };
     } else if (view === "gravity") {
       split = {
-        left: { ...passive, mode: "conceptual", state: { ...flex, gravity: "micro" }, measured: null },
-        right: { ...passive, mode: "conceptual", state: { ...flex, gravity: "earth" }, measured: null },
-        leftLabel: "Microgravity", rightLabel: "Earth 1 g (conceptual comparison)",
-        note: "Qualitative shapes only. The 1 g side is not a FLEX measurement, and microgravity flames are not spherical under every flow condition.",
+        left: { ...passive, mode: "conceptual", state: { ...flex, gravity: "earth" }, measured: null },
+        right: { ...passive, mode: "conceptual", state: { ...flex, gravity: "micro" }, measured: null },
+        leftLabel: "Earth 1 g (conceptual comparison)", rightLabel: "Microgravity",
+        note: "Conceptual comparison — not paired Earth and ISS measurements. The 1 g side is not a FLEX measurement; arrows show direction only.",
       };
     } else single = { ...base, state: flex, measured: flexMeasured };
   } else if (sceneId === "bass") {
@@ -369,8 +385,71 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
 
   const record = detail ? { uid: detail.experiment_uid, label: detail.display_id } : null;
   const fuel = FUELS[mode === "evidence" && flexMeasured?.fuel ? (flexMeasured.fuel as FuelId) : flex.fuel];
-  const unavailable = sceneId === "flex" && fuel.id === "Methanol" ? [{ id: "soot", reason: "not drawn: methanol is non-sooting" }] : [];
+  const unavailable = [
+    ...(sceneId === "flex" && fuel.id === "Methanol" ? [{ id: "soot", reason: "not drawn: methanol is non-sooting" }] : []),
+    // components the active stage does not draw, with the reason (instead of an empty inspector)
+    ...Object.entries(activeInfo?.absent ?? {}).filter(([id]) => !(id === "soot" && fuel.id === "Methanol"))
+      .map(([id, reason]) => ({ id, reason: `not drawn in this stage: ${reason.charAt(0).toLowerCase()}${reason.slice(1)}` })),
+  ];
   const showViewport = sceneId !== "saffire" || view === "3d" || view === "nasa";
+
+  // Optional: the camera moves once per stage change, never per frame, and only if the visitor asked for it.
+  const followKey = stageId ?? (walk !== null ? `w${walk}` : null);
+  useEffect(() => {
+    if (!follow || !followKey || !activeInfo) return;
+    const preset = "preset" in activeInfo && activeInfo.preset ? SAFFIRE_PRESETS.find((p) => p.id === activeInfo.preset) : null;
+    const shot = preset ? preset.shot : shotFor(activeInfo.focus[0]);
+    if (shot) cam?.fly(shot, !reduce);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [followKey, follow]);
+
+  // Stage lines that depend on the fuel, the selected test or the comparison view
+  const stageExtra = (() => {
+    if (!stageId) return null;
+    const lines: React.ReactNode[] = [];
+    if (sceneId === "flex") {
+      const note = (f: FuelId) => FLEX_FUEL_NOTE[stageId]?.[f];
+      if (view === "fuels") {
+        for (const f of fuelsLR) {
+          const n = note(f);
+          if (n) lines.push(<li key={f}><b className="text-text">{FUELS[f].label}:</b> {n.text} <a href={n.source.href} target="_blank" rel="noreferrer" className="text-[12px]">[source]</a></li>);
+        }
+        lines.push(<li key="shared" className="text-text-3">Both sides share one conceptual timeline; it does not mean the two fuels burn for equal times. Each fuel&apos;s tests and conditions are listed separately in Compare.</li>);
+      } else if (view !== "gravity") {
+        const n = note(fuel.id);
+        if (n) lines.push(<li key="fuel" data-testid="stage-fuel"><b className="text-text">{fuel.label}:</b> {n.text} <a href={n.source.href} target="_blank" rel="noreferrer" className="text-[12px]">[source]</a></li>);
+      }
+      if (detail && flexMeasured && view !== "gravity") {
+        const n = detail.normalized;
+        if (stageId === "regression") {
+          const t = d2ZeroTime(n.d0_mm as number, n.k_mm2_s as number);
+          lines.push(<li key="d2" data-testid="stage-record">Test <b className="text-text">{detail.display_id}</b>: {t !== null
+            ? <>idealized d²-law time for D² to reach zero, D₀²/K = <b className="text-data">{fmt(t)} s</b> (calculated from D₀ = {fmt(n.d0_mm)} mm and K = {fmt(n.k_mm2_s)} mm²/s; not a measurement and not the extinction time). Recorded: burn time {fmt(n.burn_time_s)} s, test end {String(n.test_end ?? "—")}.</>
+            : <>no idealized d²-law time: the record lacks a positive D₀ or K.</>}</li>);
+        }
+        if (stageId === "end") lines.push(<li key="end" data-testid="stage-record">Test <b className="text-text">{detail.display_id}</b>: {flexOutcomeText(n.test_end as string, n.dext_mm as number)}</li>);
+      }
+    } else if (sceneId === "bass" && detail && bassMeasured) {
+      if (stageId === "ignite") {
+        const c = bassWidthConflict(detail);
+        lines.push(<li key="geom" data-testid="stage-record">Test <b className="text-text">{detail.display_id}</b>: {String(detail.normalized.material_raw ?? detail.normalized.material_class)}{c
+          ? <> <span className="text-warn">· width {c.csv} cm in the CSV (nominal), {c.report.map((x) => `${x.width} cm in Table ${x.table}`).join(", ")} (actual); both kept.</span></> : null}</li>);
+      }
+      if (stageId === "spread") {
+        const rows = detail.report_records.filter((r) => Array.isArray(r.values.spread_rate_mm_s));
+        lines.push(<li key="rate" data-testid="stage-record">Test <b className="text-text">{detail.display_id}</b>: {rows.length
+          ? <>measured spread rate {rows.map((r) => `${(r.values.spread_rate_mm_s as number[]).join(", ")} mm/s at ${(r.values.velocity_cm_s as number[] | undefined)?.join(", ") ?? "?"} cm/s (Table ${r.table_id}, PDF p.${r.page_pdf})`).join("; ")}. The animated front is not scaled to it.</>
+          : "no measured spread rate in the report tables; the animated front's speed means nothing for this test."}</li>);
+      }
+      if (stageId === "end") {
+        const out = detail.report_records.find((r) => typeof r.values.outcome === "string");
+        lines.push(<li key="out" data-testid="stage-record">Test <b className="text-text">{detail.display_id}</b>: {out
+          ? <>the report records the outcome “{String(out.values.outcome)}” (Table {out.table_id}, PDF p.{out.page_pdf}).</>
+          : "no recorded outcome in the local records; how this test ended cannot be inferred."}</li>);
+      }
+    }
+    return lines.length ? <ul className="mt-1.5 flex flex-col gap-1 text-[13px] text-text-2" data-testid="stage-context">{lines}</ul> : null;
+  })();
   const nasaView = view === "nasa";
 
   // --- Discover SpaceFire journey (only while the URL carries a studio step) --------------------------------------
@@ -434,9 +513,10 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
                 <SceneFallback scene={scene} reason="user" onRetry={() => setStaticView(false)} />
               ) : (
                 <ViewportBoundary fallback={<SceneFallback scene={scene} reason="error" />}>
-                  <StudioViewport sceneId={sceneId} mode={split && view === "gravity" ? "conceptual" : mode} animate={motionOn || tl.playing}
+                  <StudioViewport sceneId={sceneId} mode={split && view === "gravity" ? "conceptual" : mode} animate={motionOn || tlPlaying}
                     measuredLabel={measuredLabel} onStatic={() => setStaticView(true)} cameraRef={setCam} single={single} split={split}
-                    legend={LEGEND[sceneId]} timeline={timelineOn ? timeline : null} presets={presets} />
+                    legend={LEGEND[sceneId]} timeline={timelineOn ? timeline : null} presets={presets}
+                    stageChip={activeInfo ? `${stageId ? `Stage ${STAGES.findIndex((s) => s.id === stageId) + 1} of ${STAGES.length}` : `Step ${(walk ?? 0) + 1} of ${walkSteps.length}`} · ${activeInfo.title}` : null} />
                 </ViewportBoundary>
               )}
             </div>
@@ -486,7 +566,20 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
                 <>Recorded for test <b className="text-text">{detail.display_id}</b>: {detail.report_records.some((r) => Array.isArray(r.values.spread_rate_mm_s))
                   ? <>spread rate {detail.report_records.filter((r) => Array.isArray(r.values.spread_rate_mm_s)).map((r) => `${(r.values.spread_rate_mm_s as number[]).join(", ")} mm/s at ${(r.values.velocity_cm_s as number[] | undefined)?.join(", ") ?? "?"} cm/s (Table ${r.table_id})`).join("; ")}</>
                   : "no spread rate in the report tables"} <span className="text-text-3">(measured; independent of the animation)</span></>
-              ) : undefined} />
+              ) : undefined}>
+              {stageInfo && (
+                <StageExplainer stageId={stageId} order={STAGES.map((s) => s.id)} info={stageInfo} selected={selected} follow={follow} setFollow={setFollow}
+                  onStart={() => goToStage(timeline, STAGES, 0)} onInspect={(id) => select(id)} extra={stageExtra}
+                  gravity={gravityStage} whyDifferent={whyDifferent} setWhyDifferent={setWhyDifferent}
+                  idleHint={sceneId === "flex"
+                    ? view === "gravity" ? "Step through the burn in both environments at once: press Play, or start at stage 1." : "Step through the burn stage by stage: press Play, or start at stage 1."
+                    : "Step through ignition, spread and the end of spread: press Play, or start at stage 1."} />
+              )}
+            </TimelineBar>
+          )}
+          {sceneId === "saffire" && (
+            <SaffireWalkthrough steps={walkSteps} index={walk} setIndex={setWalk} onInspect={(id) => select(id)} selected={selected}
+              follow={follow} setFollow={setFollow} onFootage={() => setParams({ view: "footage" })} />
           )}
         </div>
 
