@@ -37,7 +37,7 @@ export const SCENES: LabScene[] = [
   {
     id: "flex", title: "Droplet Combustion", short: "Droplet", source: "FLEX", inv: "PSI-69", dataset: "flex",
     phenomenonHref: ROUTES.extinction, phenomenonTitle: "Flame Extinction & Burning Dynamics", scale: "Millimetre scale",
-    blurb: "A fuel droplet wrapped in its flame. Compare the near-spherical microgravity flame with the buoyant 1 g teardrop, then inspect a real FLEX test.",
+    blurb: "Rotate a burning droplet, switch gravity on and off, and compare the two fuels.",
     textAlternative: "A small liquid fuel droplet sits at the centre, inside a faint fuel-vapour region. Around it a translucent flame envelope is drawn several droplet diameters away. In microgravity the envelope is a near-sphere; in the 1 g comparison it stretches upward into a teardrop. Optional arrows show fuel vapour moving outward and oxygen moving inward (microgravity) or an upward buoyant flow (1 g). A millimetre scale bar sits beside the droplet.",
     components: [
       { id: "droplet", label: "Fuel droplet", basis: "documented-principle",
@@ -74,7 +74,7 @@ export const SCENES: LabScene[] = [
   {
     id: "bass", title: "Flame Spread over Solids", short: "Flame spread", source: "BASS-II", inv: "PSI-25", dataset: "bass2",
     phenomenonHref: ROUTES.spread, phenomenonTitle: "Flame Spread & Material Behavior", scale: "Centimetre scale",
-    blurb: "A solid sample inside the BASS-II flow duct. Change the sample type and whether the flame spreads against or with the airflow.",
+    blurb: "Change the sample and the airflow, and watch which way the flame spreads.",
     textAlternative: "A rectangular flow duct, 7.6 by 7.6 by 17 centimetres as documented, with a fan and honeycomb flow straightener at the upstream end. A solid sample sits on a holder along the duct axis. Cyan arrows show the airflow from inlet to outlet. A flame region sits on the sample, and an illustrative flame front moves either toward the incoming air (opposed spread) or with it (concurrent spread). A radiometer sits in the downstream top back corner.",
     components: [
       { id: "duct", label: "Flow duct", basis: "confirmed",
@@ -118,7 +118,7 @@ export const SCENES: LabScene[] = [
   {
     id: "saffire", title: "Spacecraft Fire Safety", short: "Spacecraft", source: "SAFFIRE-I", inv: "PSI-98", dataset: "saffire1",
     phenomenonHref: ROUTES.spacecraft, phenomenonTitle: "Spacecraft Fire Dynamics", scale: "Metre scale",
-    blurb: "A conceptual arrangement of the Saffire-I flow duct: a large fabric sample card, fans, flow straighteners and diagnostics. Open the cutaway to look inside.",
+    blurb: "Look inside a simplified Saffire-I duct, then switch to NASA's footage of the real burn.",
     textAlternative: "A conceptual experiment enclosure, roughly 0.5 by 1 by 1.3 metres as NASA describes it. Inside, a flow duct holds a large fabric sample card, about 0.4 metres wide and 0.94 metres tall, in its middle. Flow straighteners sit at the bottom and fans at the top, so air is drawn upward past the sample. Two cameras and several sensors are shown in illustrative positions. A flame-spread arrow shows the direction recorded in the CSV for the selected burn: with the airflow (concurrent) or against it (opposed).",
     components: [
       { id: "enclosure", label: "Experiment enclosure", basis: "illustrative",

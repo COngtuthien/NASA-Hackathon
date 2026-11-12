@@ -367,12 +367,11 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
 
   return (
     <section id="studio" ref={section} aria-labelledby={`${sceneId}-studio-title`} data-testid="science-studio"
-      className="hairline-top relative scroll-mt-28 overflow-hidden rounded-2xl border border-electric/25 bg-[linear-gradient(165deg,rgba(91,140,255,0.10),rgba(10,20,36,0.94)_42%)] p-3 md:p-5">
+      className="relative scroll-mt-28 overflow-hidden rounded-2xl border border-line/60 bg-panel/40 p-3 md:p-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="max-w-[70ch]">
-          <p className="kicker">Interactive Science Studio · {scene.source}</p>
-          <h2 id={`${sceneId}-studio-title`} className="subhead mt-2 text-[22px] md:text-[26px]">{scene.title} in 3D</h2>
-          <p className="mt-1 text-[14px] leading-relaxed text-text-2">{scene.blurb}</p>
+          <h2 id={`${sceneId}-studio-title`} className="subhead text-[22px] md:text-[26px]">Explore it in 3D</h2>
+          <p className="mt-1 text-[14.5px] leading-relaxed text-text-2">{scene.blurb}</p>
         </div>
         <button type="button" onClick={startTour} data-testid="start-tour"
           className="press glow-flame inline-flex min-h-10 items-center gap-2 rounded-lg bg-flame px-4 text-[14.5px] font-semibold text-flame-ink">
@@ -465,15 +464,19 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
                   bass={bass} setBass={setBass} saffire={saffire} setSaffire={setSaffire} onReset={resetParams} onStatic={() => setStaticView(true)} locked={locked}
                   flexCoverage={coverage} bassCounts={bassCounts}
                   extra={sceneId === "flex" ? (
-                    <section aria-labelledby="fuel-h" className="rounded-xl border border-line/80 bg-ink/60 p-3" data-testid="fuel-info">
+                    <section aria-labelledby="fuel-h" className="rounded-xl border border-line/70 bg-ink/40 p-3" data-testid="fuel-info">
                       <h3 id="fuel-h" className="subhead text-[15px]">{fuel.label} <span className="text-[12.5px] font-normal text-text-3">{fuel.formula} · {fuel.family}</span></h3>
-                      <ul className="mt-1.5 flex flex-col gap-1.5 text-[13px] text-text-2">
-                        {fuel.facts.map((f) => <li key={f.text}>{f.text} <a href={f.source.href} target="_blank" rel="noreferrer" className="text-[12px]">[{f.source.label.split(" (")[0]}]</a></li>)}
-                      </ul>
-                      <p className="mt-2 text-[12.5px] text-text-2"><span className="text-text-3">In the 3D view: </span>{fuel.visual}</p>
-                      {fuel.mediaId ? <div className="mt-2 max-w-[260px]"><MediaFigure id={fuel.mediaId} aspect="4 / 3" compact sizes="260px" caption={fuel.mediaNote} /></div>
+                      <p className="mt-1 text-[13.5px] text-text-2">{fuel.facts[0].text}</p>
+                      <details className="mt-1.5 text-[13px]">
+                        <summary className="cursor-pointer text-link">Fuel facts and sources</summary>
+                        <ul className="mt-1.5 flex flex-col gap-1.5 text-text-2">
+                          {fuel.facts.map((f) => <li key={f.text}>{f.text} <a href={f.source.href} target="_blank" rel="noreferrer" className="text-[12px]">[{f.source.label.split(" (")[0]}]</a></li>)}
+                        </ul>
+                        <p className="mt-2 text-[12.5px] text-text-2"><span className="text-text-3">In the 3D view: </span>{fuel.visual}</p>
+                        <p className="mt-1 text-[12px] text-text-3">Limits: {fuel.limits}</p>
+                      </details>
+                      {fuel.mediaId ? <div className="mt-2 max-w-[220px]"><MediaFigure id={fuel.mediaId} aspect="4 / 3" compact sizes="220px" caption={fuel.mediaNote} /></div>
                         : <p className="mt-2 text-[12px] text-text-3">{fuel.mediaNote}</p>}
-                      <p className="mt-2 text-[12px] text-text-3">Limits: {fuel.limits}</p>
                     </section>
                   ) : sceneId === "saffire" ? (
                     <section aria-labelledby="preset-h" className="rounded-xl border border-line/80 p-3">

@@ -82,24 +82,27 @@ export default function ControlPanel({ scene, mode, common, setCommon, flex, set
               options={[["micro", "Microgravity"], ["earth", "Earth 1 g (comparison)"]]} />
           </div>
           <p className="-mt-2 text-[12px] leading-snug text-text-3">
-            {mode === "evidence" ? "All FLEX tests ran aboard the ISS, so evidence mode is microgravity only." : "Shape change only: buoyancy stretches the flame upward at 1 g. The teardrop is qualitative, not a simulation."}
+            {mode === "evidence" ? "All FLEX tests ran aboard the ISS, so evidence mode is microgravity only." : "Changes the flame shape only. Not a simulation."}
           </p>
           <div inert={!!locked} className={locked ? "opacity-50" : ""}>
             <Segmented label="Fuel (FLEX fuels)" value={flex.fuel} onChange={(v) => setFlex({ ...flex, fuel: v as FlexState["fuel"] })}
               options={[["Heptane", "n-Heptane"], ["Methanol", "Methanol"]]} />
           </div>
-          <p className="-mt-2 text-[12px] leading-snug text-text-3">The only two fuels in the FLEX CSV. Changing fuel updates the explanation, the soot shell (sooting n-heptane only), the NASA media, the slider ranges and the tests in Evidence. Flame colours are illustrative.</p>
+          <p className="-mt-2 text-[12px] leading-snug text-text-3">The two fuels FLEX burned. Flame colours are illustrative.</p>
           <Slider label="Ambient O₂ (mole fraction)" value={Math.min(Math.max(flex.o2, o2Range.min), o2Range.max)} {...o2Range} disabled={!!locked}
             onChange={(v) => setFlex({ ...flex, o2: v })} format={(v) => v.toFixed(2)}
-            note="Changes the share of cyan O₂ dots only. Finds real FLEX tests near this value; it does not predict burning or extinction." />
+            note="Recolours the oxygen dots and finds real tests nearby. Predicts nothing." />
           <Slider label="Initial droplet diameter D₀" value={Math.min(Math.max(flex.d0, d0Range.min), d0Range.max)} {...d0Range} disabled={!!locked}
             onChange={(v) => setFlex({ ...flex, d0: v })} format={(v) => `${v.toFixed(1)} mm`}
-            note="Redraws the droplet to scale (see the mm scale bar). The flame is always drawn at 4× the droplet radius: an illustrative choice, not computed." />
+            note="Redraws the droplet to scale. The flame size around it is illustrative." />
           {flexCoverage && (
-            <p className="rounded-lg border border-line/80 px-2.5 py-1.5 text-[12px] leading-snug text-text-3" data-testid="fuel-coverage">
+            <details className="text-[12.5px] text-text-3">
+            <summary className="cursor-pointer text-text-2">Data coverage for this fuel</summary>
+            <p className="mt-1.5 rounded-lg border border-line/80 px-2.5 py-1.5 text-[12px] leading-snug text-text-3" data-testid="fuel-coverage">
               Slider ranges follow the {flexCoverage.n} FLEX {flex.fuel === "Heptane" ? "n-heptane" : "methanol"} tests with numeric O₂ and D₀: O₂ {flexCoverage.o2[0]}–{flexCoverage.o2[1]}, D₀ {flexCoverage.d0[0]}–{flexCoverage.d0[1]} mm,
               pressure bands {flexCoverage.pressures.join(", ")} atm, diluents {flexCoverage.diluents.join(", ")} <span className="text-text-2">(computed from the CSV)</span>.
             </p>
+            </details>
           )}
         </Group>
       )}
@@ -109,41 +112,44 @@ export default function ControlPanel({ scene, mode, common, setCommon, flex, set
           <div inert={!!locked} className={locked ? "opacity-50" : ""}>
             <Segmented label="Sample type (BASS-II geometries)" value={bass.sample} onChange={(v) => setBass({ ...bass, sample: v as BassState["sample"], flow: v !== "rod" && bass.flow === "stagnation" ? "opposed" : bass.flow })}
               options={BASS_SAMPLES.map((x) => [x.id, bassCounts?.[x.id] !== undefined ? `${x.label} (${bassCounts[x.id]})` : x.label])} />
-            <p className="mt-1 text-[12px] leading-snug text-text-3">{BASS_SAMPLES.find((x) => x.id === bass.sample)?.note} Sample length is illustrative.{bassCounts ? " Numbers in brackets: BASS-II tests of that type in the CSV." : ""}</p>
+            <p className="mt-1 text-[12px] leading-snug text-text-3">{BASS_SAMPLES.find((x) => x.id === bass.sample)?.note} Length is illustrative.{bassCounts ? " (n) = tests in the CSV." : ""}</p>
           </div>
           <div inert={!!locked} className={locked ? "opacity-50" : ""}>
             <Segmented label="Flame spread relative to airflow" value={bass.flow} onChange={(v) => setBass({ ...bass, flow: v as BassState["flow"] })}
               options={BASS_FLOWS.filter((f) => f.id !== "stagnation" || bass.sample === "rod").map((f) => [f.id, f.label])} />
-            <p className="mt-1 text-[12px] leading-snug text-text-3">{BASS_FLOWS.find((f) => f.id === bass.flow)?.note} Air always flows from the fan end to the outlet; what changes is which end of the sample burns first.</p>
+            <p className="mt-1 text-[12px] leading-snug text-text-3">{BASS_FLOWS.find((f) => f.id === bass.flow)?.note} The fan always blows the same way; the burning end changes.</p>
           </div>
           <Toggle label="Flame front and direction" checked={bass.showFront} onChange={(v) => setBass({ ...bass, showFront: v })}
-            note="Shows the front line and its direction. It moves only with the illustrative timeline; its speed is not a measured spread rate." />
+            note="Moves only with the timeline. Not a measured spread rate." />
         </Group>
       )}
 
       {scene === "saffire" && (
         <Group title="Inspection (conceptual arrangement)">
-          <Toggle label="Cutaway (transparent walls)" checked={saffire.cutaway} onChange={(v) => setSaffire({ ...saffire, cutaway: v })} note="See the sample card and duct inside the enclosure." />
-          <Toggle label="Exploded view" checked={saffire.exploded} onChange={(v) => setSaffire({ ...saffire, exploded: v })} note="Separates fans, straighteners and diagnostics so each can be selected." />
+          <Toggle label="Cutaway (transparent walls)" checked={saffire.cutaway} onChange={(v) => setSaffire({ ...saffire, cutaway: v })} />
+          <Toggle label="Exploded view" checked={saffire.exploded} onChange={(v) => setSaffire({ ...saffire, exploded: v })} note="Pulls the parts apart so each is easy to select." />
           <div inert={!!locked} className={locked ? "opacity-50" : ""}>
             <Segmented label="Burn record (CSV)" value={saffire.burn} onChange={(v) => setSaffire({ ...saffire, burn: v as SaffireState["burn"] })}
               options={[["S1", "S1 · concurrent"], ["S2", "S2 · opposed"]]} />
-            <p className="mt-1 text-[12px] leading-snug text-text-3">Sets the flame-spread arrow to the direction recorded in the CSV for that burn. No flame position or speed is drawn as measured.</p>
+            <p className="mt-1 text-[12px] leading-snug text-text-3">Sets the spread arrow to the recorded direction. Flame position and speed are illustrative.</p>
           </div>
         </Group>
       )}
 
       {extra}
 
-      <Group title="View">
+      <details className="rounded-xl border border-line/70 px-3 py-2" data-testid="display-settings">
+      <summary className="cursor-pointer py-1 text-[13.5px] text-text-2">Display settings</summary>
+      <div className="mt-3 flex flex-col gap-3.5 pb-1">
         <Segmented label="3D labels" value={common.labels} onChange={(v) => setCommon({ ...common, labels: v as CommonState["labels"] })}
           options={[["focus", "Contextual"], ["all", "All"], ["off", "Off"]]} />
-        <p className="-mt-2 text-[12px] leading-snug text-text-3">Contextual: a few key labels, or only the selected component&apos;s label.</p>
+
         <Toggle label={scene === "flex" ? "Transport indicators" : "Airflow indicators"} checked={common.transport} onChange={(v) => setCommon({ ...common, transport: v })}
-          note="Conceptual arrows and particles; their speed is not a measured velocity." />
+          note="Conceptual arrows; their speed is not a velocity." />
         <Toggle label="Decorative motion" checked={common.motion} onChange={(v) => setCommon({ ...common, motion: v })}
-          note="Flicker and drifting particles. Off renders only on change (saves power); off by default with reduced motion." />
-      </Group>
+          note="Flicker and drift. Off saves power; off by default with reduced motion." />
+      </div>
+      </details>
 
       <div className="flex flex-wrap gap-2 border-t border-line/70 pt-4">
         <button type="button" onClick={onReset} data-testid="reset-params"
