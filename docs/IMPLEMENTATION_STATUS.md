@@ -1,5 +1,56 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 11 status (branch `feature/spacefire-phase11-immersive-3d-ux`, 2026-11-13): COMPLETE
+Immersive 3D studios: the large viewport banners are gone (their statements moved beside the controls and into the
+fullscreen overlays), the setup panel can be hidden, every studio has a video-player-style fullscreen with auto-hiding
+controls, independent Controls / Explanations / Part labels toggles, simpler "Earth" labels, and a collapsible site
+navigation. Base: Phase 10 (`4d112b4`, pushed, equal to the remote). Frontend only: no backend, data, verifier,
+algorithm or Gemini change, no new dependency. No Gemini request was made; verification used a backend with
+`LLM_API_KEY=` blank (`llm.mode = retrieval_only`) and the opt-in live test was not run. Design:
+`docs/IMMERSIVE_3D_UX_V1.md`.
+
+| Milestone | Status | Evidence |
+|---|---|---|
+| M1 Architecture review | DONE | Base branch chosen after `git fetch` (Phase 10 complete and pushed). Reused the studio section, the one canvas, the timeline store, the Phase 10 stage content, the existing label modes and the panel tabs; new: `lib/auto-hide.ts`, `lib/ui-prefs.ts`, `components/studio/immersive.tsx` |
+| M2 Clean viewport | DONE | Mode banner → compact mode label; statement beside Mode (`mode-note`); measured-size label kept in the viewport; comparison caveat moved under the viewport; BASS-II floating caveat only with All labels; lighter unselected labels |
+| M3 Right control panel | DONE | Hide/Show controls, viewport widens, canvas resized not remounted, tab/inputs/scroll preserved, session memory without hydration mismatch |
+| M4 Fullscreen foundation | DONE | The studio section is the fullscreen element (native API, honest expanded fallback), same canvas and state, Escape/browser exit, focus return, scroll lock in fallback, cleanup on navigation |
+| M5 Auto-hide | DONE | 3 s state machine with holds (press, hover, keyboard focus, select, drawer, colour key), touch tap reveal/dismiss, cursor hiding, inert hidden chrome, tab-visibility pause, one timer at most, DOM-only visibility (no React render) |
+| M6 Fullscreen overlays | DONE | Top bar, playback bar (FLEX/BASS-II timeline; SAFFIRE-I walkthrough), setup drawer / bottom sheet with Mode and View, explanation overlay synchronized with stage, fuel, test and view (with basis and sources), Part labels starting hidden |
+| M7 Global navigation | DONE | 68 px icon rail with tooltips (hover and keyboard focus), active page kept, localStorage + pre-paint `html[data-nav]` (no flash), drawer below 1024 px unchanged |
+| M8 Copy and integrity | DONE | "Earth", "Earth vs Microgravity"; scientific "1 g" text in explanations, captions of NASA media, methodology and source text unchanged; corrected a stale left/right description of the comparison (Earth has been on the left since Phase 10); safeguard placement table in the design doc |
+| M9 Validation | DONE | See below |
+| M10 Docs and delivery | DONE | `docs/IMMERSIVE_3D_UX_V1.md`, README studio-controls paragraph, this section |
+
+### Phase 11 verification (2026-11-13)
+- `tsc --noEmit` clean; `eslint components lib app e2e scripts` clean; `next build` OK (18 routes, separate
+  `NEXT_DIST_DIR=.next-verify`, removed afterwards).
+- Playwright on the production build (port 3010, API on 8010 with the model disabled): **138 passed, 1 skipped**
+  (opt-in live Gemini, not run). New: `e2e/phase11-unit.spec.ts` (8, fake-clock state machine),
+  `e2e/phase11.spec.ts` (15), `e2e/phase11-mobile.spec.ts` (2). Playwright's Chrome took the native fullscreen path;
+  the refused and unsupported paths are forced in a test.
+- Changed older assertions only where they read the removed banner (`mode-banner` → `mode-note` / `measured-label`) or
+  the old Earth labels (phase 7, 8, 9, 10 specs).
+- Backend `pytest`: **181 passed**. Smoke: the three phenomenon pages, Home and Methodology 200, `/lab?scene=bass` 307,
+  `/api/v1/health` 200 (`retrieval_only`), FLEX and BASS-II records 200, FLEX map 200.
+- Visual checks at 1440, 768 and 390 px (FLEX single and Earth vs Microgravity with drawer and explanation, BASS-II,
+  SAFFIRE-I walkthrough, collapsed rail): no horizontal overflow, no overlap, no console errors on the production
+  build. Fixes found this way: the drawer covered the top-bar buttons and half of a split view (the chrome now stops
+  at the drawer and the scene area narrows beside it); the fallback notice overlapped the explanation (now a short-lived
+  toast); comparison captions moved beside the divider so the explanation never hides "Earth"; phone step titles got
+  their own row.
+- Environment: no other local server was running this time; ports 3010/8010 and a separate build folder were used
+  anyway. `tsconfig.json` rewrites from the custom dist dir were reverted.
+
+### Phase 11 known limitations
+- In native fullscreen Escape always leaves fullscreen (browser-owned), even with the drawer open; the fallback closes
+  the drawer or explanation first.
+- Pointer movement over the NASA YouTube iframe is invisible to the page, so the chrome can fade while the pointer
+  rests on the video.
+- iPhone Safari has no element fullscreen; it gets the expanded fallback with its notice.
+- Hiding labels unmounts drei `<Html>` label roots (as the existing "Off" setting does); React logs a dev-only warning
+  about it in `next dev`, not in production.
+
 ## Phase 10 status (branch `feature/spacefire-phase10-combustion-storytelling`, 2026-11-12): COMPLETE
 Stage-by-stage combustion storytelling in the existing studios: one timeline store drives the 3D state, the stage
 chip, the highlighted components and a short, source-backed explanation; Earth and microgravity are compared stage by

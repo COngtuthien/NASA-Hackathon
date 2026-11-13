@@ -115,7 +115,7 @@ test.describe("Phase 10: combustion stage storytelling", () => {
     await openStudio(page, `${PAGE.flex}?view=gravity`);
     const mounts = (await stats(page))!.mounts;
     const caps = page.getByTestId("split-captions").locator("p");
-    await expect(caps.nth(0)).toHaveText("Earth 1 g (conceptual comparison)");
+    await expect(caps.nth(0)).toHaveText("Earth");
     await expect(caps.nth(1)).toHaveText("Microgravity");
     await expect(page.getByTestId("split-note")).toContainText("Conceptual comparison — not paired Earth and ISS measurements");
     const tl = page.getByTestId("timeline");

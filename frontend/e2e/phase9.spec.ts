@@ -219,7 +219,7 @@ test.describe("Phase 9: scientific discovery experience", () => {
     await expect(page.locator("#notice-bass").getByRole("table")).toContainText("Table 7.1 prints 2.2 cm");
     await page.goto("/phenomena/spacecraft-fire");
     await expect(page.getByTestId("scientific-notice")).toContainText("Some experimental measurements are unavailable in the local dataset.", { timeout: 30_000 });
-    await expect(page.getByTestId("mode-banner")).toContainText("not measured NASA output", { timeout: 60_000 });   // studio banner kept
+    await expect(page.getByTestId("mode-note")).toContainText("not measured NASA output", { timeout: 60_000 });   // studio statement kept
   });
 
   test("glossary terms open on click or keyboard, close with Escape and return focus", async ({ page }) => {

@@ -37,6 +37,11 @@ source badge. Old Phase 1–2 URLs (`/physics/flex`, `/assistant`, `/quality`, .
 It has two modes, Conceptual 3D and NASA Evidence: the 3D explains, and measured values stay in the evidence panel.
 The Phase 6 standalone lab was retired; old `/lab?scene=…&record=…` links redirect to the right page with their
 context. Details: `docs/INTERACTIVE_SCIENTIFIC_ANALYSIS_V2.md`.
+Studio controls (Phase 11): **Hide controls / Show controls** folds the setup panel away (remembered for the session)
+and **Fullscreen** opens a video-player-style view of the same scene: the top bar and playback bar fade after 3 s
+without input and return on any mouse move, tap or key; **Controls** (setup drawer), **Explanations** (the active
+stage, why it happens, sources) and **Part labels** toggle independently; Escape exits. The left navigation collapses
+to an icon rail with its toggle at the top (remembered). Details: `docs/IMMERSIVE_3D_UX_V1.md`.
 
 Scientific media: 15 verified NASA photographs, clips and animations (`frontend/lib/scientific-media.ts`). Each is
 labelled as real experiment media, related NASA media or a schematic, credited, and linked to its original record. None
@@ -153,7 +158,7 @@ never downloaded or analyzed. The original dataset folders are never modified (t
 1. Home: press "Start exploring" and follow the journey for droplet flames: select a part, switch Earth vs microgravity, then
    "Compare with NASA" with an example test (K shown in mm²/s with its raw ‘mm’ header). Or, on Flame Extinction, open
    "Explore the extinction map", filter to Methanol and click a point to inspect that test.
-2. Flame Extinction & Burning Dynamics: press "Start guided exploration" in the 3D studio, switch to Earth 1 g and to methanol when asked,
+2. Flame Extinction & Burning Dynamics: press "Start guided exploration" in the 3D studio, switch to Earth and to methanol when asked,
    then open a real test in NASA Evidence mode and read its idealized d²-law line; below, check the d²-law (median ratio ≈ 1.05).
 3. Flame Spread & Material Behavior: in the studio, play the opposed vs concurrent timeline and compare tests M1 and M2; then gas balance and Table 5.1.
 4. Spacecraft Fire Dynamics: use the studio's camera presets and the NASA footage view, then S1 vs S2 and the downlink timeline; no images exist locally, and the app says so.

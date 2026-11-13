@@ -41,7 +41,9 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
       const studio = page.getByTestId("science-studio");
       await expect(studio).toBeVisible();
       await expect(page.getByTestId("lab-viewport")).toHaveAttribute("data-scene", id);
-      await expect(page.getByTestId("mode-banner")).toHaveText(/Conceptual visualization — not measured NASA output\./);
+      // Phase 11: the full statement sits beside the Mode control; the viewport keeps a compact mode label
+      await expect(page.getByTestId("mode-note")).toContainText("Conceptual visualization — not measured NASA output.");
+      await expect(page.getByTestId("mode-chip")).toContainText("Conceptual 3D");
       await expect(studio.getByRole("radio", { name: /Validated/ })).toHaveCount(0);
       await expect(page.getByRole("navigation", { name: "On this page" }).getByRole("link", { name: /3D model/ })).toBeVisible();
       expect(await page.locator("canvas").count()).toBe(1);
@@ -57,7 +59,7 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
     await expect(page).toHaveURL(/\/phenomena\/flame-spread\?.*record=bass2%3A27/);
     await expect(page).toHaveURL(/mode=evidence/);
     await expect(page.getByTestId("evidence-record").getByRole("heading", { name: /Test M1/ })).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("mode-banner")).toContainText("width 2 cm (CSV, nominal)");
+    await expect(page.getByTestId("measured-label")).toContainText("width 2 cm (CSV, nominal)");
 
     await page.goto("/lab?scene=flex&component=flame");
     await expect(page).toHaveURL(/\/phenomena\/flame-extinction\?.*component=flame/);
@@ -154,9 +156,9 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
   test("Earth vs microgravity: side-by-side conceptual comparison with NASA imagery", async ({ page }) => {
     await openStudio(page, `${PAGE.flex}?view=gravity`);
     await expect(page.getByTestId("split-captions")).toContainText("Microgravity");
-    await expect(page.getByTestId("split-captions")).toContainText("Earth 1 g (conceptual comparison)");
+    await expect(page.getByTestId("split-captions").locator("p").first()).toHaveText("Earth");
     await expect(page.getByTestId("split-note")).toContainText("not a FLEX measurement");
-    await expect(page.getByTestId("mode-banner")).toHaveText(/Conceptual visualization/);
+    await expect(page.getByTestId("mode-note")).toContainText("Conceptual visualization");
     await page.getByRole("tab", { name: "Compare" }).click();
     const g = page.getByTestId("gravity-compare");
     await expect(g.locator('img[src^="/media/flex-1g-vs-microgravity/"]')).toHaveCount(1);
@@ -306,7 +308,7 @@ test.describe("Phase 7: integrated Interactive Science Studios", () => {
     await expect(tour.getByTestId("tour-title")).toHaveText("A flame shell, not a candle flame");
     await tour.getByTestId("tour-next").click();
     await expect(tour.getByTestId("tour-task")).toContainText("Your turn");
-    await page.getByRole("radio", { name: "Earth 1 g (comparison)" }).click();
+    await page.getByRole("radio", { name: "Earth", exact: true }).click();
     await expect(tour.getByTestId("tour-task")).toContainText("Done");
     await tour.getByRole("button", { name: "Restart" }).click();
     await expect(tour.getByTestId("tour-title")).toHaveText("Why burn a single droplet in orbit?");

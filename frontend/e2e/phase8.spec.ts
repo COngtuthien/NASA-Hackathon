@@ -72,8 +72,8 @@ test.describe("Phase 8: simplified, progressive UX", () => {
       await note.scrollIntoViewIfNeeded();
       await expect(note).toBeVisible();
     }
-    // the conceptual/measured banner is still on the 3D studio
-    await expect(page.getByTestId("mode-banner")).toContainText("not measured NASA output", { timeout: 60_000 });
+    // the conceptual/measured statement is still on the 3D studio (Phase 11: beside the Mode control)
+    await expect(page.getByTestId("mode-note")).toContainText("not measured NASA output", { timeout: 60_000 });
   });
 
   test("findings are short takeaways whose evidence opens on request", async ({ page }) => {
