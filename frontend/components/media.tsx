@@ -22,7 +22,7 @@ const RELATION_BG: Record<Relation, string> = { experimental: "bg-ok/10", relate
 export function RelationBadge({ relation, className = "", onMedia = false }: { relation: Relation; className?: string; onMedia?: boolean }) {
   const r = RELATION_LABEL[relation];
   return (
-    <span title={r.note} className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-px text-[11.5px] font-medium ${RELATION_CLS[relation]} ${onMedia ? "bg-[#070d18]/90 shadow-[0_1px_6px_rgba(0,0,0,0.5)]" : RELATION_BG[relation]} ${className}`}>
+    <span title={r.note} className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-px text-[11.5px] font-medium ${RELATION_CLS[relation]} ${onMedia ? "theme-dark bg-[#070d18]/90 shadow-[0_1px_6px_rgba(0,0,0,0.5)]" : RELATION_BG[relation]} ${className}`}>
       <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-current" />{r.short}
     </span>
   );

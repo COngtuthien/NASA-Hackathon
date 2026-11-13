@@ -107,7 +107,7 @@ export default function ExplorerView() {
           return (
             <button key={d.key} role="tab" aria-selected={on} onClick={() => switchDataset(d.key)}
               className={`press relative rounded-xl border px-4 py-3 text-left ${on ? "border-flame/70 text-text" : "border-line-strong/70 text-text-2 hover:border-line-strong hover:text-text"}`}>
-              {on && <motion.span layoutId="explorer-ds" aria-hidden className="absolute inset-0 rounded-xl bg-[linear-gradient(135deg,rgba(255,138,61,0.14),rgba(22,39,63,0.6))]"
+              {on && <motion.span layoutId="explorer-ds" aria-hidden className="absolute inset-0 rounded-xl bg-[linear-gradient(135deg,color-mix(in_srgb,var(--flame)_14%,transparent),color-mix(in_srgb,var(--raised)_60%,transparent))]"
                 transition={{ duration: DUR.base, ease: EASE }} />}
               <span className="relative block text-[15px] font-semibold">{ph?.title ?? d.system}</span>
               <span className="relative mt-0.5 block text-[12.5px] text-text-3">{d.label} · {d.system}</span>

@@ -112,7 +112,7 @@ export default function BassReportSection() {
             aside={`n = ${d.table_5_1.n_stages} stages from ${d.table_5_1.n_tests - d.table_5_1.unpaired_tests.length} tests`}>
             <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
               <div>
-                {plot && <Plot data={plot.data} layout={plot.layout} height={360} onPointClick={(u) => router.push(expHref(String(u)))}
+                {plot && <Plot data={plot.data} layout={plot.layout} height={360} sequential onPointClick={(u) => router.push(expHref(String(u)))}
                   ariaLabel="Scatter of flame spread rate versus opposed flow velocity for Miller's flat PMMA tests, by thickness" />}
                 <p className="mt-1 text-xs text-text-3">Color: sample thickness (lighter = thinner). Circle: two-sided burning; diamond: one-sided. Click a point to open the test.</p>
               </div>

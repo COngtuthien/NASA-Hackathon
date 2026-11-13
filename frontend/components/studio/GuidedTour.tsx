@@ -29,7 +29,7 @@ export default function GuidedTour({ steps, index, onIndex, onClose, taskDone }:
 
   return (
     <section role="region" aria-label="Guided exploration" onKeyDown={onKey} data-testid="guided-tour"
-      className="pointer-events-auto w-full rounded-xl border border-electric/50 bg-[linear-gradient(160deg,rgba(91,140,255,0.16),rgba(10,20,36,0.96)_55%)] p-4 shadow-[0_18px_50px_-20px_rgba(0,0,0,0.9)] backdrop-blur-md">
+      className="pointer-events-auto w-full rounded-xl border border-electric/50 bg-[linear-gradient(160deg,var(--tint-cool),color-mix(in_srgb,var(--panel)_96%,transparent)_55%)] p-4 shadow-[0_18px_50px_-20px_var(--shadow)] backdrop-blur-md">
       <div className="flex items-center justify-between gap-2">
         <p className="text-[12px] font-medium text-electric">Guided exploration · step {index + 1} of {steps.length}</p>
         <button type="button" onClick={onClose} className="rounded p-1 text-text-3 hover:text-text" aria-label="Skip the guided exploration"><Icon name="close" size={16} /></button>

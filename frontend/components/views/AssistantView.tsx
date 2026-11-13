@@ -297,7 +297,7 @@ const STARTERS: { label: string; q: string }[] = [
 function EmptyWorkspace({ onPick }: { onPick: (q: string) => void }) {
   return (
     <div className="hairline-top relative overflow-hidden rounded-2xl border border-line/80 bg-panel/70 p-6 md:p-8">
-      <div aria-hidden className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(91,140,255,0.16),transparent)]" />
+      <div aria-hidden className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,var(--tint-cool),transparent)]" />
       <h2 className="display relative text-[26px]">Start with a question</h2>
       <p className="relative mt-2 max-w-[60ch] text-text-2">Every answer shows its sources and what could not be determined. Try one:</p>
       <ul className="relative mt-5 grid gap-3 sm:grid-cols-2">

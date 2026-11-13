@@ -34,14 +34,14 @@ function Chart({ d0, k, burnTime, dEnd }: { d0: number; k: number; burnTime: num
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="mt-2 w-full" role="img"
       aria-label={`Idealized line from D squared ${fmt(d0 * d0)} square millimetres at t = 0 to zero at ${fmt(tStar)} seconds${burnTime !== null ? `; recorded burn time ${fmt(burnTime)} seconds` : ""}.`}>
-      {ticks(xMax).map((t) => <g key={`x${t}`}><line x1={x(t)} x2={x(t)} y1={T} y2={H - B} stroke="#1f3150" /><text x={x(t)} y={H - B + 13} fontSize="9.5" fill="#8194ae" textAnchor="middle">{fmt(t)}</text></g>)}
-      {ticks(yMax).map((v) => <g key={`y${v}`}><line x1={L} x2={W - Rr} y1={y(v)} y2={y(v)} stroke="#1f3150" /><text x={L - 5} y={y(v) + 3} fontSize="9.5" fill="#8194ae" textAnchor="end">{fmt(v)}</text></g>)}
-      <text x={(L + W - Rr) / 2} y={H - 3} fontSize="10" fill="#a9b8cd" textAnchor="middle">t (s)</text>
-      <text x={11} y={(T + H - B) / 2} fontSize="10" fill="#a9b8cd" textAnchor="middle" transform={`rotate(-90 11 ${(T + H - B) / 2})`}>D² (mm²)</text>
-      <line x1={x(0)} y1={y(d0 * d0)} x2={x(tStar)} y2={y(0)} stroke="#ff8a3d" strokeWidth="2" />
-      <circle cx={x(tStar)} cy={y(0)} r="3" fill="#ff8a3d" />
-      {burnTime !== null && <line x1={x(burnTime)} x2={x(burnTime)} y1={T} y2={H - B} stroke="#4fd1e8" strokeDasharray="4 3" />}
-      {burnTime !== null && dEnd !== null && <circle cx={x(burnTime)} cy={y(dEnd * dEnd)} r="4" fill="none" stroke="#4fd1e8" strokeWidth="1.8" />}
+      {ticks(xMax).map((t) => <g key={`x${t}`}><line x1={x(t)} x2={x(t)} y1={T} y2={H - B} className="stroke-[var(--chart-grid)]" /><text x={x(t)} y={H - B + 13} fontSize="9.5" className="fill-text-3" textAnchor="middle">{fmt(t)}</text></g>)}
+      {ticks(yMax).map((v) => <g key={`y${v}`}><line x1={L} x2={W - Rr} y1={y(v)} y2={y(v)} className="stroke-[var(--chart-grid)]" /><text x={L - 5} y={y(v) + 3} fontSize="9.5" className="fill-text-3" textAnchor="end">{fmt(v)}</text></g>)}
+      <text x={(L + W - Rr) / 2} y={H - 3} fontSize="10" className="fill-text-2" textAnchor="middle">t (s)</text>
+      <text x={11} y={(T + H - B) / 2} fontSize="10" className="fill-text-2" textAnchor="middle" transform={`rotate(-90 11 ${(T + H - B) / 2})`}>D² (mm²)</text>
+      <line x1={x(0)} y1={y(d0 * d0)} x2={x(tStar)} y2={y(0)} className="stroke-flame" strokeWidth="2" />
+      <circle cx={x(tStar)} cy={y(0)} r="3" className="fill-flame" />
+      {burnTime !== null && <line x1={x(burnTime)} x2={x(burnTime)} y1={T} y2={H - B} className="stroke-data" strokeDasharray="4 3" />}
+      {burnTime !== null && dEnd !== null && <circle cx={x(burnTime)} cy={y(dEnd * dEnd)} r="4" fill="none" className="stroke-data" strokeWidth="1.8" />}
     </svg>
   );
 }

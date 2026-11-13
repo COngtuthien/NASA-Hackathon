@@ -578,7 +578,7 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
     <section id="studio" ref={section} aria-labelledby={`${sceneId}-studio-title`} data-testid="science-studio"
       data-immersive={immersive ? fs.mode : undefined} data-chrome="shown" tabIndex={immersive ? -1 : undefined}
       className={immersive
-        ? `fixed inset-0 z-[80] m-0 h-[100dvh] w-full max-w-none overflow-hidden rounded-none border-0 bg-void p-0 outline-none ${fsPanel ? "sm:[--fs-right:min(430px,90vw)]" : ""}`
+        ? `theme-dark fixed inset-0 z-[80] m-0 h-[100dvh] w-full max-w-none overflow-hidden rounded-none border-0 bg-void p-0 outline-none ${fsPanel ? "sm:[--fs-right:min(430px,90vw)]" : ""}`
         : "relative isolate scroll-mt-28 overflow-hidden rounded-2xl border border-line/60 bg-panel/40 p-3 md:p-5"}>
       {immersive && <p className="sr-only" role="status">Fullscreen 3D view. Controls hide after a few seconds without input; move the pointer, tap the scene or press any key to show them. Press Escape to exit.</p>}
       <div className="flex flex-wrap items-end justify-between gap-3" hidden={immersive}>
@@ -621,7 +621,7 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
           <div className={nasaView ? `grid gap-3 lg:grid-cols-2 ${immersive ? "h-full grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-0 lg:grid-rows-1" : ""}` : immersive ? "h-full" : ""}>
           <div className={immersive ? "relative h-full min-h-0 min-w-0" : nasaView ? "min-w-0 lg:sticky lg:top-[128px] lg:self-start" : "min-w-0"}>
           {nasaView && !immersive && <p className="mb-1.5 text-[12px] font-semibold uppercase tracking-wide text-text-3" data-testid="model-label">3D conceptual model</p>}
-          <div data-testid="viewport-box" className={`relative overflow-hidden bg-[radial-gradient(120%_90%_at_50%_45%,rgba(30,52,90,0.55),rgba(5,10,20,0.98)_70%)] ${immersive
+          <div data-testid="viewport-box" className={`theme-dark relative overflow-hidden bg-[radial-gradient(120%_90%_at_50%_45%,rgba(30,52,90,0.55),rgba(5,10,20,0.98)_70%)] ${immersive
             ? "h-full w-full" : "h-[58vh] min-h-[360px] rounded-2xl border border-line/80 lg:h-[min(72vh,700px)]"}`}>
             {nasaView && immersive && <p className="pointer-events-none absolute left-3 top-[84px] z-30 rounded-full border border-line-strong/70 bg-void/75 px-2.5 py-0.5 text-[11.5px] font-semibold uppercase tracking-wide text-text-2" data-testid="model-label">3D conceptual model</p>}
             <div aria-hidden className="tech-grid pointer-events-none absolute inset-0 opacity-60" />

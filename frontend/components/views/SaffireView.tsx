@@ -36,17 +36,17 @@ function FlowCard({ burn }: { burn: Record<string, unknown> }) {
     <div ref={ref} className="flex items-center gap-5 rounded-xl border border-line/80 bg-ink/50 p-4">
       <svg viewBox="0 0 120 160" className="h-36 w-28 shrink-0" role="img"
         aria-label={`${String(burn.sample)}: ${dir} flame spread, airflow ${fmt(burn.air_flow_cm_s)} centimetres per second`}>
-        <rect x="34" y="12" width="52" height="136" rx="2" fill="#1C2A42" stroke="#31496D" />
+        <rect x="34" y="12" width="52" height="136" rx="2" className="fill-raised stroke-line-strong" />
         {[18, 102].map((x) => (
           <g key={x}>
-            <line x1={x} y1="152" x2={x} y2="16" stroke="#4FD1E8" strokeWidth="1.6" strokeDasharray="5 5" className="anim-flow" />
-            <path d="M0 0 L-6 -4 L-6 4 Z" fill="#4FD1E8" transform={`translate(${x} 12) rotate(-90)`} />
+            <line x1={x} y1="152" x2={x} y2="16" className="anim-flow stroke-data" strokeWidth="1.6" strokeDasharray="5 5" />
+            <path d="M0 0 L-6 -4 L-6 4 Z" className="fill-data" transform={`translate(${x} 12) rotate(-90)`} />
           </g>
         ))}
-        <rect x="34" y={concurrent ? 104 : 12} width="52" height="44" fill="#FF8A3D" opacity="0.18" />
-        <path d={concurrent ? "M34 104 C 46 96 54 108 60 98 C 66 108 76 96 86 104" : "M34 56 C 46 64 54 52 60 62 C 66 52 76 64 86 56"} fill="none" stroke="#FF8A3D" strokeWidth="2.5" />
-        <line x1="60" y1={concurrent ? 92 : 68} x2="60" y2={concurrent ? 64 : 96} stroke="#FFB547" strokeWidth="2" />
-        <path d="M0 0 L-7 -4 L-7 4 Z" fill="#FFB547" transform={concurrent ? "translate(60 60) rotate(-90)" : "translate(60 100) rotate(90)"} />
+        <rect x="34" y={concurrent ? 104 : 12} width="52" height="44" className="fill-flame" opacity="0.18" />
+        <path d={concurrent ? "M34 104 C 46 96 54 108 60 98 C 66 108 76 96 86 104" : "M34 56 C 46 64 54 52 60 62 C 66 52 76 64 86 56"} fill="none" className="stroke-flame" strokeWidth="2.5" />
+        <line x1="60" y1={concurrent ? 92 : 68} x2="60" y2={concurrent ? 64 : 96} className="stroke-ember" strokeWidth="2" />
+        <path d="M0 0 L-7 -4 L-7 4 Z" className="fill-ember" transform={concurrent ? "translate(60 60) rotate(-90)" : "translate(60 100) rotate(90)"} />
       </svg>
       <dl className="text-sm">
         <dt className="text-text-3">Burn</dt><dd className="subhead text-[20px]"><Link href={expHref(String(burn.experiment_uid))}>{String(burn.sample)}</Link></dd>
@@ -63,7 +63,7 @@ const SET_LABEL: Record<string, string> = { BIT: "Built-in test", PreFlowVis: "F
 /** Saffire-I hardware as NASA photographed it. NASA's burn footage lives in the studio's "NASA footage" view (#footage). */
 function SaffireHardware() {
   return (
-    <section id="hardware" aria-labelledby="hardware-title" className="hairline-top scroll-mt-36 rounded-2xl border border-line/80 bg-[linear-gradient(170deg,rgba(255,138,61,0.07),rgba(16,30,51,0.92)_45%)] p-4 md:p-6">
+    <section id="hardware" aria-labelledby="hardware-title" className="hairline-top scroll-mt-36 rounded-2xl border border-line/80 bg-[linear-gradient(170deg,var(--tint-warm),color-mix(in_srgb,var(--panel)_92%,transparent)_45%)] p-4 md:p-6">
       <p className="kicker">NASA hardware</p>
       <h2 id="hardware-title" className="subhead mt-2 text-[22px] md:text-[26px]">The flight unit that held the first large-scale spacecraft fire</h2>
       <p className="mt-2 max-w-[80ch] text-[15px] leading-relaxed text-text-2">

@@ -79,7 +79,7 @@ export function JourneyCard({ step, topic, title, children, task, done, onAction
   return (
     <section aria-labelledby="journey-title" data-testid="journey-card" data-step={step}
       onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); end(); } }}
-      className={`rounded-xl border border-electric/50 bg-[linear-gradient(160deg,rgba(91,140,255,0.13),rgba(10,20,36,0.94)_60%)] p-4 ${className}`}>
+      className={`rounded-xl border border-electric/50 bg-[linear-gradient(160deg,var(--tint-cool),color-mix(in_srgb,var(--panel)_94%,transparent)_60%)] p-4 ${className}`}>
       <JourneyProgress step={step} />
       <h2 id="journey-title" ref={head} tabIndex={-1} className="subhead mt-2.5 text-[18px] focus:outline-none">{title}</h2>
       {children && <div className="mt-1 max-w-[70ch] text-[14px] leading-relaxed text-text-2">{children}</div>}

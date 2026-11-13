@@ -59,7 +59,7 @@ export default function BassLabView() {
         y: s.map((r) => r.delta_co2), customdata: s.map((r) => r.experiment_uid),
         text: s.map((r) => `${r.test_id}: ${r.material_class}, PI ${r.pi}`),
         hovertemplate: "<b>%{text}</b><br>O₂ consumed %{x:.2f} %-points<br>CO₂ produced %{y:.2f} %-points<extra></extra>",
-        marker: { color: CAT[i], size: 9, symbol: s.map((r) => (r.material_class.includes("black") ? "square" : r.material_class.includes("clear") ? "triangle-up" : "circle")),
+        marker: { color: CAT[i], size: 9, symbol: s.map((r) => (r.material_class.includes("black") ? "square" : r.material_class.includes("clear") ? "triangle-up" : i === 3 ? "diamond" : "circle")),
           line: { color: "#101E33", width: 1.5 } } };
     });
     const xmax = Math.max(1, ...pts.map((r) => -(r.delta_o2 as number)));
@@ -139,7 +139,7 @@ export default function BassLabView() {
               <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
                 <div>{plot && <Plot data={plot.data} layout={plot.layout} height={400} ariaLabel="Scatter of oxygen consumed versus CO2 produced per BASS-II test"
                   onPointClick={(u) => selectRecord(String(u))} />}
-                  <p className="mt-1 text-xs text-text-3">Marker shape: triangle = clear rod, square = black rod, circle = other. Click a point to inspect the test.</p>
+                  <p className="mt-1 text-xs text-text-3">Marker shape: triangle = clear rod, square = black rod, diamond = fabric, wax and other, circle = PMMA film, slab or sphere. Click a point to inspect the test.</p>
                   <RecordSpotlight uid={rec?.startsWith("bass2:") ? rec : null} onSelect={selectRecord} inv="PSI-25" chartName="gas balance"
                     options={d.records.filter((r) => r.delta_o2 !== null && r.delta_co2 !== null && !r.flags.includes("o2_unphysical"))
                       .map((r) => ({ uid: r.experiment_uid, label: `${r.test_id} · ${r.material_class}` })).sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true }))} /></div>

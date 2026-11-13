@@ -68,7 +68,7 @@ export function PageHeader({ title, lead, actions, sections, kicker, source, chi
   return (
     <>
       <motion.header className={`relative ${art ? "mb-8" : "mb-6"}`} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: DUR.slow, ease: EASE }}>
-        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-64 w-[520px] max-w-[90vw] rounded-full bg-[radial-gradient(closest-side,rgba(91,140,255,0.13),transparent)] blur-2xl" />
+        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-64 w-[520px] max-w-[90vw] rounded-full bg-[radial-gradient(closest-side,var(--tint-cool),transparent)] blur-2xl" />
         <div className={`relative flex flex-col gap-4 md:flex-row md:justify-between ${art ? "md:items-center" : "md:items-end"}`}>
           <div className="max-w-4xl">
             {kicker && <p className="kicker mb-3">{kicker}</p>}

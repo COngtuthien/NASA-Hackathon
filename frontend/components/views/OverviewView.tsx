@@ -70,7 +70,7 @@ function Hero() {
   const contentY = useTransform(scrollYProgress, [0, 1], [0, -70]);
   const flameScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
   return (
-    <section ref={ref} aria-labelledby="hero-title" className="relative isolate overflow-hidden">
+    <section ref={ref} aria-labelledby="hero-title" className="theme-dark dark-band relative isolate overflow-hidden">
       <Parallax speed={30} className="absolute inset-[-10%_0] -z-10 opacity-70"><Starfield count={90} /></Parallax>
       <HeroMedia scale={rich ? flameScale : undefined} />
       <Container className="grid items-center pb-14 pt-6 md:py-16 lg:min-h-[min(82vh,780px)] lg:py-20">

@@ -222,7 +222,8 @@ export function PhenomenonArt({ kind, caption }: { kind: "droplet" | "spread" | 
   const gid = `pa-${kind}${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <figure ref={ref} className="relative mx-auto w-full max-w-[360px]">
-      <div className="relative aspect-[4/3]" aria-hidden>
+      {/* space schematic: a dark stage in Light Mode (see .art-stage in globals.css) */}
+      <div className="theme-dark art-stage relative aspect-[4/3]" aria-hidden>
         <div className="absolute inset-0 rounded-[40%] bg-[radial-gradient(closest-side,rgba(91,140,255,0.16),transparent)]" />
         <svg viewBox="0 0 360 270" className="absolute inset-0 h-full w-full">
           <defs>
