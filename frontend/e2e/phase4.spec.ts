@@ -69,7 +69,8 @@ test.describe("Phase 4", () => {
     }));
     await askCopilot(page);
     await expect(page.getByText("Evidence only", { exact: true })).toBeVisible();
-    await expect(page.getByText(/free-tier quota reached; try again in about 5400 s/)).toBeVisible();
+    await expect(page.getByTestId("llm-error")).toHaveText(/free request quota is used up for now\. It should be available again in about 90 min/);
+    await expect(page.getByTestId("llm-retry")).toHaveCount(0);   // a quota error is not retried from the page
     await expect(page.getByText(/Written by/)).toHaveCount(0);
   });
 

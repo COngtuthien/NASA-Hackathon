@@ -28,6 +28,35 @@ type Answer = {
   verification?: { rejected: string[]; accepted_claims: number };
 };
 type Step = { tool: string; args: unknown; running: boolean; ok?: boolean; ms?: number; error?: string };
+
+const SILENCE_MS = 45_000;   // three missed heartbeats
+const CAP_MS = 300_000;
+
+/** What happened, in plain words, when the AI service could not write the answer (evidence is still shown). */
+function llmErrorText(kind: string, retryAfter?: number | null): string {
+  const wait = retryAfter ? ` It should be available again in about ${retryAfter > 120 ? `${Math.ceil(retryAfter / 60)} min` : `${Math.ceil(retryAfter)} s`}.` : "";
+  switch (kind) {
+    case "rate_limit": return `The AI service's free request quota is used up for now.${wait}`;
+    case "unavailable": return "The AI service is temporarily unavailable (Google reports it as overloaded or unreachable).";
+    case "timeout": return "The AI service did not respond in time.";
+    case "auth": return "The AI service rejected the configured credentials (check LLM_API_KEY in .env).";
+    case "bad_request": return "The AI service could not use the configured model or request (check LLM_MODEL in .env).";
+    case "refusal": return "The AI model declined to answer this question.";
+    case "bad_output": return "The AI model returned an answer that could not be used.";
+    default: return `The AI service could not answer (${kind.replace(/_/g, " ")}).`;
+  }
+}
+/** Transient failures where asking again can help. Quota and configuration problems are not retried. */
+const RETRYABLE = new Set(["unavailable", "timeout", "bad_output"]);
+
+/** Plain-language messages for errors that stopped the whole request (no evidence came back). */
+function friendly(e: ApiError): ApiError {
+  const msg = e.code === "internal_error"
+    ? "Something went wrong on the SpaceFire server while answering (an internal error, not the AI service). Try again; if it keeps happening, the backend console shows the details."
+    : e.code === "stream_ended" ? "The connection to the SpaceFire server was interrupted before the answer was complete. Try again."
+      : e.message;
+  return msg === e.message ? e : new ApiError(e.status, e.code, msg, e.requestId);
+}
 type Turn = { id: number; q: string; scope: string; res?: Answer; err?: ApiError; steps: Step[] };
 
 const SOURCE_LABEL: Record<string, string> = { experiment: "Experiment rows", analysis: "Computed", quality_flag: "Quality rules",
@@ -155,7 +184,7 @@ function ToolTrace({ calls }: { calls: Answer["tool_calls"] }) {
   );
 }
 
-function AnswerBlock({ a }: { a: Answer }) {
+function AnswerBlock({ a, onRetry }: { a: Answer; onRetry?: () => void }) {
   const [hl, setHl] = useState<string | null>(null);
   const [kind, setKind] = useState<string>("all");
   // Sources start open when there is no AI-written answer (the evidence is the answer), closed otherwise.
@@ -186,8 +215,13 @@ function AnswerBlock({ a }: { a: Answer }) {
         </p>
       ) : null}
       {a.llm.configured && a.llm.error && (
-        <Callout tone="warn">The language model could not answer ({a.llm.error === "rate_limit" ? "free-tier quota reached" : a.llm.error.replace(/_/g, " ")}
-          {a.llm.retry_after_s ? `; try again in about ${Math.ceil(a.llm.retry_after_s)} s` : ""}). Showing the retrieved and computed evidence only; nothing below is AI-written.</Callout>
+        <Callout tone="warn">
+          <span data-testid="llm-error" data-kind={a.llm.error}>{llmErrorText(a.llm.error, a.llm.retry_after_s)}</span>{" "}
+          You can still explore the NASA evidence found for your question below; nothing below is AI-written.
+          {onRetry && RETRYABLE.has(a.llm.error) && (
+            <span className="mt-2 block" data-testid="llm-retry"><Button onClick={onRetry}>Try the AI answer again</Button></span>
+          )}
+        </Callout>
       )}
       {a.answer && <p className="max-w-[72ch] text-[17px] leading-relaxed text-text" data-testid="answer-text">{withMarkers(a.answer, cite)}</p>}
       {a.claims.length > 0 && (
@@ -340,12 +374,18 @@ export default function AssistantView() {
     setElapsed(0);
     const timer = setInterval(() => setElapsed((s) => s + 1), 1000);
     const ctrl = new AbortController();
-    const kill = setTimeout(() => ctrl.abort(), 120000);
+    // The server streams progress and a heartbeat every 15 s while it works (a slow AI service can take ~90 s), so
+    // give up only after a long silence, or after a hard cap. A fixed 120 s limit discarded answers still on the way.
+    const stop = { cap: false };
+    let silence = setTimeout(() => ctrl.abort(), SILENCE_MS);
+    const cap = setTimeout(() => { stop.cap = true; ctrl.abort(); }, CAP_MS);
+    const alive = () => { clearTimeout(silence); silence = setTimeout(() => ctrl.abort(), SILENCE_MS); };
     const id = ++seq.current;
     const patch = (f: (x: Turn) => Turn) => setTurns((t) => t.map((x) => (x.id === id ? f(x) : x)));
     setTurns((t) => [{ id, q: text, scope, steps: [] }, ...t]);
     const body = { question: text, source_scope: scope, investigations: invs, context_experiment_uids: ctxUid ? [ctxUid] : [] };
     const onEvent = (ev: Record<string, unknown>) => {
+      alive();
       if (ev.event === "tool_start") {
         patch((x) => ({ ...x, steps: [...x.steps, { tool: String(ev.tool), args: ev.args, running: true }] }));
       } else if (ev.event === "tool_end") {
@@ -370,12 +410,16 @@ export default function AssistantView() {
       }
       patch((x) => ({ ...x, res }));
     } catch (e) {
-      const err = (e as Error).name === "AbortError" ? new ApiError(0, "timeout", "The assistant did not respond within 120 s. Try a narrower question.")
-        : e instanceof ApiError ? e : new ApiError(0, "unknown", String(e));
+      const err = (e as Error).name === "AbortError"
+        ? new ApiError(0, "timeout", stop.cap
+          ? "No answer arrived within 5 minutes. Try again, or ask a narrower question."
+          : "The SpaceFire server stopped responding while answering. Check that the backend is still running, then try again.")
+        : e instanceof ApiError ? friendly(e) : new ApiError(0, "unknown", String(e));
       patch((x) => ({ ...x, err }));
     } finally {
       clearInterval(timer);
-      clearTimeout(kill);
+      clearTimeout(silence);
+      clearTimeout(cap);
       setBusy(false);
     }
   }
@@ -462,7 +506,7 @@ export default function AssistantView() {
           {turns.length === 0 && <EmptyWorkspace onPick={(x) => { setQ(x); void ask(x); }} />}
           {turns.map((t) => (
             <Panel key={t.id} title={t.q} aside={t.scope === "internal" ? "NASA sources" : t.scope === "both" ? "NASA + external" : "External only"}>
-              {t.err ? <ErrorState error={t.err} onRetry={() => void ask(t.q)} /> : t.res ? <AnswerBlock a={t.res} /> : (
+              {t.err ? <ErrorState error={t.err} onRetry={() => void ask(t.q)} /> : t.res ? <AnswerBlock a={t.res} onRetry={() => void ask(t.q)} /> : (
                 <LiveProgress steps={t.steps} elapsed={elapsed} />
               )}
             </Panel>
