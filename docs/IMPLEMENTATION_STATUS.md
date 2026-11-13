@@ -1,5 +1,16 @@
 # SpaceFire AI — Implementation Status
 
+## Copilot server-error repair (branch `fix/spacefire-copilot-server-error`, 2026-11-13): DONE
+Base: Phase 12 `66242ac`. Diagnosis and evidence: `docs/COPILOT_SERVER_ERROR_DIAGNOSIS.md`.
+- First failing component: the external provider (`gemini-3.8-flash` returned 503 "high demand", 503, then 504; one
+  live request, 72 s). Backend, Next proxy, retrieval, verifier and stream parsing all passed zero-quota checks.
+- Fixed in the app: the bounded Gemini retry budget (overload-only retries within 1.5 x `LLM_TIMEOUT_S`; SDK retries
+  off); the repair call is skipped after a slow first answer; the Copilot page aborts on 45 s of stream silence, not a
+  fixed 120 s that discarded the evidence; plain-language messages per failure with Retry only when it can help.
+- Verification: pytest **188 passed**; tsc and eslint clean; production build OK; Playwright on the production build
+  **158 passed, 1 skipped** (opt-in live test, not run), including `e2e/copilot-errors.spec.ts` (11).
+  Gemini requests used: **1**.
+
 ## Phase 12 status (branch `feature/spacefire-phase12-premium-themes`, 2026-11-13): COMPLETE
 Light and Dark themes (and System) for the whole website: one semantic token set with two value sets, a pre-paint
 theme script, a header switcher, theme-aware charts, and dark islands for the 3D stages, the fullscreen studio and space
