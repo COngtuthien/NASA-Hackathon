@@ -1,5 +1,53 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 12 status (branch `feature/spacefire-phase12-premium-themes`, 2026-11-13): COMPLETE
+Light and Dark themes (and System) for the whole website: one semantic token set with two value sets, a pre-paint
+theme script, a header switcher, theme-aware charts, and dark islands for the 3D stages, the fullscreen studio and space
+imagery. Frontend only: no data, calculation, verifier, backend or Gemini change; no new dependency. No Gemini request
+was made (API on port 8010 with `LLM_API_KEY=` blank, `llm.mode = retrieval_only`; the opt-in live test was not run).
+Design: `docs/THEME_DESIGN_SYSTEM_V1.md`. Rollback: `docs/PHASE12_ROLLBACK.md`.
+
+**Baseline (rollback point):** `backup/spacefire-before-phase12` = `e5edd9f3c0e65e2e0f51367a3a06f343c8c0c8ff` (Phase 11
+HEAD, equal to `origin/feature/spacefire-phase11-immersive-3d-ux`), created before any change and pushed to GitHub.
+The Phase 11 branch was not modified.
+
+| Milestone | Status | Evidence |
+|---|---|---|
+| M1 Protect baseline | DONE | Backup branch created at the verified Phase 11 commit and pushed; Phase 12 branched from it with no upstream to the backup; rollback switch verified (below) |
+| M2 Design tokens | DONE | Phase 3 token names kept, light values added, dark refined; derived tokens for charts, sky, sidebar, tints, shadows; `.theme-dark` scope |
+| M3 Theme switcher | DONE | `components/theme-switcher.tsx` (Light / Dark / System radio group, arrow keys), `lib/theme.ts`, `lib/prepaint.ts`; localStorage; OS preference; no flash, no remount |
+| M4 Shell and typography | DONE | Sidebar, active nav, header, breadcrumbs (no overlap), phone header (icon-only Menu), stronger secondary and muted text, visible control borders |
+| M5 Pages and charts | DONE | `Plot.tsx` recolours all Plotly charts from tokens on theme change (data untouched); validated categorical slots per theme; sequential ramp re-stepped for white; SVG figures tokenized; BASS-II gas chart shape fix |
+| M6 3D and fullscreen | DONE | 3D viewport and fullscreen studio are dark islands; theme change keeps canvas, camera, playback, fullscreen and auto-hide (tested) |
+| M7 Responsive and accessibility | DONE | 1440 / 768 / 390 px reviewed by screenshot in both themes; badges on photos, Home hero and space schematics fixed for Light Mode |
+| M8 Regression | DONE | See below |
+| M9 Docs and delivery | DONE | Design and rollback docs, README, this section |
+
+### Phase 12 verification (2026-11-13)
+- `tsc --noEmit` clean; `eslint components lib app e2e scripts` clean; `next build` OK (18 routes, separate
+  `NEXT_DIST_DIR=.next-verify`, removed afterwards).
+- Playwright on the final production build: **147 passed, 1 skipped** (opt-in live Gemini, not run). New:
+  `e2e/phase12.spec.ts` (8: token contrast in both themes and the dark island, OS preference and explicit choice,
+  pre-paint theme and no hydration or console error on 13 pages, keyboard switcher with route/sidebar kept and no reload,
+  3D state across switches, fullscreen across an OS switch, chart recolouring with identical data, screenshots of both
+  themes attached) and `e2e/phase12-mobile.spec.ts` (390 and 768 px, both themes, no overflow). No existing test changed.
+- Backend `pytest`: **181 passed**. Smoke: 13 pages 200, `/lab?scene=bass` 307, health 200 (`retrieval_only`),
+  records and FLEX map 200.
+- Contrast (computed from the live CSS): lowest text pair 4.97 dark / 4.55 light; button text 8.5 / 5.3; control
+  borders 3.1 / 3.1; categorical chart slots validated with the dataviz validator per theme.
+- Visual review: every page at 1440 px and key pages at 390 px in both themes, all charts in both themes, the studio
+  in Light Mode with a theme switch during playback. Issues found and fixed: a hydration-time re-apply of the OS theme
+  over a saved choice; the Home hero photo showing as a black block; unreadable relation badges on photographs;
+  breadcrumb overlap; logo wrapping on phones; the BASS-II gas chart's fourth group relying on colour alone.
+- Rollback verified: `git switch backup/spacefire-before-phase12` → HEAD `e5edd9f…`, no `frontend/lib/theme.ts`, no
+  `data-theme` in `globals.css`; `git switch feature/spacefire-phase12-premium-themes` → back, stash restored;
+  `git ls-remote origin backup/spacefire-before-phase12` → `e5edd9f…`.
+
+### Phase 12 known limitations
+- Light Mode keeps dark islands by design (3D stage, fullscreen, Home hero, space schematics).
+- Text over photographs and translucent layers was reviewed visually; the automated contrast test covers token pairs.
+- Plotly's mode bar and the YouTube player keep their own styling.
+
 ## Phase 11 status (branch `feature/spacefire-phase11-immersive-3d-ux`, 2026-11-13): COMPLETE
 Immersive 3D studios: the large viewport banners are gone (their statements moved beside the controls and into the
 fullscreen overlays), the setup panel can be hidden, every studio has a video-player-style fullscreen with auto-hiding

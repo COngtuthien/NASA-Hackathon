@@ -43,6 +43,15 @@ without input and return on any mouse move, tap or key; **Controls** (setup draw
 stage, why it happens, sources) and **Part labels** toggle independently; Escape exits. The left navigation collapses
 to an icon rail with its toggle at the top (remembered). Details: `docs/IMMERSIVE_3D_UX_V1.md`.
 
+Themes (Phase 12): **Light**, **Dark** or **System** from the sun / moon / monitor buttons at the top right of every
+page. The first visit follows the operating system; an explicit choice is remembered in the browser. Switching is
+instant and keeps the page, the 3D scene, playback, fullscreen and the sidebar as they are. The 3D stages stay dark in
+Light Mode so flames and particles keep their contrast. Details: `docs/THEME_DESIGN_SYSTEM_V1.md`.
+
+Current development branch: `feature/spacefire-phase12-premium-themes`. The pre-theme website is preserved on
+`backup/spacefire-before-phase12` (commit `e5edd9f`); to go back, `git switch backup/spacefire-before-phase12`
+(see `docs/PHASE12_ROLLBACK.md` for uncommitted changes and other options).
+
 Scientific media: 15 verified NASA photographs, clips and animations (`frontend/lib/scientific-media.ts`). Each is
 labelled as real experiment media, related NASA media or a schematic, credited, and linked to its original record. None
 is attached to a test ID. Sources, usage terms and rejected candidates: `docs/SCIENTIFIC_MEDIA_SOURCES.md`.
