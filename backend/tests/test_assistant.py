@@ -283,3 +283,37 @@ def test_streamed_answers_get_the_same_unit_check(client):
     assert [c["ok"] for c in checks] == [False, True]
     res = evs[-1]["data"]
     assert res["status"] == "answered" and "mm²/s" in res["answer"]
+
+
+def test_slow_first_answer_skips_the_repair_call(client, monkeypatch):
+    """A second ("fix your citations") model call is only worth it when the first came back quickly. When the provider
+    is slow or overloaded (2026-11-13: 72 s for one call), the repair call would double the wait and risk the page's
+    time limit; the first answer is kept with its unverifiable statements removed."""
+    import time as _time
+
+    from app.core.config import get_settings
+
+    class SlowLLM(FakeLLM):
+        def generate_json(self, system, user, schema, max_tokens=16000):
+            _time.sleep(0.3)
+            return super().generate_json(system, user, schema, max_tokens)
+
+    bad = {"answer": "FLEX has 157 Methanol rows [cite-1] and 999 others.", "status": "answered",
+           "claims": [{"text": "FLEX has 157 Methanol rows.", "kind": "COMPUTED", "citation_ids": ["cite-1"],
+                       "conditions": ""},
+                      {"text": "There are 999 other rows.", "kind": "COMPUTED", "citation_ids": ["cite-1"],
+                       "conditions": ""}], "limitations": [], "suggested_followups": []}
+    monkeypatch.setenv("LLM_TIMEOUT_S", "0.4")          # repair allowed only if the first call took < 0.2 s
+    get_settings.cache_clear()
+    try:
+        fake = SlowLLM([bad, GOOD_COUNT])
+        set_llm(fake)
+        j = ask(client, COUNT_Q)
+    finally:
+        monkeypatch.delenv("LLM_TIMEOUT_S")
+        get_settings.cache_clear()
+    assert len(fake.calls) == 1                           # no second model request
+    assert j["status"] == "partial" and len(j["claims"]) == 1 and "157" in j["claims"][0]["text"]
+    assert any("slow" in x for x in j["limitations"])
+    skipped = [t for t in j["tool_calls"] if t["tool"] == "synthesize_answer" and "skipped" in str(t.get("error", ""))]
+    assert skipped

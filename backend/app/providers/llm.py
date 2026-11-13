@@ -101,40 +101,52 @@ class GeminiProvider:
     """Google Gemini via the official `google-genai` SDK (Gemini Developer API).
 
     The key is handed to the SDK, which sends it in the `x-goog-api-key` header (never the URL); it is not stored
-    on this object, logged, or included in any error message. Transient 5xx responses get two SDK retries (2 s, 4 s
-    backoff); 429 is never retried here (it would only burn free-tier quota) and is surfaced as `rate_limit` with the
-    server's retry delay.
+    on this object, logged, or included in any error message. 429 is never retried (it would only burn free-tier
+    quota) and is surfaced as `rate_limit` with the server's retry delay.
+
+    Retries are bounded by one time budget (default 1.5 x the per-call timeout): only fast "overloaded" answers
+    (500, 502, 503) are retried, after 2 s then 4 s, and only while a useful attempt still fits; each attempt's timeout
+    is capped to the time left. A 504 or a client timeout is not retried: it already used a full timeout. (The SDK's
+    own retry policy also retried those, each with the full timeout: on 2026-11-13 one question took 72 s for
+    503, 503, 504, and the worst case exceeded the Copilot page's 120 s limit, which discarded the evidence.)
     """
 
     name = "gemini"
 
+    RETRY_CODES = (500, 502, 503)          # fast "try again" answers; 503 "high demand" is common on the free tier
+    RETRY_DELAYS_S = (2.0, 4.0)            # at most 3 attempts
+    MIN_ATTEMPT_S = 20.0                   # never start an attempt with less time than this left in the budget
+
     def __init__(self, api_key: str, model: str, timeout_s: float, base_url: str = "", thinking_level: str = "low",
-                 client: Any = None):
+                 client: Any = None, budget_s: float | None = None, sleep: Any = time.sleep,
+                 clock: Any = time.monotonic):
         from google.genai import errors, types
 
         self._types, self._errors = types, errors
         self.model = model
         self.thinking_level = (thinking_level or "low").upper()
+        self.timeout_s = float(timeout_s)
+        self.budget_s = float(budget_s) if budget_s else self.timeout_s * 1.5
+        self._sleep, self._clock = sleep, clock
         self.last_call: dict[str, Any] | None = None
         if client is None:
             from google import genai
 
             http = types.HttpOptions(
                 timeout=int(timeout_s * 1000),
-                # 503 "model overloaded" is common on the free tier and usually clears within seconds.
-                retry_options=types.HttpRetryOptions(attempts=3, initial_delay=2.0, max_delay=8.0,
-                                                     http_status_codes=[500, 502, 503, 504]),
+                retry_options=types.HttpRetryOptions(attempts=1),  # no SDK retries: generate_json owns them
                 **({"base_url": base_url} if base_url else {}))
             client = genai.Client(api_key=api_key, http_options=http)
         self.client = client
 
-    def _config(self, system: str, schema: dict, max_tokens: int):
+    def _config(self, system: str, schema: dict, max_tokens: int, timeout_s: float):
         t = self._types
         return t.GenerateContentConfig(
             system_instruction=system, response_mime_type="application/json", response_json_schema=schema,
-            max_output_tokens=max_tokens, thinking_config=t.ThinkingConfig(thinking_level=self.thinking_level))
+            max_output_tokens=max_tokens, thinking_config=t.ThinkingConfig(thinking_level=self.thinking_level),
+            http_options=t.HttpOptions(timeout=int(timeout_s * 1000), retry_options=t.HttpRetryOptions(attempts=1)))
 
-    def _map_api_error(self, e) -> LLMError:
+    def _map_api_error(self, e, attempts: int = 1) -> LLMError:
         code, status, msg = getattr(e, "code", None), (getattr(e, "status", None) or ""), (getattr(e, "message", "") or "")
         if code == 429 or status == "RESOURCE_EXHAUSTED":
             daily = bool(re.search(r"per ?day|PerDay|daily", json.dumps(getattr(e, "details", None), default=str)))
@@ -149,19 +161,39 @@ class GeminiProvider:
             return LLMError("timeout", "Gemini request timed out.")
         if code is not None and 400 <= code < 500:
             return LLMError("bad_request", f"Gemini rejected the request (HTTP {code} {status}).")
-        return LLMError("unavailable", f"Gemini service error (HTTP {code}{' ' + status if status else ''}).")
+        tries = f" after {attempts} attempts" if attempts > 1 else ""
+        if code == 503 or status == "UNAVAILABLE":
+            return LLMError("unavailable", f"Gemini is temporarily overloaded (HTTP 503{', high demand' if 'demand' in msg else ''}){tries}.")
+        return LLMError("unavailable", f"Gemini service error (HTTP {code}{' ' + status if status else ''}){tries}.")
+
+    def _call(self, system: str, user: str, schema: dict, max_tokens: int):
+        """One logical request: bounded retries of fast overload errors inside the time budget."""
+        start, attempt = self._clock(), 0
+        while True:
+            attempt += 1
+            left = self.budget_s - (self._clock() - start)
+            try:
+                return self.client.models.generate_content(
+                    model=self.model, contents=user,
+                    config=self._config(system, schema, max_tokens, min(self.timeout_s, left)))
+            except self._errors.APIError as e:
+                code = getattr(e, "code", None)
+                delay = self.RETRY_DELAYS_S[attempt - 1] if attempt <= len(self.RETRY_DELAYS_S) else None
+                room = self.budget_s - (self._clock() - start) - (delay or 0)
+                if code in self.RETRY_CODES and delay is not None and room >= self.MIN_ATTEMPT_S:
+                    log.info("llm retry provider=gemini model=%s http=%s attempt=%d wait=%.0fs", self.model, code,
+                             attempt, delay)
+                    self._sleep(delay)
+                    continue
+                raise self._map_api_error(e, attempt) from None
+            except Exception as e:  # transport layer (httpx/httpx2) errors: not retried
+                kind = "timeout" if "timeout" in type(e).__name__.lower() else "unavailable"
+                raise LLMError(kind, "Gemini request timed out." if kind == "timeout" else
+                               f"Could not reach Gemini ({type(e).__name__}).") from None
 
     def generate_json(self, system: str, user: str, schema: dict, max_tokens: int = 16000) -> dict[str, Any]:
         t0 = time.perf_counter()
-        try:
-            resp = self.client.models.generate_content(model=self.model, contents=user,
-                                                       config=self._config(system, schema, max_tokens))
-        except self._errors.APIError as e:
-            raise self._map_api_error(e) from None
-        except Exception as e:  # transport layer (httpx/httpx2) errors
-            kind = "timeout" if "timeout" in type(e).__name__.lower() else "unavailable"
-            raise LLMError(kind, "Gemini request timed out." if kind == "timeout" else
-                           f"Could not reach Gemini ({type(e).__name__}).") from None
+        resp = self._call(system, user, schema, max_tokens)
         ms = int((time.perf_counter() - t0) * 1000)
         usage = getattr(resp, "usage_metadata", None)
         self.last_call = {"model_version": getattr(resp, "model_version", None) or self.model, "latency_ms": ms,

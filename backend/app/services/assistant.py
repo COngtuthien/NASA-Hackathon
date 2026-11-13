@@ -518,7 +518,16 @@ def ask(conn: sqlite3.Connection, question: str, source_scope: str = "internal",
         _log(trace_id, question, tool_calls, citations, "llm_paused", t0)
         return result
 
+    t_synth = time.time()
     for attempt in range(0 if hit else 2):
+        # The repair call ("your answer failed verification") is only worth it when the first call was quick: with a
+        # slow or overloaded provider it would double the wait. Keep the first answer, minus what failed verification.
+        if attempt > 0 and time.time() - t_synth > get_settings().llm_timeout_s * 0.5:
+            tool_calls.append({"tool": "synthesize_answer", "args": {"attempt": 2, "model": llm.model}, "ok": False,
+                               "ms": 0, "error": "skipped: the AI service was slow, so no corrected answer was requested"})
+            limitations.append("The AI service was slow, so a corrected answer was not requested; statements that "
+                               "failed verification were removed.")
+            break
         t_llm = time.time()
         send({"event": "tool_start", "tool": "synthesize_answer", "args": {"attempt": attempt + 1, "model": llm.model}})
         try:
