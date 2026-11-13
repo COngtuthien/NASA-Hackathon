@@ -31,6 +31,10 @@ const P: Record<string, string> = {
   restart: "M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4",
   sidebar: "M4 5h16v14H4zM9 5v14",
   "panel-right": "M4 5h16v14H4zM15 5v14",
+  // Phase 12: theme switcher
+  sun: "M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4",
+  moon: "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z",
+  monitor: "M3 5h18v11H3zM8 20h8M12 16v4",
 };
 
 export function Icon({ name, size = 16, className = "" }: { name: keyof typeof P | string; size?: number; className?: string }) {

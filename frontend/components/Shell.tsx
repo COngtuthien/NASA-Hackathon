@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, ViewTransition, type FormEvent, type ReactNode } from "react";
 import { Icon } from "@/components/icons";
+import ThemeSwitcher from "@/components/theme-switcher";
 import { AnimatePresence, motion, MotionProvider, DUR, EASE } from "@/components/motion";
 import { aiStatus, useHealth } from "@/lib/api";
 import { ROUTES } from "@/lib/routes";
@@ -125,7 +126,7 @@ function NavList({ onNavigate, layoutKey }: { onNavigate?: () => void; layoutKey
                 <li key={it.href} className="relative">
                   {active && (
                     <motion.span layoutId={`nav-active-${layoutKey}`} aria-hidden
-                      className="absolute inset-0 rounded-lg bg-[linear-gradient(90deg,rgba(255,138,61,0.16),rgba(22,39,63,0.9)_55%)] shadow-[inset_2px_0_0_var(--flame)]"
+                      className="absolute inset-0 rounded-lg bg-[image:var(--nav-active)] shadow-[inset_2px_0_0_var(--flame)]"
                       transition={{ duration: DUR.base, ease: EASE }} />
                   )}
                   <Link href={it.href} onClick={onNavigate} aria-current={active ? "page" : undefined} data-tip={it.label}
@@ -162,9 +163,9 @@ function Breadcrumbs() {
     <nav aria-label="Breadcrumb" className="hidden min-w-0 overflow-hidden text-[13px] text-text-3 lg:block">
       <ol className="flex items-center gap-1 whitespace-nowrap">
         {crumbs.map((c, i) => (
-          <li key={i} className="flex min-w-0 items-center gap-1">
+          <li key={i} className={`flex items-center gap-1 ${i === 0 ? "shrink-0" : "min-w-0 overflow-hidden"}`}>
             {i > 0 && <Icon name="chevron" size={12} className="shrink-0" />}
-            {c.href ? <Link href={c.href} className="text-text-2 no-underline hover:text-text">{c.label}</Link>
+            {c.href ? <Link href={c.href} className="truncate text-text-2 no-underline hover:text-text">{c.label}</Link>
               : <span aria-current={i === crumbs.length - 1 ? "page" : undefined} className={`truncate ${i === crumbs.length - 1 ? "text-text" : ""}`}>{c.label}</span>}
           </li>
         ))}
@@ -232,7 +233,7 @@ export default function Shell({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <aside id="site-nav" data-testid="site-nav" data-collapsed={collapsed ? "true" : "false"}
-          className="shell-aside hidden min-w-0 border-r border-line/70 bg-[linear-gradient(180deg,rgba(14,27,47,0.92)_0%,rgba(5,10,20,0.96)_70%)] px-3 py-5 lg:block">
+          className="shell-aside hidden min-w-0 border-r border-line/70 bg-[linear-gradient(180deg,var(--side-from)_0%,var(--side-to)_70%)] px-3 py-5 lg:block">
           <div className="nav-scroll sticky top-5 flex max-h-[calc(100vh-2.5rem)] flex-col gap-6 overflow-y-auto pb-4">
             <div className="nav-head flex items-center justify-between gap-2 px-2">
               <Logo rail />
@@ -267,12 +268,13 @@ export default function Shell({ children }: { children: ReactNode }) {
         <div className="min-w-0">
           <header ref={hdr} className="sticky top-0 z-30 border-b border-line/70 bg-ink/75 backdrop-blur-md" style={{ viewTransitionName: "site-header" }}>
             <div className="flex items-center gap-3 px-4 py-2.5 md:px-6">
-              <button className="press inline-flex items-center gap-1.5 rounded-md border border-line-strong px-2.5 py-1 text-sm lg:hidden" onClick={() => setOpen(true)}
-                aria-label="Open navigation" aria-expanded={open}><Icon name="menu" />Menu</button>
-              <div className="lg:hidden"><Logo /></div>
+              <button className="press inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-md border border-line-strong px-2 py-1 text-sm lg:hidden" onClick={() => setOpen(true)}
+                aria-label="Open navigation" aria-expanded={open}><Icon name="menu" /><span className="hidden sm:inline">Menu</span></button>
+              <div className="whitespace-nowrap lg:hidden"><Logo /></div>
               <div className="hidden min-w-0 flex-1 items-center gap-5 md:flex"><GlobalSearch /><Breadcrumbs /></div>
               <div className="ml-auto hidden shrink-0 text-[12.5px] xl:block"><StatusBar /></div>
               <div className="ml-auto text-[12px] xl:hidden"><StatusBar compact /></div>
+              <ThemeSwitcher />
             </div>
           </header>
           <ViewTransition key={path} enter="page-enter" exit="page-exit" default="none">

@@ -1,41 +1,127 @@
 @import "tailwindcss";
 
-/* SpaceFire AI design tokens (Phase 3).
-   Space is the ground (void → ink → panel); cyan = measured data; electric blue = structure and focus of
-   attention; flame orange = action and combustion; amber = warm highlight; violet = links.
-   Categorical chart slots validated with the dataviz validator (dark mode, surface #101E33): all checks pass. */
-:root {
-  --void: #050a14;
-  --ink: #0a1424;
-  --panel: #101e33;
-  --raised: #16273f;
-  --line: #1f3150;
-  --line-strong: #31496d;
-  --text: #e6edf7;
-  --text-2: #a9b8cd;
-  --text-3: #8194ae;
-  --flame: #ff8a3d;
-  --ember: #ffb547;
-  --flame-ink: #1b0d03;
-  --data: #4fd1e8;
-  --electric: #5b8cff;
-  --link: #b39dff;
-  --crit: #ff6b6b;
-  --warn: #f5c451;
-  --info: #7fa7d9;
-  --ok: #6fcf8f;
+/* SpaceFire AI design tokens (Phase 12: light and dark themes; docs/THEME_DESIGN_SYSTEM_V1.md).
+   Tokens are named by role and keep their Phase 3 names so every component switches theme without changes:
+     void → ink → panel → raised   recessed → page → surface → raised/hover surface
+     line / line-strong            hairlines / control borders (line-strong ≥ 3:1 against page and surface)
+     text / text-2 / text-3        primary / secondary / muted (all ≥ 4.5:1 on every surface)
+     flame (+ flame-ink)           primary action and combustion; ember = warm highlight
+     data                          NASA measured data;  electric = structure, selection, focus of attention
+     link                          links;  crit / warn / ok / info = scientific states (never decorative)
+     cat-1..4                      categorical chart slots (validated per theme with the dataviz validator)
+   Dark is the default (no attribute, or data-theme="dark"); an inline script in app/layout.tsx sets
+   html[data-theme] before first paint from the saved choice or the OS preference. `.theme-dark` re-declares the dark
+   tokens for a subtree: the 3D stages, the fullscreen studio and the space illustrations stay dark in Light Mode. */
+:root,
+:root[data-theme="dark"],
+.theme-dark {
+  --void: #0c1626;
+  --ink: #111d30;
+  --panel: #182840;
+  --raised: #21344f;
+  --line: #2b3f5c;
+  --line-strong: #5a7499;
+  --text: #f0f5fc;
+  --text-2: #c2d0e2;
+  --text-3: #9fb2ca;
+  --flame: #fa9555;
+  --ember: #ffbe73;
+  --flame-ink: #1f0e03;
+  --data: #5ccbdf;
+  --electric: #7aa0ff;
+  --link: #c0afff;
+  --crit: #ff8585;
+  --warn: #f3c763;
+  --info: #97b9e4;
+  --ok: #7fd6a0;
+  /* categorical slots (dark): all checks pass on #182840 (3-slot all-pairs: CVD 7.4, legal with the marker shapes
+     every outcome chart already uses) */
   --cat-1: #22a6bf;
   --cat-2: #d87830;
   --cat-3: #a07ceb;
   --cat-4: #56a93b;
+  /* derived surfaces */
+  --chart-grid: #263a57;
+  --row-hover: #1d3049;
+  --raw-bg: #101d31;
+  --raw-text: #dbe5f3;
+  --sky-cool: rgba(122, 160, 255, 0.1);
+  --sky-warm: rgba(250, 149, 85, 0.06);
+  --side-from: rgba(24, 40, 64, 0.95);
+  --side-to: rgba(13, 23, 39, 0.98);
+  --nav-active: linear-gradient(90deg, rgba(250, 149, 85, 0.18), rgba(33, 52, 79, 0.95) 55%);
+  --tint-cool: rgba(122, 160, 255, 0.15);
+  --tint-warm: rgba(250, 149, 85, 0.08);
+  --shadow: rgba(2, 6, 14, 0.75);
+  --grid-line: rgba(151, 185, 228, 0.07);
+  color-scheme: dark;
+}
 
+/* Light: cool off-white page, white surfaces, deep slate text, copper and teal accents. Every text token ≥ 4.5:1 on
+   void, ink, panel and raised; categorical slots validated all-pairs on white. */
+:root[data-theme="light"] {
+  --void: #fbfcfe;
+  --ink: #f1f5fa;
+  --panel: #ffffff;
+  --raised: #e8eef6;
+  --line: #d5deea;
+  --line-strong: #7c8ea6;
+  --text: #16243a;
+  --text-2: #3f5169;
+  --text-3: #566980;
+  --flame: #b04e1a;
+  --ember: #9a5410;
+  --flame-ink: #ffffff;
+  --data: #0b6f84;
+  --electric: #2d5cc8;
+  --link: #5a3dc0;
+  --crit: #b42d2d;
+  --warn: #865c00;
+  --info: #2b5c93;
+  --ok: #1f7442;
+  --cat-1: #0086a3;
+  --cat-2: #c2611d;
+  --cat-3: #7752d4;
+  --cat-4: #3d8a2a;
+  --chart-grid: #e1e7f0;
+  --row-hover: #eef3f9;
+  --raw-bg: #f2f5fa;
+  --raw-text: #1d2c44;
+  --sky-cool: rgba(45, 92, 200, 0.06);
+  --sky-warm: rgba(176, 78, 26, 0.04);
+  --side-from: rgba(255, 255, 255, 0.96);
+  --side-to: rgba(241, 245, 250, 0.98);
+  --nav-active: linear-gradient(90deg, rgba(176, 78, 26, 0.12), rgba(232, 238, 246, 0.95) 60%);
+  --tint-cool: rgba(45, 92, 200, 0.08);
+  --tint-warm: rgba(176, 78, 26, 0.06);
+  --shadow: rgba(23, 37, 58, 0.18);
+  --grid-line: rgba(43, 92, 147, 0.07);
+  color-scheme: light;
+}
+
+/* A dark island inside Light Mode (3D stages, fullscreen studio, space illustrations). Inherited text colour is
+   reset, because `color` inherits as a computed value from the light page. */
+.theme-dark {
+  color: var(--text);
+}
+/* In Light Mode a dark island that is a full band (Home hero with a real NASA photo of a flame in orbit) gets its own
+   night background; in Dark Mode it simply sits on the page. */
+html[data-theme="light"] .dark-band {
+  background: radial-gradient(1100px 600px at 12% -8%, rgba(122, 160, 255, 0.1), transparent 60%), var(--ink);
+}
+/* Space schematics (PhenomenonArt) keep their night stage in Light Mode. */
+html[data-theme="light"] .art-stage {
+  border-radius: 1rem;
+  background: radial-gradient(closest-side, rgba(122, 160, 255, 0.14), transparent), var(--ink);
+}
+
+:root {
   /* motion tokens (mirror components/motion.tsx) */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --dur-fast: 160ms;
   --dur-base: 320ms;
   --dur-slow: 600ms;
-  color-scheme: dark;
 }
 
 @theme inline {
@@ -109,7 +195,7 @@
   }
 
   ::selection {
-    background: rgba(255, 138, 61, 0.35);
+    background: color-mix(in srgb, var(--flame) 32%, transparent);
   }
 }
 
@@ -118,22 +204,25 @@
 /* Page-wide sky: two faint light sources (cold data light top-left, warm combustion light far right). */
 .sky {
   background:
-    radial-gradient(1100px 600px at 12% -8%, rgba(91, 140, 255, 0.09), transparent 60%),
-    radial-gradient(900px 520px at 100% 0%, rgba(255, 138, 61, 0.05), transparent 60%),
+    radial-gradient(1100px 600px at 12% -8%, var(--sky-cool), transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, var(--sky-warm), transparent 60%),
     var(--ink);
 }
 
 /* Fine technical grid, faded out toward the edges. Decorative only. */
 .tech-grid {
   background-image:
-    linear-gradient(to right, rgba(127, 167, 217, 0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(127, 167, 217, 0.07) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 75%);
 }
 
 .hairline-top {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+:root[data-theme="light"] .hairline-top {
+  box-shadow: 0 1px 2px var(--shadow);
 }
 
 /* Section kicker: a short rule plus sentence-case label (not an all-caps eyebrow). */
@@ -188,8 +277,8 @@
 .raw {
   font-family: var(--font-mono);
   font-size: 0.85em;
-  color: #d7e2f2;
-  background: #0c1729;
+  color: var(--raw-text);
+  background: var(--raw-bg);
   border: 1px solid var(--line);
   border-radius: 4px;
   padding: 0 0.35em;
@@ -198,7 +287,7 @@
 }
 
 .skeleton {
-  background: linear-gradient(90deg, var(--raised) 0%, #1c3150 50%, var(--raised) 100%);
+  background: linear-gradient(90deg, var(--raised) 0%, color-mix(in srgb, var(--raised) 70%, var(--line-strong)) 50%, var(--raised) 100%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   border-radius: 6px;
@@ -235,7 +324,7 @@ table.data tbody tr {
   transition: background-color var(--dur-fast) var(--ease-out);
 }
 table.data tbody tr:hover td {
-  background: #132540;
+  background: var(--row-hover);
 }
 td.num, th.num {
   text-align: right;
@@ -260,16 +349,16 @@ table.data.nowrap td {
   transform: translateY(-2px);
 }
 .glow-flame:hover {
-  box-shadow: 0 8px 28px -10px rgba(255, 138, 61, 0.55);
+  box-shadow: 0 8px 28px -10px color-mix(in srgb, var(--flame) 50%, transparent);
 }
 .glow-data:hover {
-  box-shadow: 0 10px 32px -14px rgba(79, 209, 232, 0.45);
+  box-shadow: 0 10px 32px -14px color-mix(in srgb, var(--data) 40%, transparent);
 }
 select, input, textarea {
   transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 select:focus, input:focus, textarea:focus {
-  box-shadow: 0 0 0 3px rgba(255, 138, 61, 0.16);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--flame) 18%, transparent);
 }
 details > summary {
   transition: color var(--dur-fast) var(--ease-out);
@@ -359,7 +448,7 @@ details[open] > summary {
     font-size: 12.5px;
     line-height: 1.3;
     padding: 4px 8px;
-    box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 8px 24px -10px var(--shadow);
     pointer-events: none;
   }
   html[data-nav="collapsed"] .shell-aside .nav-scroll {
