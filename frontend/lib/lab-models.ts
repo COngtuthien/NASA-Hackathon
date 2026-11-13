@@ -66,7 +66,7 @@ export const SCENES: LabScene[] = [
         provenance: "Classical spherically symmetric picture (Liu et al.). The amber glow and the outward particles are illustrative: no concentration field is computed.",
         sources: [SOURCES.liuP2], askAbout: "the fuel vapour region between a burning droplet and its flame" },
       { id: "oxygen", label: "Oxygen transport", basis: "documented-principle",
-        summary: "Microgravity: oxygen diffuses inward from the surroundings to the flame. 1 g comparison: buoyancy drives an upward flow past the droplet instead.",
+        summary: "Microgravity: oxygen diffuses inward from the surroundings to the flame. Earth comparison: buoyancy drives an upward flow past the droplet instead.",
         provenance: "Directions follow the classical picture and the documented buoyancy effect. Particle and arrow speeds are illustrative, not velocities.",
         sources: [SOURCES.liuP2, SOURCES.flexEird74], askAbout: "how oxygen reaches a droplet flame without buoyancy" },
     ],

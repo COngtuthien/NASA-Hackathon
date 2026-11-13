@@ -160,7 +160,7 @@ export default function FlexLabView() {
       <OrbitMediaPanel galleryInv="PSI-69" title="A droplet flame without gravity"
         lead={<>On Earth a droplet flame is pulled into a teardrop; aboard the ISS it wraps the droplet in a near-spherical shell (<a href="/api/v1/documents/2g11-070he-0310/file#page=2" target="_blank" rel="noreferrer">Liu et al., PDF p.2</a>).</>}
         items={[
-          { id: "flex-1g-vs-microgravity", fit: "contain", caption: "Top: the flame aboard the ISS. Bottom: the same kind of flame on Earth (1 g)." },
+          { id: "flex-1g-vs-microgravity", fit: "contain", caption: "Top: the flame aboard the ISS. Bottom: the same kind of flame on Earth." },
           { id: "flex-heptane-soot-composite", caption: "Soot (false colour) forming near a shrinking heptane droplet." },
           { id: "cfi-g-cool-flame-video", caption: "Related experiment: a hot flame that leaves an invisible cool flame, as FLEX found in heptane droplets." },
         ]}

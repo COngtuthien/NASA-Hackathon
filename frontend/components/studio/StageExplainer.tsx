@@ -74,7 +74,7 @@ function GravityBlock({ g, open, setOpen, showImage }: { g: GravityStage; open: 
     <div className="mt-2 rounded-lg border border-line/70 bg-ink/40 p-3" data-testid="gravity-stage">
       <p className="text-[12px] font-medium text-warn">Conceptual comparison — not paired Earth and ISS measurements.</p>
       <dl className="mt-2 grid gap-2 text-[13px] sm:grid-cols-2">
-        <div><dt className="text-[12px] font-semibold uppercase tracking-wide text-text-3">Earth (1 g)</dt><dd className="mt-0.5 text-text-2" data-testid="gravity-earth">{g.earth}</dd></div>
+        <div><dt className="text-[12px] font-semibold uppercase tracking-wide text-text-3">Earth</dt><dd className="mt-0.5 text-text-2" data-testid="gravity-earth">{g.earth}</dd></div>
         <div><dt className="text-[12px] font-semibold uppercase tracking-wide text-text-3">Microgravity</dt><dd className="mt-0.5 text-text-2" data-testid="gravity-micro">{g.micro}</dd></div>
       </dl>
       <div className="mt-2">

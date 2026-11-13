@@ -405,7 +405,7 @@ export default function DropletCombustionScene(props: FlexSceneProps) {
       {heptane && show("soot") && <Annotation id="soot" label="Soot shell (n-heptane)" position={[-rf * 0.85, rf * 0.15 + lift * 0.4, 0]} selected={selected === "soot"} onSelect={onSelect} />}
       {show("ambient", true) && <Annotation id="ambient" label={`Ambient gas · O₂ ${o2.toFixed(2)}${evidence ? " (recorded)" : ""}`} tone={evidence ? "measured" : "default"}
         position={[-rf * 1.6, -rf * 0.55, 0]} selected={selected === "ambient"} onSelect={onSelect} />}
-      {common.transport && show("oxygen") && <Annotation id="oxygen" label={earth ? "Buoyant updraft (1 g)" : "O₂ diffusing inward"} position={[rf * 1.9, -rf * 0.55, 0]} selected={selected === "oxygen"} onSelect={onSelect} />}
+      {common.transport && show("oxygen") && <Annotation id="oxygen" label={earth ? "Buoyant updraft (Earth)" : "O₂ diffusing inward"} position={[rf * 1.9, -rf * 0.55, 0]} selected={selected === "oxygen"} onSelect={onSelect} />}
       {evidence && dext !== null && dext > 0 && interactive && common.labels !== "off" && <Annotation id="droplet" label={`D_ext ${dext} mm (measured)`} tone="measured" position={[0, rd * 1.5, rd * 1.2]} selected={false} onSelect={onSelect} />}
       {interactive && common.labels !== "off" && <Annotation id="scale" label={`${ruler} mm scale`} position={[0, -rf * 1.42, rf * 0.2]} selected={false} onSelect={() => undefined} />}
     </group>

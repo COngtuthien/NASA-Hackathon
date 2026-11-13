@@ -7,6 +7,7 @@ import { Icon } from "@/components/icons";
 import { AnimatePresence, motion, MotionProvider, DUR, EASE } from "@/components/motion";
 import { aiStatus, useHealth } from "@/lib/api";
 import { ROUTES } from "@/lib/routes";
+import { navPref } from "@/lib/ui-prefs";
 
 type NavItem = { href: string; label: string; icon: string; source?: string; match?: string[] };
 export const NAV: { group: string; items: NavItem[] }[] = [
@@ -38,7 +39,7 @@ function isActive(it: NavItem, path: string) {
   return roots.some((r) => path === r || path.startsWith(r + "/"));
 }
 
-function Logo() {
+function Logo({ rail = false }: { rail?: boolean }) {
   const gid = `lg${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <Link href="/" className="group flex items-center gap-2.5 text-text no-underline hover:no-underline" aria-label="SpaceFire AI home">
@@ -55,7 +56,7 @@ function Logo() {
         <ellipse cx="14" cy="14" rx="12.5" ry="4.2" fill="none" stroke="#5B8CFF" strokeOpacity="0.5" strokeWidth="0.8" transform="rotate(-24 14 14)" />
         <circle cx="14" cy="14" r="3.2" fill="#FF8A3D" />
       </svg>
-      <span className="display text-[19px] leading-none">SpaceFire <span className="text-flame">AI</span></span>
+      <span className={`display text-[19px] leading-none ${rail ? "nav-label" : ""}`}>SpaceFire <span className="text-flame">AI</span></span>
     </Link>
   );
 }
@@ -115,8 +116,8 @@ function NavList({ onNavigate, layoutKey }: { onNavigate?: () => void; layoutKey
   return (
     <nav aria-label="Main" className="flex flex-col gap-5">
       {NAV.map((g) => (
-        <div key={g.group}>
-          <p className="mb-1.5 px-3 text-[12.5px] font-medium text-text-3">{g.group}</p>
+        <div key={g.group} className="nav-group">
+          <p className="nav-group-title mb-1.5 px-3 text-[12.5px] font-medium text-text-3">{g.group}</p>
           <ul className="flex flex-col gap-px">
             {g.items.map((it) => {
               const active = isActive(it, path);
@@ -127,12 +128,12 @@ function NavList({ onNavigate, layoutKey }: { onNavigate?: () => void; layoutKey
                       className="absolute inset-0 rounded-lg bg-[linear-gradient(90deg,rgba(255,138,61,0.16),rgba(22,39,63,0.9)_55%)] shadow-[inset_2px_0_0_var(--flame)]"
                       transition={{ duration: DUR.base, ease: EASE }} />
                   )}
-                  <Link href={it.href} onClick={onNavigate} aria-current={active ? "page" : undefined}
-                    className={`press relative flex items-start gap-2.5 rounded-lg px-3 py-1.5 text-[14px] leading-snug no-underline hover:no-underline ${
+                  <Link href={it.href} onClick={onNavigate} aria-current={active ? "page" : undefined} data-tip={it.label}
+                    className={`nav-link press relative flex items-start gap-2.5 rounded-lg px-3 py-1.5 text-[14px] leading-snug no-underline hover:no-underline ${
                       active ? "text-text" : "text-text-2 hover:bg-raised/50 hover:text-text"}`}>
                     <Icon name={it.icon} className={`mt-0.5 shrink-0 ${active ? "text-flame" : "text-text-3"}`} />
-                    <span className="min-w-0 flex-1">{it.label}</span>
-                    {it.source && <span className="mt-0.5 shrink-0 rounded border border-line px-1 text-[10.5px] leading-4 text-text-3" title={`Source: NASA ${it.source}`}>{it.source}</span>}
+                    <span className="nav-label min-w-0 flex-1">{it.label}</span>
+                    {it.source && <span className="nav-extra mt-0.5 shrink-0 rounded border border-line px-1 text-[10.5px] leading-4 text-text-3" title={`Source: NASA ${it.source}`}>{it.source}</span>}
                   </Link>
                 </li>
               );
@@ -204,6 +205,9 @@ function SiteFooter() {
 export default function Shell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const path = usePathname();
+  // Phase 11: desktop navigation collapses to an icon rail (remembered; applied before paint via html[data-nav])
+  const collapsed = navPref.use() === "collapsed";
+  const toggleNav = () => navPref.set(collapsed ? "expanded" : "collapsed");
   const showcase = path === "/";
   const hdr = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -223,14 +227,22 @@ export default function Shell({ children }: { children: ReactNode }) {
 
   return (
     <MotionProvider>
-      <div className="sky min-h-screen lg:grid lg:grid-cols-[272px_1fr]">
+      <div className="sky shell-grid min-h-screen lg:grid">
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:bg-flame focus:px-3 focus:py-1 focus:text-flame-ink">
           Skip to content
         </a>
-        <aside className="hidden border-r border-line/70 bg-[linear-gradient(180deg,rgba(14,27,47,0.92)_0%,rgba(5,10,20,0.96)_70%)] px-3 py-5 lg:block">
-          <div className="sticky top-5 flex max-h-[calc(100vh-2.5rem)] flex-col gap-6 overflow-y-auto pb-4">
-            <div className="px-2"><Logo /></div>
-            <NavList layoutKey="desk" />
+        <aside id="site-nav" data-testid="site-nav" data-collapsed={collapsed ? "true" : "false"}
+          className="shell-aside hidden min-w-0 border-r border-line/70 bg-[linear-gradient(180deg,rgba(14,27,47,0.92)_0%,rgba(5,10,20,0.96)_70%)] px-3 py-5 lg:block">
+          <div className="nav-scroll sticky top-5 flex max-h-[calc(100vh-2.5rem)] flex-col gap-6 overflow-y-auto pb-4">
+            <div className="nav-head flex items-center justify-between gap-2 px-2">
+              <Logo rail />
+              <button type="button" onClick={toggleNav} aria-expanded={!collapsed} aria-controls="site-nav-list" data-testid="nav-toggle"
+                aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} data-tip={collapsed ? "Expand sidebar" : undefined} title={collapsed ? undefined : "Collapse sidebar"}
+                className="nav-toggle press relative grid h-9 w-9 shrink-0 place-items-center rounded-lg text-text-3 hover:bg-raised/60 hover:text-text">
+                <Icon name="sidebar" size={18} />
+              </button>
+            </div>
+            <div id="site-nav-list"><NavList layoutKey="desk" /></div>
           </div>
         </aside>
 

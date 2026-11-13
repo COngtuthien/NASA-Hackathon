@@ -65,7 +65,7 @@ export const JOURNEY_QUESTION: Record<Topic, string> = {
 export const STEP_COPY: Record<Topic, Record<"model" | "interact" | "evidence", { title: string; body: string; task: string; action: string }>> = {
   flex: {
     model: { title: "Explore the 3D droplet", body: "Drag to rotate, scroll or pinch to zoom, and click a part to select it. With the keyboard: focus the 3D view and use the arrow keys.", task: "Select a part of the model.", action: "Select the flame for me" },
-    interact: { title: "Switch gravity off and on", body: "On Earth, hot gas rises and stretches the flame into a teardrop. In orbit there is no buoyancy, so the flame can wrap the droplet in a near-spherical shell.", task: "Open the Earth vs microgravity view.", action: "Show Earth vs microgravity" },
+    interact: { title: "Switch gravity off and on", body: "On Earth, hot gas rises and stretches the flame into a teardrop. In orbit there is no buoyancy, so the flame can wrap the droplet in a near-spherical shell.", task: "Open the Earth vs Microgravity view.", action: "Show Earth vs Microgravity" },
     evidence: { title: "Compare with NASA imagery", body: "The 3D droplet is a conceptual illustration. Beside it is a real NASA FLEX image and the values recorded for one test: those are the evidence.", task: "Pick a test to see its recorded values beside the image.", action: "Use an example test" },
   },
   bass: {

@@ -43,7 +43,7 @@ export const FUELS: Record<FuelId, FuelInfo> = {
     ],
     visual: "No soot shell is drawn (non-sooting fuel). Flame colours are illustrative.",
     mediaId: null,
-    mediaNote: "SpaceFire's verified media registry has no NASA image that names a methanol FLEX droplet. The 1 g vs microgravity comparison image does not state its fuel.",
+    mediaNote: "SpaceFire's verified media registry has no NASA image that names a methanol FLEX droplet. The Earth vs microgravity comparison image does not state its fuel.",
     limits: "Flame visibility, colour and temperature differences are not quantified here.",
   },
 };

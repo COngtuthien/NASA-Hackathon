@@ -79,7 +79,7 @@ export default function ControlPanel({ scene, mode, common, setCommon, flex, set
         <Group title="Droplet experiment (conceptual)">
           <div inert={mode === "evidence"} className={mode === "evidence" ? "opacity-50" : ""}>
             <Segmented label="Gravity environment" value={mode === "evidence" ? "micro" : flex.gravity} onChange={(v) => setFlex({ ...flex, gravity: v as FlexState["gravity"] })}
-              options={[["micro", "Microgravity"], ["earth", "Earth 1 g (comparison)"]]} />
+              options={[["micro", "Microgravity"], ["earth", "Earth"]]} />
           </div>
           <p className="-mt-2 text-[12px] leading-snug text-text-3">
             {mode === "evidence" ? "All FLEX tests ran aboard the ISS, so evidence mode is microgravity only." : "Changes the flame shape only. Not a simulation."}

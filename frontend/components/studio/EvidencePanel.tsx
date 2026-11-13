@@ -157,7 +157,7 @@ function FlexEvidence({ scene, flex, uid, onRecord, detail }: { scene: LabScene;
       <section aria-labelledby="flex-media">
         <h3 id="flex-media" className="subhead text-[15px]">NASA imagery (not of a specific test)</h3>
         <div className="mt-2 grid grid-cols-2 gap-3">
-          <MediaFigure id="flex-1g-vs-microgravity" aspect="3 / 4" fit="contain" compact sizes="200px" caption="FLEX: microgravity flame (top) vs 1 g (bottom)." />
+          <MediaFigure id="flex-1g-vs-microgravity" aspect="3 / 4" fit="contain" compact sizes="200px" caption="FLEX: microgravity flame (top) vs Earth (bottom)." />
           <MediaFigure id="flex-heptane-soot-composite" aspect="3 / 4" compact sizes="200px" caption="Heptane droplet with soot streamers (false colour)." />
         </div>
       </section>
