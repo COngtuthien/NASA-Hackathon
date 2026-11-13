@@ -16,8 +16,8 @@ export function Annotation({ position, label, id, selected, onSelect, tone = "de
     <Html position={position} center zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
       <div aria-hidden className="flex flex-col items-center" data-annotation={id}>
         <button type="button" tabIndex={-1} onClick={(e) => { e.stopPropagation(); onSelect(id); }}
-          className={`pointer-events-auto whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[12px] font-medium shadow-[0_4px_18px_-6px_rgba(0,0,0,0.8)] backdrop-blur-md transition-colors ${
-            selected ? "border-flame bg-flame/90 text-flame-ink" : `${ring} bg-void/75 hover:border-flame/80`}`}>
+          className={`pointer-events-auto whitespace-nowrap rounded-full border font-medium shadow-[0_4px_18px_-6px_rgba(0,0,0,0.8)] backdrop-blur-md transition-colors ${
+            selected ? "border-flame bg-flame/90 px-2.5 py-0.5 text-[12px] text-flame-ink" : `${ring} bg-void/60 px-2 py-px text-[11.5px] opacity-90 hover:border-flame/80 hover:opacity-100`}`}>
           {label}
         </button>
         {note && <span className="mt-0.5 whitespace-nowrap rounded bg-void/70 px-1.5 text-[11px] text-text-2">{note}</span>}

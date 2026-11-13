@@ -295,7 +295,8 @@ export default function FlameSpreadScene(props: BassSceneProps) {
       {show("holder") && <Annotation id="holder" label="Holder (illustrative)" position={[half + 0.9, -1.2, -inner / 2]} selected={selected === "holder"} onSelect={onSelect} />}
       {show("flame", true) && <Annotation id="flame" label={stagnation ? "Flame at the rod tip (stagnation)" : concurrent ? "Flame trails downstream (concurrent)" : "Flame creeps upstream (opposed)"}
         position={[stagnation ? -half - 1.5 : 1.5, -2.3, width / 2 + 0.8]} selected={selected === "flame"} onSelect={onSelect} />}
-      {interactive && common.labels !== "off" && state.showFront && !stagnation && V.sample.visible && <Annotation id="flame" label="Illustrative progression — not measured flame-front motion" tone="warn" position={[0, (rodLike ? rodD / 2 : thick / 2) + 2.6, width / 2 + 0.6]} selected={false} onSelect={onSelect} />}
+      {/* the same caveat is always on the timeline and the fullscreen playback bar; repeated in 3D only with all labels */}
+      {interactive && common.labels === "all" && state.showFront && !stagnation && V.sample.visible && <Annotation id="flame" label="Illustrative progression — not measured flame-front motion" tone="warn" position={[0, (rodLike ? rodD / 2 : thick / 2) + 2.6, width / 2 + 0.6]} selected={false} onSelect={onSelect} />}
       {show("igniter") && <Annotation id="igniter" label="Hot-wire igniter" position={[igniterX, -1.3, 0.8]} selected={selected === "igniter"} onSelect={onSelect} />}
       {show("radiometer") && <Annotation id="radiometer" label="Radiometer" position={[LEN / 2 - 0.9, DUCT / 2 + 0.6, -DUCT / 2 + 0.9]} selected={selected === "radiometer"} onSelect={onSelect} />}
       {common.transport && show("airflow", true) && <Annotation id="airflow" label="Airflow →" position={[-LEN / 2 - 7, 2.9, 0]} selected={selected === "airflow"} onSelect={onSelect} />}

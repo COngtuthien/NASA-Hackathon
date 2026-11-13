@@ -23,6 +23,7 @@ import LayerInspector from "@/components/studio/LayerInspector";
 import type { AnySceneProps } from "@/components/studio/StudioViewport";
 import TimelineBar from "@/components/studio/TimelineBar";
 import { SaffireWalkthrough, StageExplainer } from "@/components/studio/StageExplainer";
+import { ExplanationOverlay, ImmersiveNotice, ImmersivePlayback, ImmersiveProvider, ImmersiveTopBar, ImmersiveWalkBar, useFullscreen, useImmersiveChrome } from "@/components/studio/immersive";
 import { Term } from "@/components/glossary";
 import { JourneyCard, useJourney } from "@/components/journey";
 import { Segmented } from "@/components/ui";
@@ -31,8 +32,9 @@ import { EXAMPLE_RECORD, STEP_COPY, type Topic } from "@/lib/journey";
 import { FUELS, type FuelId } from "@/lib/flex-fuels";
 import { SCENE_BY_ID, type SceneId } from "@/lib/lab-models";
 import {
-  BASS_DEFAULT, BASS_SAMPLES, COMMON_DEFAULT, FLEX_DEFAULT, SAFFIRE_DEFAULT, type BassSample, type BassState, type CommonState, type FlexState, type SaffireState,
+  BASS_DEFAULT, BASS_SAMPLES, COMMON_DEFAULT, FLEX_DEFAULT, SAFFIRE_DEFAULT, type BassSample, type BassState, type CommonState, type FlexState, type LabelMode, type SaffireState,
 } from "@/lib/lab-presets";
+import { studioControlsPref } from "@/lib/ui-prefs";
 import { MODES, type Mode } from "@/lib/lab-scientific-metadata";
 import { bassFocus, CAMERA_HOME, flexFocus, SAFFIRE_PRESETS, saffireFocus, type Shot } from "@/lib/studio-camera";
 import { bassInfo, stageFocus, d2ZeroTime, FLEX_FUEL_NOTE, FLEX_GRAVITY, FLEX_INFO, flexOutcomeText, saffireWalk } from "@/lib/stages";
@@ -65,7 +67,7 @@ class ViewportBoundary extends Component<{ children: ReactNode; fallback: ReactN
 
 // "nasa" (Phase 9) keeps the single scene and puts verified NASA media and the recorded values beside it.
 const VIEWS: Record<SceneId, [string, string][]> = {
-  flex: [["single", "Single droplet"], ["fuels", "Compare fuels"], ["gravity", "Earth vs microgravity"], ["nasa", "Compare with NASA"]],
+  flex: [["single", "Single droplet"], ["fuels", "Compare fuels"], ["gravity", "Earth vs Microgravity"], ["nasa", "Compare with NASA"]],
   bass: [["single", "Single sample"], ["compare", "Compare"], ["nasa", "Compare with NASA"]],
   saffire: [["3d", "3D model"], ["nasa", "Compare with NASA"], ["footage", "NASA footage"], ["data", "Evidence & metadata"]],
 };
@@ -167,12 +169,32 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
   const [cam, setCam] = useState<CameraApi | null>(null);
   const section = useRef<HTMLElement>(null);
 
+  // --- Phase 11: collapsible setup panel, fullscreen studio, auto-hiding chrome -------------------------------------
+  const controlsShown = studioControlsPref.use() === "shown";
+  const fs = useFullscreen(section);
+  const immersive = fs.active;
+  const chrome = useImmersiveChrome(section, immersive);
+  const [fsPanel, setFsPanel] = useState(false);          // fullscreen: setup drawer
+  const [fsExplain, setFsExplain] = useState(false);      // fullscreen: explanation overlay
+  const [fsLabels, setFsLabels] = useState<LabelMode>("off");   // fullscreen: part labels (start hidden)
+  const [labelsMemo, setLabelsMemo] = useState<LabelMode>("focus");
+  const fsButton = useRef<HTMLButtonElement>(null);
+  const panelScroll = useRef(0);
+
   const motionOn = motionPref ?? !reduce;
-  const commonView: CommonState = { ...common, motion: motionOn };
+  const labelsEff: LabelMode = immersive ? fsLabels : common.labels;
+  const commonView: CommonState = { ...common, motion: motionOn, labels: labelsEff };
   const setCommon = (c: CommonState) => {
     if (c.motion !== motionOn) setMotionPref(c.motion);
-    setCommonRaw({ ...c, motion: true });
+    if (immersive) { setFsLabels(c.labels); setCommonRaw({ ...c, labels: common.labels, motion: true }); }
+    else setCommonRaw({ ...c, motion: true });
   };
+  function toggleLabels() {
+    if (labelsEff !== "off") setLabelsMemo(labelsEff);
+    const next: LabelMode = labelsEff === "off" ? labelsMemo : "off";
+    if (immersive) setFsLabels(next);
+    else setCommonRaw({ ...common, labels: next });
+  }
 
   const setParams = useCallback((patch: Record<string, string | null>) => {
     const n = new URLSearchParams(sp.toString());
@@ -332,8 +354,8 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
       split = {
         left: { ...passive, mode: "conceptual", state: { ...flex, gravity: "earth" }, measured: null },
         right: { ...passive, mode: "conceptual", state: { ...flex, gravity: "micro" }, measured: null },
-        leftLabel: "Earth 1 g (conceptual comparison)", rightLabel: "Microgravity",
-        note: "Conceptual comparison — not paired Earth and ISS measurements. The 1 g side is not a FLEX measurement; arrows show direction only.",
+        leftLabel: "Earth", rightLabel: "Microgravity",
+        note: "Conceptual comparison — not paired Earth and ISS measurements. The Earth side is not a FLEX measurement (every FLEX test ran in microgravity); arrows show direction only.",
       };
     } else single = { ...base, state: flex, measured: flexMeasured };
   } else if (sceneId === "bass") {
@@ -472,56 +494,152 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
   }
   const timelineOn = sceneId !== "saffire";
 
+  // --- Phase 11: layout handlers ------------------------------------------------------------------------------------
+  const asideId = `${sceneId}-setup`;
+  const explainId = `${sceneId}-explain`;
+  const viewMode: Mode = split && view === "gravity" ? "conceptual" : mode;
+  function setControlsShown(on: boolean) {
+    if (!on) panelScroll.current = document.getElementById(`${sceneId}-panel-${tab}`)?.scrollTop ?? 0;
+    studioControlsPref.set(on ? "shown" : "hidden");
+  }
+  // the panel's scroll position comes back with it (display:none drops it)
+  useEffect(() => {
+    if (!controlsShown || immersive || !panelScroll.current) return;
+    const el = document.getElementById(`${sceneId}-panel-${tab}`);
+    if (el) el.scrollTop = panelScroll.current;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [controlsShown]);
+  function enterFullscreen() {
+    setFsPanel(false);
+    setFsExplain(false);
+    // cleaner scene: labels start hidden, unless a component is being inspected
+    setFsLabels(selected ? (common.labels === "off" ? "focus" : common.labels) : "off");
+    void fs.enter();
+  }
+  // focus moves into the studio on entry (keys stay inside it) and back to the Fullscreen button on exit
+  const wasImmersive = useRef(false);
+  useEffect(() => {
+    if (immersive) section.current?.focus({ preventScroll: true });
+    else if (wasImmersive.current) fsButton.current?.focus({ preventScroll: true });
+    wasImmersive.current = immersive;
+  }, [immersive]);
+  // an open setup drawer keeps the fullscreen controls shown
+  useEffect(() => { chrome.hold("panel", immersive && fsPanel); }, [chrome, immersive, fsPanel]);
+  const focusIn = (sel: string) => requestAnimationFrame(() => section.current?.querySelector<HTMLElement>(sel)?.focus({ preventScroll: true }));
+  function toggleFsPanel() {
+    const open = !fsPanel;
+    setFsPanel(open);
+    if (open) focusIn(`#${sceneId}-tab-${tab}`);
+  }
+  function closeFsPanel() { setFsPanel(false); focusIn('[data-testid="fs-controls"]'); }
+  // Escape: closes the drawer or the explanation it is pressed in, otherwise leaves fullscreen. Text fields and
+  // dropdowns keep their own Escape; the guided tour handles its own (and marks the event handled).
+  const exitFs = fs.exit;
+  useEffect(() => {
+    if (!immersive) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      const t = e.target instanceof HTMLElement ? e.target : null;
+      if (t && (t.tagName === "SELECT" || t.tagName === "TEXTAREA" || (t.tagName === "INPUT" && !["range", "checkbox", "radio", "button"].includes((t as HTMLInputElement).type)))) return;
+      e.preventDefault();
+      if (t?.closest(`#${asideId}`)) { setFsPanel(false); focusIn('[data-testid="fs-controls"]'); }
+      else if (t?.closest(`#${explainId}`)) { setFsExplain(false); focusIn('[data-testid="fs-explain"]'); }
+      else exitFs();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [immersive, exitFs, asideId, explainId]);
+  const stagePos = stageId ? `Stage ${STAGES.findIndex((s) => s.id === stageId) + 1} of ${STAGES.length}` : walk !== null ? `Step ${walk + 1} of ${walkSteps.length}` : null;
+  const idleHint = sceneId === "flex"
+    ? view === "gravity" ? "Step through the burn in both environments at once: press Play, or start at stage 1." : "Step through the burn stage by stage: press Play, or start at stage 1."
+    : "Step through ignition, spread and the end of spread: press Play, or start at stage 1.";
+  const panelCls = immersive
+    ? `absolute z-[70] flex flex-col overflow-hidden border-line-strong/80 bg-panel/95 shadow-[0_0_60px_-10px_rgba(0,0,0,0.9)] backdrop-blur-md transition-transform duration-300 ease-out motion-reduce:transition-none inset-x-0 bottom-0 h-[72dvh] rounded-t-2xl border-t sm:inset-x-auto sm:bottom-0 sm:right-0 sm:top-0 sm:h-auto sm:w-[min(430px,90vw)] sm:rounded-none sm:border-l sm:border-t-0 ${
+      fsPanel ? "translate-y-0 sm:translate-x-0" : "translate-y-full sm:translate-x-full sm:translate-y-0"}`
+    : "min-w-0 rounded-2xl border border-line/80 bg-panel/90";
+  // Mode and View: above the viewport on the page, at the top of the setup drawer in fullscreen (never both).
+  const modeView = (
+    <>
+      <div className="flex flex-col gap-1">
+        <Segmented label="Mode" value={mode} onChange={(v) => { setParams({ mode: v === "evidence" ? "evidence" : null }); if (v === "evidence") setTab("evidence"); }}
+          options={[["conceptual", MODES.conceptual.label], ["evidence", MODES.evidence.label]]} />
+        <p className="max-w-[44ch] text-[12px] leading-snug text-text-3" data-testid="mode-note">
+          <span className={viewMode === "conceptual" ? "text-warn" : "text-data"}>{MODES[viewMode].banner}</span>{" "}
+          <span className="whitespace-nowrap">What these mean: <Term id="conceptual-visualization">Conceptual</Term> · <Term id="nasa-evidence">NASA Evidence</Term></span>
+        </p>
+      </div>
+      <Segmented label="View" value={view} onChange={(v) => { setParams({ view: v === views[0][0] ? null : v }); if (v === "nasa") setTab("evidence"); else if (v !== views[0][0] && tabs.some(([t]) => t === "compare")) setTab("compare"); }}
+        options={views} />
+    </>
+  );
+
   return (
+    <ImmersiveProvider value={immersive ? chrome : null}>
     <section id="studio" ref={section} aria-labelledby={`${sceneId}-studio-title`} data-testid="science-studio"
-      className="relative isolate scroll-mt-28 overflow-hidden rounded-2xl border border-line/60 bg-panel/40 p-3 md:p-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      data-immersive={immersive ? fs.mode : undefined} data-chrome="shown" tabIndex={immersive ? -1 : undefined}
+      className={immersive
+        ? `fixed inset-0 z-[80] m-0 h-[100dvh] w-full max-w-none overflow-hidden rounded-none border-0 bg-void p-0 outline-none ${fsPanel ? "sm:[--fs-right:min(430px,90vw)]" : ""}`
+        : "relative isolate scroll-mt-28 overflow-hidden rounded-2xl border border-line/60 bg-panel/40 p-3 md:p-5"}>
+      {immersive && <p className="sr-only" role="status">Fullscreen 3D view. Controls hide after a few seconds without input; move the pointer, tap the scene or press any key to show them. Press Escape to exit.</p>}
+      <div className="flex flex-wrap items-end justify-between gap-3" hidden={immersive}>
         <div className="max-w-[70ch]">
           <h2 id={`${sceneId}-studio-title`} className="subhead text-[22px] md:text-[26px]">Explore it in 3D</h2>
           <p className="mt-1 text-[14.5px] leading-relaxed text-text-2">{scene.blurb}</p>
         </div>
-        <button type="button" onClick={startTour} data-testid="start-tour" hidden={!!jStep}
-          className="press glow-flame inline-flex min-h-10 items-center gap-2 rounded-lg bg-flame px-4 text-[14.5px] font-semibold text-flame-ink">
-          <Icon name="chevron" />Start guided exploration
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => setControlsShown(!controlsShown)} aria-expanded={controlsShown} aria-controls={asideId} data-testid="toggle-controls"
+              className="press inline-flex min-h-10 items-center gap-2 rounded-lg border border-line-strong px-3 text-[13.5px] text-text-2 hover:border-electric hover:text-text">
+              <Icon name="panel-right" size={17} />{controlsShown ? "Hide controls" : "Show controls"}
+            </button>
+            <button ref={fsButton} type="button" onClick={enterFullscreen} data-testid="enter-fullscreen"
+              className="press inline-flex min-h-10 items-center gap-2 rounded-lg border border-flame/60 px-3 text-[13.5px] text-text hover:bg-flame/10">
+              <Icon name="fullscreen" size={17} />Fullscreen
+            </button>
+            <button type="button" onClick={startTour} data-testid="start-tour" hidden={!!jStep}
+              className="press glow-flame inline-flex min-h-10 items-center gap-2 rounded-lg bg-flame px-4 text-[14.5px] font-semibold text-flame-ink">
+              <Icon name="chevron" />Start guided exploration
+            </button>
+        </div>
       </div>
 
-      {jStep && jCopy && (
+      {jStep && jCopy && !immersive && (
         <JourneyCard step={jStep} topic={TOPIC[sceneId]} title={jCopy.title} task={jCopy.task} done={jDone} onAction={jAction} actionLabel={jCopy.action} className="mt-4">
           <p>{jCopy.body}</p>
         </JourneyCard>
       )}
 
-      <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-3">
-        <Segmented label="Mode" value={mode} onChange={(v) => { setParams({ mode: v === "evidence" ? "evidence" : null }); if (v === "evidence") setTab("evidence"); }}
-          options={[["conceptual", MODES.conceptual.label], ["evidence", MODES.evidence.label]]} />
-        <p className="pb-1.5 text-[12.5px] text-text-3">What these mean: <Term id="conceptual-visualization">Conceptual</Term> · <Term id="nasa-evidence">NASA Evidence</Term></p>
-        <Segmented label="View" value={view} onChange={(v) => { setParams({ view: v === views[0][0] ? null : v }); if (v === "nasa") setTab("evidence"); else if (v !== views[0][0] && tabs.some(([t]) => t === "compare")) setTab("compare"); }}
-          options={views} />
-      </div>
+      {!immersive && (
+        <div className="mt-4 flex flex-wrap items-start gap-x-6 gap-y-3">
+          {modeView}
+        </div>
+      )}
 
       {/* In "Compare with NASA" the model and the NASA media share the full width; the studio panel moves below. */}
-      <div className={`mt-4 grid gap-4 ${nasaView ? "" : "lg:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[minmax(0,1fr)_430px]"}`}>
-        <div className="flex min-w-0 flex-col gap-3">
-          <div className={nasaView ? "grid gap-3 lg:grid-cols-2" : ""}>
-          <div className={nasaView ? "min-w-0 lg:sticky lg:top-[128px] lg:self-start" : "min-w-0"}>
-          {nasaView && <p className="mb-1.5 text-[12px] font-semibold uppercase tracking-wide text-text-3" data-testid="model-label">3D conceptual model</p>}
-          <div className="relative h-[58vh] min-h-[360px] overflow-hidden rounded-2xl border border-line/80 bg-[radial-gradient(120%_90%_at_50%_45%,rgba(30,52,90,0.55),rgba(5,10,20,0.98)_70%)] lg:h-[min(72vh,700px)]">
+      <div data-testid="studio-layout" data-controls={controlsShown ? "shown" : "hidden"}
+        className={immersive ? "absolute inset-0" : `mt-4 grid gap-4 ${nasaView || !controlsShown ? "" : "lg:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[minmax(0,1fr)_430px]"}`}>
+        <div className={immersive ? "absolute inset-y-0 left-0 right-[var(--fs-right,0px)]" : "flex min-w-0 flex-col gap-3"}>
+          <div className={nasaView ? `grid gap-3 lg:grid-cols-2 ${immersive ? "h-full grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-0 lg:grid-rows-1" : ""}` : immersive ? "h-full" : ""}>
+          <div className={immersive ? "relative h-full min-h-0 min-w-0" : nasaView ? "min-w-0 lg:sticky lg:top-[128px] lg:self-start" : "min-w-0"}>
+          {nasaView && !immersive && <p className="mb-1.5 text-[12px] font-semibold uppercase tracking-wide text-text-3" data-testid="model-label">3D conceptual model</p>}
+          <div data-testid="viewport-box" className={`relative overflow-hidden bg-[radial-gradient(120%_90%_at_50%_45%,rgba(30,52,90,0.55),rgba(5,10,20,0.98)_70%)] ${immersive
+            ? "h-full w-full" : "h-[58vh] min-h-[360px] rounded-2xl border border-line/80 lg:h-[min(72vh,700px)]"}`}>
+            {nasaView && immersive && <p className="pointer-events-none absolute left-3 top-[84px] z-30 rounded-full border border-line-strong/70 bg-void/75 px-2.5 py-0.5 text-[11.5px] font-semibold uppercase tracking-wide text-text-2" data-testid="model-label">3D conceptual model</p>}
             <div aria-hidden className="tech-grid pointer-events-none absolute inset-0 opacity-60" />
             <div className="absolute inset-0" hidden={!showViewport}>
               {staticView ? (
                 <SceneFallback scene={scene} reason="user" onRetry={() => setStaticView(false)} />
               ) : (
                 <ViewportBoundary fallback={<SceneFallback scene={scene} reason="error" />}>
-                  <StudioViewport sceneId={sceneId} mode={split && view === "gravity" ? "conceptual" : mode} animate={motionOn || tlPlaying}
+                  <StudioViewport sceneId={sceneId} mode={viewMode} animate={motionOn || tlPlaying}
                     measuredLabel={measuredLabel} onStatic={() => setStaticView(true)} cameraRef={setCam} single={single} split={split}
                     legend={LEGEND[sceneId]} timeline={timelineOn ? timeline : null} presets={presets}
-                    stageChip={activeInfo ? `${stageId ? `Stage ${STAGES.findIndex((s) => s.id === stageId) + 1} of ${STAGES.length}` : `Step ${(walk ?? 0) + 1} of ${walkSteps.length}`} · ${activeInfo.title}` : null} />
+                    immersive={immersive} labelsOn={labelsEff !== "off"} onLabels={toggleLabels}
+                    stageChip={activeInfo && stagePos ? `${stagePos} · ${activeInfo.title}` : null} />
                 </ViewportBoundary>
               )}
             </div>
             {sceneId === "saffire" && view === "footage" && (
-              <div id="footage" className="absolute inset-0 scroll-mt-28 overflow-y-auto p-4" data-testid="footage-view">
+              <div id="footage" className={`absolute inset-0 scroll-mt-28 overflow-y-auto p-4 ${immersive ? "pb-[140px] pt-[92px]" : ""}`} data-testid="footage-view">
                 <p className="mb-3 rounded-lg border border-data/40 bg-void/70 px-3 py-2 text-[12.5px] text-text-2">NASA&apos;s public footage of the real Saffire-I burn. Nothing loads until you press play. The 3D view is not reconstructed from these frames.</p>
                 <div className="grid gap-5 xl:grid-cols-2">
                   <MediaPanelBlock id="saffire1-burn-animation">
@@ -532,31 +650,35 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
               </div>
             )}
             {sceneId === "saffire" && view === "data" && (
-              <div className="absolute inset-0 overflow-y-auto bg-ink/80 p-4" data-testid="data-view">
+              <div className={`absolute inset-0 overflow-y-auto bg-ink/80 p-4 ${immersive ? "pb-[140px] pt-[92px]" : ""}`} data-testid="data-view">
                 <SaffireEvidence scene={scene} burn={burn} detail={detail} />
               </div>
             )}
             {tourIdx !== null && (
-              <div className="pointer-events-none absolute inset-x-3 bottom-16 z-40 hidden lg:block lg:max-w-[440px]">
+              <div data-immersive-panel data-hover-hold className={`pointer-events-none absolute inset-x-3 z-40 lg:max-w-[440px] ${immersive ? "bottom-[180px] block sm:bottom-[112px]" : "bottom-16 hidden lg:block"}`}>
                 <GuidedTour steps={steps} index={tourIdx} onIndex={(i) => applyStep(i)} onClose={() => setTourIdx(null)} taskDone={taskDone} />
               </div>
             )}
           </div>
           </div>
           {nasaView && (
+            <div className={immersive ? "min-h-0 overflow-y-auto border-line-strong/60 bg-ink/95 p-3 pb-[150px] max-lg:border-t lg:border-l lg:pt-[92px]" : "contents"}>
             <EvidenceCompare sceneId={sceneId} detail={detail}
               fuel={sceneId === "flex" ? (flexMeasured?.fuel ?? flex.fuel) : null}
               sample={sceneId === "bass" ? (bassSampleOf(detail?.normalized.material_class as string) ?? bass.sample) : null}
               onExample={sceneId === "saffire" ? undefined : () => setParams({ record: EXAMPLE_RECORD[TOPIC[sceneId]] })}
               exampleLabel={sceneId === "flex" ? "Use example test C02H101" : "Use example test M7"} />
+            </div>
           )}
           </div>
+          {split?.note && !immersive && <p className="-mt-1 text-[12.5px] leading-snug text-text-2" data-testid="split-note">{split.note}</p>}
           {tourIdx !== null && (
-            <div className="lg:hidden">
+            <div className="lg:hidden" hidden={immersive}>
               <GuidedTour steps={steps} index={tourIdx} onIndex={(i) => applyStep(i)} onClose={() => setTourIdx(null)} taskDone={taskDone} />
             </div>
           )}
           {timelineOn && (
+            <div hidden={immersive} className="contents">
             <TimelineBar store={timeline} stages={sceneId === "flex" ? FLEX_STAGES : BASS_STAGES}
               title={sceneId === "flex" ? "Guided burn timeline" : "Flame-spread timeline"}
               caveat={sceneId === "flex" ? "Illustrative sequence — not a NASA test's timing" : "Illustrative progression — not measured flame-front motion"}
@@ -571,19 +693,31 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
                 <StageExplainer stageId={stageId} order={STAGES.map((s) => s.id)} info={stageInfo} selected={selected} follow={follow} setFollow={setFollow}
                   onStart={() => goToStage(timeline, STAGES, 0)} onInspect={(id) => select(id)} extra={stageExtra}
                   gravity={gravityStage} whyDifferent={whyDifferent} setWhyDifferent={setWhyDifferent}
-                  idleHint={sceneId === "flex"
-                    ? view === "gravity" ? "Step through the burn in both environments at once: press Play, or start at stage 1." : "Step through the burn stage by stage: press Play, or start at stage 1."
-                    : "Step through ignition, spread and the end of spread: press Play, or start at stage 1."} />
+                  idleHint={idleHint} />
               )}
             </TimelineBar>
+            </div>
           )}
           {sceneId === "saffire" && (
+            <div hidden={immersive} className="contents">
             <SaffireWalkthrough steps={walkSteps} index={walk} setIndex={setWalk} onInspect={(id) => select(id)} selected={selected}
               follow={follow} setFollow={setFollow} onFootage={() => setParams({ view: "footage" })} />
+            </div>
           )}
         </div>
 
-        <aside aria-label={`${scene.source} studio panel`} className="min-w-0 rounded-2xl border border-line/80 bg-panel/90">
+        <aside id={asideId} aria-label={`${scene.source} studio panel`} data-testid="studio-panel" data-immersive-panel={immersive ? "" : undefined}
+          hidden={!immersive && !controlsShown} inert={immersive && !fsPanel} className={panelCls}>
+          {immersive && (
+            <div className="flex flex-col gap-3 border-b border-line/70 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="subhead text-[15px]">Setup</h3>
+                <button type="button" onClick={closeFsPanel} aria-label="Close controls" title="Close controls" data-testid="fs-panel-close"
+                  className="press grid h-9 w-9 place-items-center rounded-lg text-text-2 hover:bg-raised/60 hover:text-text"><Icon name="close" size={16} /></button>
+              </div>
+              {modeView}
+            </div>
+          )}
           <div className="flex items-center justify-between border-b border-line/70 px-3 pt-2">
             <div role="tablist" aria-label="Studio panel sections" className="flex gap-1 overflow-x-auto [scrollbar-width:none]">
               {tabs.map(([id, label], i) => (
@@ -594,12 +728,12 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
                 </button>
               ))}
             </div>
-            <button type="button" className="press ml-2 shrink-0 rounded-md px-2 py-1 text-[12px] text-text-3 hover:text-text lg:hidden" aria-expanded={panelOpen}
+            <button type="button" hidden={immersive} className="press ml-2 shrink-0 rounded-md px-2 py-1 text-[12px] text-text-3 hover:text-text lg:hidden" aria-expanded={panelOpen}
               onClick={() => setPanelOpen((o) => !o)}>{panelOpen ? "Collapse" : "Expand"}</button>
           </div>
           {tabs.map(([id]) => (
-            <div key={id} id={`${sceneId}-panel-${id}`} role="tabpanel" aria-labelledby={`${sceneId}-tab-${id}`} hidden={tab !== id || !panelOpen}
-              className="max-h-none overflow-y-auto p-4 lg:max-h-[min(80vh,860px)]">
+            <div key={id} id={`${sceneId}-panel-${id}`} role="tabpanel" aria-labelledby={`${sceneId}-tab-${id}`} hidden={tab !== id || (!panelOpen && !immersive)}
+              className={immersive ? "min-h-0 flex-1 overflow-y-auto overscroll-contain p-4" : "max-h-none overflow-y-auto p-4 lg:max-h-[min(80vh,860px)]"}>
               {id === "explore" && (
                 <ControlPanel scene={sceneId} mode={mode} common={commonView} setCommon={setCommon} flex={flex} setFlex={setFlex}
                   bass={bass} setBass={setBass} saffire={saffire} setSaffire={setSaffire} onReset={resetParams} onStatic={() => setStaticView(true)} locked={locked}
@@ -649,13 +783,13 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
               {id === "compare" && sceneId === "flex" && (
                 <div className="flex flex-col gap-4">
                   <Segmented label="Comparison" value={view === "gravity" ? "gravity" : "fuels"} onChange={(v) => setParams({ view: v })}
-                    options={[["fuels", "Compare fuels"], ["gravity", "Earth vs microgravity"]]} />
+                    options={[["fuels", "Compare fuels"], ["gravity", "Earth vs Microgravity"]]} />
                   {view === "gravity" ? (
                     <div className="flex flex-col gap-3 text-[13.5px] text-text-2" data-testid="gravity-compare">
-                      <p>Left: the conceptual microgravity flame, a near-spherical shell fed by diffusion. Right: the same droplet with buoyancy, where hot gas rises, the flame stretches into a teardrop and an updraft replaces radial inflow.</p>
+                      <p>Left, Earth: the same droplet with buoyancy, where hot gas rises, the flame stretches into a teardrop and an updraft replaces radial inflow. Right, microgravity: the conceptual flame, a near-spherical shell fed by diffusion.</p>
                       <MediaFigure id="flex-1g-vs-microgravity" aspect="3 / 4" fit="contain" compact sizes="260px" className="max-w-[240px]"
-                        caption="NASA FLEX comparison: microgravity flame (top, ISS) vs 1 g flame (bottom). Real imagery; the 3D views are conceptual." />
-                      <p className="text-[12.5px] text-text-3">The 1 g side is a conceptual comparison, not a FLEX measurement: every FLEX test ran in microgravity. A microgravity flame is not spherical under every condition; any forced flow or drift breaks the symmetry.</p>
+                        caption="NASA FLEX comparison: microgravity flame (top, ISS) vs a flame on Earth (bottom). Real imagery; the 3D views are conceptual." />
+                      <p className="text-[12.5px] text-text-3">The Earth side is a conceptual comparison, not a FLEX measurement: every FLEX test ran in microgravity. A microgravity flame is not spherical under every condition; any forced flow or drift breaks the symmetry.</p>
                     </div>
                   ) : (
                     <FuelCompare left={fuelsLR[0]} right={fuelsLR[1]} setLeft={(f) => setFuelsLR([f, fuelsLR[1]])} setRight={(f) => setFuelsLR([fuelsLR[0], f])}
@@ -668,6 +802,43 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
           ))}
         </aside>
       </div>
+
+      {/* Phase 11: fullscreen overlays. The top bar and playback bar auto-hide; the explanation stays until closed. */}
+      {immersive && (
+        <>
+          <ImmersiveTopBar title={scene.title} source={scene.source}
+            modeLabel={viewMode === "conceptual" ? "Conceptual 3D · illustrative, not measured" : "NASA Evidence · 3D geometry illustrative unless marked measured"}
+            modeTone={viewMode === "conceptual" ? "warn" : "data"}
+            context={split?.note ?? (viewMode === "evidence" && measuredLabel ? `Drawn to measured size: ${measuredLabel}` : null)}
+            controlsOpen={fsPanel} onControls={toggleFsPanel} explainOpen={fsExplain} onExplain={() => setFsExplain((o) => !o)}
+            labelsOn={labelsEff !== "off"} onLabels={toggleLabels} onExit={exitFs} panelId={asideId} explainId={explainId} />
+          <ImmersiveNotice text={fs.notice} />
+          {timelineOn ? (
+            <ImmersivePlayback store={timeline} stages={STAGES}
+              caveat={sceneId === "flex" ? "Illustrative sequence — not a NASA test's timing" : "Illustrative progression — not measured flame-front motion"} />
+          ) : (
+            <ImmersiveWalkBar steps={walkSteps} index={walk} setIndex={setWalk} />
+          )}
+          {fsExplain && (
+            <ExplanationOverlay id={explainId} info={activeInfo} position={stagePos} gravity={gravityStage} extra={stageExtra}
+              modeNote={split?.note ?? MODES[viewMode].banner} onClose={() => { setFsExplain(false); focusIn('[data-testid="fs-explain"]'); }}
+              idle={timelineOn ? (
+                <div className="flex flex-col items-start gap-2">
+                  <p>{idleHint}</p>
+                  <button type="button" onClick={() => goToStage(timeline, STAGES, 0)} data-testid="fs-explain-start"
+                    className="press inline-flex min-h-9 items-center rounded-lg border border-flame/60 px-3 text-[13px] text-text hover:bg-flame/10">Start at stage 1</button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-start gap-2">
+                  <p>Five short steps through the experiment, its diagnostics and what the evidence can show.</p>
+                  <button type="button" onClick={() => setWalk(0)} data-testid="fs-explain-start"
+                    className="press inline-flex min-h-9 items-center rounded-lg border border-flame/60 px-3 text-[13px] text-text hover:bg-flame/10">Start the walkthrough</button>
+                </div>
+              )} />
+          )}
+        </>
+      )}
     </section>
+    </ImmersiveProvider>
   );
 }

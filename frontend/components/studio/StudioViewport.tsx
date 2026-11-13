@@ -13,6 +13,7 @@ import type { BassSceneProps, FlexSceneProps, SaffireSceneProps } from "@/compon
 import { hasWebGL, labStats } from "@/components/3d/webgl";
 import { Icon } from "@/components/icons";
 import { useMedia } from "@/components/motion";
+import { useImmersiveHold } from "@/components/studio/immersive";
 import { SCENE_BY_ID, type SceneId } from "@/lib/lab-models";
 import { MODES, type Mode } from "@/lib/lab-scientific-metadata";
 import { CAMERA_HOME } from "@/lib/studio-camera";
@@ -80,9 +81,14 @@ export type StudioViewportProps = {
   legend: LegendItem[];
   timeline: TimelineStore | null;
   presets?: { id: string; label: string; onSelect: () => void }[];
+  /** Phase 11: fullscreen studio. Overlay controls move clear of the playback bar and fade with the chrome. */
+  immersive?: boolean;
+  /** Phase 11: component labels on/off (the Part labels toggle). */
+  labelsOn?: boolean;
+  onLabels?: () => void;
 };
 
-export default function StudioViewport({ sceneId, mode, animate, measuredLabel, onStatic, cameraRef, single, split, legend, timeline, presets, stageChip }: StudioViewportProps) {
+export default function StudioViewport({ sceneId, mode, animate, measuredLabel, onStatic, cameraRef, single, split, legend, timeline, presets, stageChip, immersive = false, labelsOn = true, onLabels }: StudioViewportProps) {
   // Phones: a comparison is stacked (top / bottom) instead of two narrow halves; same canvas and camera.
   const stacked = useMedia("(max-width: 639px)");
   const [webgl] = useState(hasWebGL);
@@ -93,6 +99,7 @@ export default function StudioViewport({ sceneId, mode, animate, measuredLabel, 
   const helpId = useId();
   const s = SCENE_BY_ID[sceneId];
   const onLost = useCallback(() => setLost((n) => n + 1), []);
+  useImmersiveHold("legend", legendOpen);     // an open colour key keeps the fullscreen controls shown
 
   // keep both the parent's ref and a local handle for the toolbar
   const bindCam = useCallback((api: CameraApi | null) => {
@@ -141,46 +148,57 @@ export default function StudioViewport({ sceneId, mode, animate, measuredLabel, 
       {split && !failed && (
         <>
           <div aria-hidden className={`pointer-events-none absolute z-20 bg-line-strong/80 ${stacked ? "inset-x-0 top-1/2 h-px" : "inset-y-0 left-1/2 w-px"}`} />
-          <div className={`pointer-events-none absolute inset-0 z-30 px-3 text-center ${stacked ? "" : "grid grid-cols-2 items-start pt-[64px]"}`}
+          <div className={`pointer-events-none absolute inset-0 z-30 px-3 text-center ${stacked ? "" : `grid grid-cols-2 items-start ${immersive ? "pt-[92px]" : "pt-[52px]"}`}`}
             data-testid="split-captions" data-layout={stacked ? "stacked" : "side-by-side"} aria-label="Both views share one camera">
-            <p className={`mx-auto w-fit rounded-full border border-line-strong/80 bg-void/80 px-3 py-0.5 text-[12.5px] font-medium text-text backdrop-blur-md ${stacked ? "absolute left-3 top-[calc(50%-34px)]" : ""}`}>{split.leftLabel}</p>
-            <p className={`mx-auto w-fit rounded-full border border-line-strong/80 bg-void/80 px-3 py-0.5 text-[12.5px] font-medium text-text backdrop-blur-md ${stacked ? "absolute left-3 top-[calc(50%+8px)]" : ""}`}>{split.rightLabel}</p>
+            <p className={`w-fit rounded-full border border-line-strong/80 bg-void/80 px-3 py-0.5 text-[12.5px] font-medium text-text backdrop-blur-md ${stacked ? "absolute left-3 top-[calc(50%-34px)]" : "mr-2 justify-self-end"}`}>{split.leftLabel}</p>
+            <p className={`w-fit rounded-full border border-line-strong/80 bg-void/80 px-3 py-0.5 text-[12.5px] font-medium text-text backdrop-blur-md ${stacked ? "absolute left-3 top-[calc(50%+8px)]" : "ml-2 justify-self-start"}`}>{split.rightLabel}</p>
           </div>
-          {split.note && <p className="absolute bottom-[60px] left-1/2 z-30 w-[min(92%,560px)] -translate-x-1/2 rounded-md bg-void/80 px-2.5 py-1 text-center text-[11.5px] text-text-2 backdrop-blur-md md:bottom-[64px]" data-testid="split-note">{split.note}</p>}
         </>
       )}
 
-      {/* mode banner: always visible so the scene can never be mistaken for measured output */}
-      <div className="pointer-events-none absolute left-3 right-3 top-3 z-30 flex flex-wrap items-start justify-between gap-2">
-        <p data-testid="mode-banner" className={`max-w-[46ch] rounded-lg border px-2.5 py-1.5 text-[12px] font-medium leading-snug backdrop-blur-md ${
-          mode === "conceptual" ? "border-warn/50 bg-void/75 text-warn" : "border-data/50 bg-void/75 text-data"}`}>
-          {MODES[mode].banner}{mode === "evidence" && measuredLabel && <span className="mt-0.5 block font-normal text-text-2">Drawn to measured size: {measuredLabel}</span>}
-        </p>
-        <span className="flex flex-col items-end gap-1.5">
-          <span className="rounded-full border border-line-strong/70 bg-void/70 px-2.5 py-0.5 text-[11.5px] text-text-2 backdrop-blur-md">{s.scale}</span>
-          {stageChip && <span aria-hidden className="rounded-full border border-flame/60 bg-void/80 px-2.5 py-0.5 text-[11.5px] font-medium text-text backdrop-blur-md" data-testid="stage-chip">{stageChip}</span>}
-        </span>
-      </div>
+      {/* Phase 11: a compact mode label replaces the large banner. The full statement sits beside the Mode control
+          (normal page) and in the fullscreen top bar and explanation overlay; measured values stay labelled here. */}
+      {!immersive && (
+        <div className="pointer-events-none absolute left-3 right-3 top-3 z-30 flex flex-wrap items-start justify-between gap-2">
+          <p data-testid="mode-chip" title={MODES[mode].banner} className={`max-w-[46ch] rounded-lg border px-2 py-1 text-[11.5px] font-medium leading-snug backdrop-blur-md ${
+            mode === "conceptual" ? "border-warn/50 bg-void/70 text-warn" : "border-data/50 bg-void/70 text-data"}`}>
+            {mode === "conceptual" ? "Conceptual 3D" : "NASA Evidence"}<span className="sr-only">: {MODES[mode].banner}</span>
+            {mode === "evidence" && measuredLabel && <span className="mt-0.5 block font-normal text-text-2" data-testid="measured-label">Drawn to measured size: {measuredLabel}</span>}
+          </p>
+          <span className="flex flex-col items-end gap-1.5">
+            <span className="rounded-full border border-line-strong/70 bg-void/70 px-2.5 py-0.5 text-[11.5px] text-text-2 backdrop-blur-md">{s.scale}</span>
+            {stageChip && <span aria-hidden className="rounded-full border border-flame/60 bg-void/80 px-2.5 py-0.5 text-[11.5px] font-medium text-text backdrop-blur-md" data-testid="stage-chip">{stageChip}</span>}
+          </span>
+        </div>
+      )}
 
       {!failed && (
         <>
           {presets && presets.length > 0 && (
-            <div className="absolute left-3 top-[86px] z-30 flex max-w-[60%] flex-wrap gap-1.5" role="toolbar" aria-label="Camera presets">
+            <div data-chrome-item className={`sf-chrome absolute left-3 z-30 flex max-w-[60%] flex-wrap gap-1.5 ${immersive ? "top-[92px] max-sm:hidden" : "top-[48px]"}`} role="toolbar" aria-label="Camera presets">
               {presets.map((p) => (
                 <button key={p.id} type="button" onClick={p.onSelect}
                   className="press rounded-full border border-line-strong/80 bg-void/75 px-2.5 py-1 text-[12px] text-text-2 backdrop-blur-md hover:border-electric hover:text-text">{p.label}</button>
               ))}
             </div>
           )}
-          <div className="absolute bottom-3 left-3 z-30 flex flex-col items-start gap-1.5">
+          <div data-chrome-item data-hover-hold className={`sf-chrome absolute left-3 z-30 flex flex-col items-start gap-1.5 ${immersive ? "bottom-[164px] sm:bottom-[112px]" : "bottom-3"}`}>
             {legendOpen && <div className="max-w-[230px]" id={`${helpId}-legend`}><ModelLegend items={legend} /></div>}
-            <button type="button" aria-expanded={legendOpen} aria-controls={`${helpId}-legend`} onClick={() => setLegendOpen((o) => !o)}
-              className="press rounded-lg border border-line-strong/80 bg-void/70 px-2.5 py-1 text-[12px] text-text-2 backdrop-blur-md hover:text-text">
-              {legendOpen ? "Hide key" : "Colour key"}
-            </button>
+            <span className="flex gap-1.5">
+              <button type="button" aria-expanded={legendOpen} aria-controls={`${helpId}-legend`} onClick={() => setLegendOpen((o) => !o)}
+                className="press min-h-8 rounded-lg border border-line-strong/80 bg-void/70 px-2.5 py-1 text-[12px] text-text-2 backdrop-blur-md hover:text-text">
+                {legendOpen ? "Hide key" : "Colour key"}
+              </button>
+              {onLabels && !immersive && (
+                <button type="button" aria-pressed={labelsOn} onClick={onLabels} data-testid="labels-toggle"
+                  className={`press inline-flex min-h-8 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[12px] backdrop-blur-md ${labelsOn ? "border-electric/70 bg-electric/15 text-text" : "border-line-strong/80 bg-void/70 text-text-2 hover:text-text"}`}>
+                  <Icon name="tag" size={14} />Part labels
+                </button>
+              )}
+            </span>
           </div>
-          <div className="absolute bottom-3 right-3 z-30 flex flex-col items-end gap-2">
-            {!split && (
+          <div data-chrome-item data-hover-hold className={`sf-chrome absolute right-3 z-30 flex flex-col items-end gap-2 ${immersive ? "bottom-[164px] sm:bottom-[112px]" : "bottom-3"}`}>
+            {!split && !immersive && (
               <p className="hidden rounded-md bg-void/70 px-2 py-1 text-[11.5px] text-text-3 backdrop-blur-md md:block">
                 Drag to rotate · Scroll or pinch to zoom · Select a component to inspect
               </p>

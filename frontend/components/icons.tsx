@@ -20,6 +20,17 @@ const P: Record<string, string> = {
   empty: "M4 7h16v12H4zM4 7l2-3h12l2 3M9 12h6",
   chevron: "M9 6l6 6-6 6",
   lab: "M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12L4 7.5",
+  // Phase 11: immersive studio and collapsible navigation
+  sliders: "M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1M15 4v4M9 10v4M17 16v4",
+  info: "M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0M12 11v5M12 8h.01",
+  tag: "M3 12V4h8l10 10-8 8zM7.5 7.5h.01",
+  fullscreen: "M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5",
+  "fullscreen-exit": "M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5",
+  play: "M7 5v14l12-7z",
+  pause: "M8 5v14M16 5v14",
+  restart: "M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4",
+  sidebar: "M4 5h16v14H4zM9 5v14",
+  "panel-right": "M4 5h16v14H4zM15 5v14",
 };
 
 export function Icon({ name, size = 16, className = "" }: { name: keyof typeof P | string; size?: number; className?: string }) {
