@@ -20,6 +20,27 @@
    The demo state lives in the browser tab (sessionStorage), so a reload keeps the current step and closing the tab ends
    the demo.
 
+## Phase 16 additions
+
+- **Research-to-Safety entry** (`/safety-explorer`): four image cards. Each has "Start guided exploration", which jumps
+  straight to that journey's evidence step (3).
+- **Combustion & Fire Science Explorer** (`/experiments`): "Start guided exploration" runs a six-step guide.
+  1. Domain
+  2. Dataset
+  3. Filtered records
+  4. A record with its source
+  5. Chart or 3D
+  6. Copilot draft
+
+  Demo tip: Gaseous Flame Dynamics → ACME CFI-G → normal, n-butane → test 21174C3 → CFI-G charts → Copilot.
+- **Studios:** in the Gaseous Flame and Smoke Detection studios, press "Start guided exploration" for the staged
+  timeline: Play/Pause, Prev/Next, slider and speed. Its stages are conceptual. In the gas studio, select a Table 3 event
+  before the "Extinction or transition" stage to show a measured cool flame.
+- **Talking point on honesty:** the Explorer labels every collection with its evidence level. Flame Design is "conditions
+  only", BRE is "day-level summary", PSI-117 is "figure data, series not tests", FLEX-2 is a plan and PSI-62 is
+  metadata only.
+- **Estimator:** now "Exploratory FLEX Burn-Time Estimator" under Advanced research tools, with its validation shown.
+
 ## The five steps
 
 | Step | Page | What to show |

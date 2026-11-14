@@ -17,7 +17,13 @@ async function workspace(page: Page, path: string) {
   await page.goto(path);
   await expect(page.getByTestId("explorer-workspace")).toBeVisible({ timeout: 30_000 });
 }
+/** Phase 16: condition filters sit in a collapsible "Refine by experimental conditions" section. */
+async function openFilters(page: Page) {
+  const t = page.getByTestId("filters-toggle");
+  if ((await t.getAttribute("aria-expanded")) === "false") await t.click();
+}
 async function pick(page: Page, testid: string, value: string) {
+  await openFilters(page);
   const resp = page.waitForResponse((r) => r.url().includes("/api/v1/explorer/scenarios/") && r.status() === 200);
   await page.getByTestId(testid).selectOption(value);
   await resp;

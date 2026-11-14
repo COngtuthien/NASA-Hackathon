@@ -10,6 +10,7 @@ test("Explorer fits a phone screen and filters still work", async ({ page }) => 
   await page.getByTestId("scenario-card-gaseous-flames").click();
   await expect(page.getByTestId("explorer-workspace")).toBeVisible({ timeout: 30_000 });
   const resp = page.waitForResponse((r) => r.url().includes("/api/v1/explorer/scenarios/") && r.status() === 200);
+  await page.getByTestId("filters-toggle").click();
   await page.getByTestId("filter-configuration").selectOption("flow:inverse");
   await resp;
   await expect(page.getByTestId("evidence-summary")).toContainText("inverse flames");

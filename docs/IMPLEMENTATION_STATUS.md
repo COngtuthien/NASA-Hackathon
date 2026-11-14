@@ -1,5 +1,27 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 16 — Scientific Explorer Expansion & Guided Visualization Refinement (branch `feature/spacefire-phase16-visual-exploration`, 2026-11-14): COMPLETE (with the limits listed)
+Base `7f4c5c9` (Phase 15). Rollback: `backup/spacefire-before-phase16`.
+- Done:
+  - Combustion & Fire Science Explorer: five domains and all ten investigations at their real evidence level (measured,
+    conditions only, day summary, log, report-derived, figure series, plan, metadata), with dataset-specific filters,
+    record pages with provenance, compatible-only comparison, a six-step guided exploration, and two-way links with
+    Research-to-Safety.
+  - Guided timelines in the Gaseous Flame and Smoke Detection studios (FLEX timeline reused; the scene follows the stages).
+  - A visual-first Research-to-Safety entry and progressive scenario pages, with a guided start per scenario.
+  - CFI-G similarity, scoped to one configuration.
+  - Media coverage audit and panel.
+  - The predictor is retained as the Exploratory FLEX Burn-Time Estimator under "Advanced research tools" (no pooling).
+- Tests, all on the final build:
+  - Backend 265 passed.
+  - Browser 208 tests, 207 passed and 1 skipped (live LLM).
+  - tsc/eslint clean; build OK.
+- Limits:
+  - No similarity for non-test collections.
+  - Five investigations without verified media.
+  - Estimator median error about 35 %.
+  - Details: `docs/PHASE16_*.md`.
+
 ## Phase 15 — Final Demo Experience, UX Polish & Scientific Validation (branch `feature/spacefire-phase15-final-demo`, 2026-11-14): COMPLETE (with the limits listed)
 Base `10e9d6a` (Phase 14). Rollback: `backup/spacefire-before-phase15`.
 - Done:

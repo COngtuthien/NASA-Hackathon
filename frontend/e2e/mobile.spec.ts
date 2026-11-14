@@ -8,8 +8,8 @@ test("mobile navigation drawer opens, navigates and has no horizontal page scrol
   await page.getByRole("button", { name: "Open navigation" }).click();
   const drawer = page.getByRole("dialog", { name: "Navigation" });
   await expect(drawer).toBeVisible();
-  await drawer.getByRole("link", { name: "Prediction & Modeling" }).click();
-  await expect(page.getByRole("heading", { name: "Prediction & Modeling", level: 1 })).toBeVisible();
+  await drawer.getByRole("link", { name: "FLEX Burn-Time Estimator" }).click();
+  await expect(page.getByRole("heading", { name: "Exploratory FLEX Burn-Time Estimator", level: 1 })).toBeVisible();
   await expect(drawer).toBeHidden();
   for (const path of ["/experiments", "/phenomena/flame-extinction", "/phenomena/flame-spread", "/phenomena/spacecraft-fire",
     "/reliability", "/copilot", "/intelligence/compare", "/evidence/literature", "/modeling"]) {

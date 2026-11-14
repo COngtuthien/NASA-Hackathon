@@ -13,12 +13,12 @@ test.describe("Phase 3: phenomenon-first navigation, motion, preserved functions
   test("navigation is grouped by research goal, with NASA sources as badges", async ({ page }) => {
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Main" });
-    for (const group of ["Discover", "Scientific analysis", "Research intelligence", "Trust & methods"]) {
+    for (const group of ["Discover", "Scientific analysis", "Advanced research tools", "Trust & methods"]) {
       await expect(nav.getByText(group, { exact: true })).toBeVisible();
     }
     for (const label of ["Home", "Research Copilot", "Combustion Explorer", "Flame Extinction & Burning Dynamics",
       "Flame Spread & Material Behavior", "Spacecraft Fire Dynamics", "Experiment Intelligence", "Evidence & Literature",
-      "Prediction & Modeling", "Data Reliability", "Methodology"]) {
+      "FLEX Burn-Time Estimator", "Data Reliability", "Methodology"]) {
       await expect(nav.getByRole("link", { name: label })).toBeVisible();
     }
     for (const badge of ["FLEX", "BASS-II", "SAFFIRE-I"]) await expect(nav.getByText(badge, { exact: true })).toBeVisible();

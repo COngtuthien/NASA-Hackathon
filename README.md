@@ -39,6 +39,16 @@ the challenge, the Explorer, NASA evidence, a 3D studio and the Copilot for one 
 share the same controls (Play/Pause, Reset, Fullscreen, Hide/Show controls, Labels / Explanation / Evidence); NASA video
 and animation players gained status, Replay and error states. See `docs/PHASE15_DEMO_GUIDE.md`.
 
+**Phase 16** expands the Combustion Explorer into the **Combustion & Fire Science Explorer** (`/experiments`):
+- five scientific domains covering all ten investigations, each labelled with its real evidence level (measured tests,
+  conditions only, day-level summaries, report-derived values, figure-data series, test plan, metadata)
+- dataset-specific filters, record pages with provenance, and compatible-only comparison
+- a guided exploration
+
+It also adds guided timelines to the Gaseous Flame and Smoke Detection studios, gives the Research-to-Safety entry a
+visual-first redesign, adds CFI-G to Find Similar, and audits media coverage. The FLEX predictor is presented as an
+exploratory estimator. See `docs/PHASE16_IMPLEMENTATION_REPORT.md`.
+
 Every number in the UI links back to the CSV row, document page or external record it came from. The investigations
 are different physical systems and are never pooled into one dataset or model.
 
