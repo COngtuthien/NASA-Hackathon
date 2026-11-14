@@ -1,5 +1,14 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 13 ACME dataset audit (branch `audit/spacefire-acme-datasets`, 2026-11-14): AUDIT ONLY
+Base: `79d08cf` (previous dataset audit). No app, data, model or database change; no Gemini request.
+- Folders `ACME BRE` = PSI-20, `ACME CFI-G` = PSI-159, `AMCE Flame Design` (misspelled on disk) = PSI-10.
+- CFI-G has the only per-test outcomes (333 test points + 15 measured cool-flame events); Flame Design tables are
+  conditions only; BRE is documentation plus a day log. 4 BRE drawing ZIPs are damaged downloads.
+- Docs: `docs/ACME_DATASET_AUDIT.md`, `docs/ACME_DATASET_INVENTORY.csv` (413 rows, rebuilt by
+  `research/scripts/acme_dataset_inventory.py`), `docs/ACME_DATASET_INTEGRATION_MATRIX.md`,
+  `docs/ACME_DATASET_DOWNLOAD_GAPS.md`, `docs/ACME_INTEGRATION_ROADMAP_PROPOSAL.md`.
+
 ## New NASA dataset audit (branch `audit/spacefire-new-nasa-datasets`, 2026-11-14): AUDIT ONLY
 Base: `bcd76ce`. No app, data, model or database change; no Gemini request. Downloads stay untracked.
 - Found `FLEX-2/` (PSI-68), `PSI-117/`, `PSI-62/` (metadata ZIP only), `SAME/` (PSI-102). The expected ACME
