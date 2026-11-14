@@ -4,6 +4,7 @@
 // flight log (Appendix A, verified), instrument explanations, and the Smoke Detection Studio (conceptual 3D).
 // Raw 1 Hz telemetry is inventoried but not plotted: its semantics are unresolved (see the deferred notice).
 import { useMemo, useState, useSyncExternalStore } from "react";
+import { createTimeline, goToStage, SMOKE_STAGES, useStageId } from "@/lib/timeline";
 import { AskSuggestions } from "@/components/ask-suggestions";
 import { Disclosure } from "@/components/disclosure";
 import { DocLink, EvidenceTag, type EvidenceKind } from "@/components/evidence-tag";
@@ -52,7 +53,16 @@ const PARTS: Record<string, { title: string; kind: EvidenceKind; text: string }>
 const noSubscribe = () => () => {};
 
 function SmokeStudio({ data, initialMaterial }: { data: SameResp | null; initialMaterial: string }) {
-  const [stage, setStage] = useState(1);
+  const [stageManual, setStage] = useState(1);
+  // Phase 16 guided exploration: while the guide is active it sets the stage (6 s per stage at 1×, illustrative).
+  const guideStore = useMemo(() => createTimeline(36), []);
+  const guideStage = useStageId(guideStore, SMOKE_STAGES);
+  const stage = guideStage ? SMOKE_STAGES.findIndex((x) => x.id === guideStage) + 1 : stageManual;
+  const pickStage = (n: number) => {
+    const k = ((n - 1 + 6) % 6) + 1;
+    setStage(k);
+    if (guideStore.get().active) goToStage(guideStore, SMOKE_STAGES, k - 1);
+  };
   const [aged, setAged] = useState(false);
   const [materialChoice, setMaterial] = useState<string | null>(null);
   const material = materialChoice ?? initialMaterial;
@@ -70,19 +80,21 @@ function SmokeStudio({ data, initialMaterial }: { data: SameResp | null; initial
         { color: "#4fd1e8", label: "Air flow" }, { color: "#ff8a3d", label: "Heater coil" }]}
       labels={labels} onLabels={setLabels} animate={animate} onAnimate={setAnimate}
       onReset={() => { setStage(1); setAged(false); setMaterial(null); setSelected(null); }}
+      guide={{ store: guideStore, stages: SMOKE_STAGES, title: "Guided smoke detection exploration",
+        caveat: "Illustrative pacing: stages are not to time scale", startLabel: "Start guided exploration" }}
       banner={<>Original simplified schematic: instrument list <EvidenceTag kind="guided" />, layout and particles <EvidenceTag kind="illustration" /></>}
       measuredLabel={row ? `Measured for ${row.material_label}, ${aged ? "aged 720 s" : "fresh"}: Dg ${row.dg_nm} nm, mean ${row.d10_nm} nm (Table 1, p.27)` : null}
       textAlternative="A schematic smoke path from left to right: a small heated sample with a glowing coil, a smoke duct, a vertical aging chamber with a piston, a diluter, and six instrument boxes: a particle counter, an ionization sensor, two dust monitors with 1 and 10 micrometre cut-offs, and the Space Shuttle and ISS smoke detectors. Dots representing smoke particles move through the stage that is selected."
       // Stages are stepped by the user (they are not a timed sequence), so nothing advances while the animation is paused.
       extraToolbar={<>
-        <Btn label="Previous stage" onClick={() => setStage((s) => (s === 1 ? 6 : s - 1))} testid="smoke-prev"><span aria-hidden>‹</span> Stage</Btn>
-        <Btn label="Next stage" onClick={() => setStage((s) => (s % 6) + 1)} testid="smoke-next">Next stage <span aria-hidden>›</span></Btn>
+        <Btn label="Previous stage" onClick={() => pickStage(stage - 1)} testid="smoke-prev"><span aria-hidden>‹</span> Stage</Btn>
+        <Btn label="Next stage" onClick={() => pickStage(stage + 1)} testid="smoke-next">Next stage <span aria-hidden>›</span></Btn>
       </>}
       controls={
         <div className="flex flex-col gap-3 rounded-xl border border-line/70 bg-panel/60 p-3" data-testid="smoke-controls">
           <div role="radiogroup" aria-label="Stage" className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-2">
             {STAGES.map(([t], i) => (
-              <button key={t} type="button" role="radio" aria-checked={stage === i + 1} onClick={() => setStage(i + 1)} data-testid={`smoke-stage-${i + 1}`}
+              <button key={t} type="button" role="radio" aria-checked={stage === i + 1} onClick={() => pickStage(i + 1)} data-testid={`smoke-stage-${i + 1}`}
                 className={`press rounded-lg border px-2 py-1.5 text-left text-[12.5px] ${stage === i + 1 ? "border-flame bg-flame/[0.1] text-text" : "border-line-strong/70 text-text-2 hover:text-text"}`}>
                 <span className="text-text-3">{i + 1}.</span> {t}</button>))}
           </div>

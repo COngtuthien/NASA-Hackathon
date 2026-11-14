@@ -6,8 +6,8 @@
 // flame shells are ILLUSTRATIVE except when a CFI-G Table 3 event is selected, where the hot- and cool-flame radii
 // are drawn at their measured values for that event's condition only. Colours, flicker and particle motion are
 // illustrations; nothing here simulates transport, chemistry or heat transfer.
-import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import * as THREE from "three";
 import { approach, flameMaterialArgs, flameU } from "@/components/3d/flameMaterial";
 import { Annotation } from "@/components/3d/ScientificAnnotations";
@@ -28,7 +28,10 @@ export type GasSceneProps = {
   labels: boolean;
   selected: string | null;
   onSelect: (id: string) => void;
+  /** Phase 16 guided stage (conceptual): what is visible. Undefined = the full scene. */
+  phase?: GasPhase;
 };
+export type GasPhase = "setup" | "delivery" | "ignition" | "established" | "transition" | "interpret";
 
 const FUEL = "#ffb547";
 const OXY = "#4fd1e8";
@@ -123,7 +126,30 @@ function DashedRing({ radius, color }: { radius: number; color: string }) {
   return <primitive object={line} />;
 }
 
-function Flame({ config, regime, measured, animate, labels, selected, onSelect, x = 0, caption }: Omit<GasSceneProps, "compare"> & { x?: number; caption?: string }) {
+function Grow({ target, from, children }: { target: number; from: number; children: ReactNode }) {
+  const ref = useRef<THREE.Group>(null);
+  const invalidate = useThree((st) => st.invalidate);
+  useEffect(() => {
+    ref.current?.scale.setScalar(from);
+    invalidate();
+  }, [from, target, invalidate]);
+  useFrame((_, dt) => {
+    const g = ref.current;
+    if (!g) return;
+    const s0 = g.scale.x;
+    const s1 = s0 + (target - s0) * Math.min(1, dt * 1.6);
+    g.scale.setScalar(Math.abs(target - s1) < 0.002 ? target : s1);
+    if (Math.abs(target - s1) >= 0.002) invalidate();
+  });
+  return <group ref={ref}>{children}</group>;
+}
+
+function Flame({ config, regime, measured, animate, labels, selected, onSelect, x = 0, caption, phase }: Omit<GasSceneProps, "compare"> & { x?: number; caption?: string }) {
+  const showFlow = phase !== "setup";
+  const showFlame = !phase || phase === "ignition" || phase === "established" || phase === "transition" || phase === "interpret";
+  // ignition: the shell grows from small; transition (hot regime): it shrinks and dims toward extinction
+  const flameScale = phase === "transition" && regime === "hot" ? 0.35 : 1;
+  const flameFrom = phase === "ignition" ? 0.12 : phase === "transition" && regime === "hot" ? 1 : flameScale;
   const burnerR = (BURNER_DIAMETER_MM / 2) * MM;
   const hotR = (measured ? measured.hot_mm : ILLUSTRATIVE_HOT_MM) * MM;
   const coolR = (measured?.cool_mm ?? (measured ? null : ILLUSTRATIVE_COOL_MM)) == null ? null
@@ -144,30 +170,34 @@ function Flame({ config, regime, measured, animate, labels, selected, onSelect, 
         <meshStandardMaterial color="#8a96a8" roughness={0.5} metalness={0.6} />
       </mesh>
       {/* reactant leaving the burner */}
-      <Particles inward={false} color={out} count={140} rMin={burnerR * 1.05} rMax={flameR * 0.96} animate={animate} seed={7 + x} />
-      {[0, 1, 2, 3, 4, 5].map((i) => {
+      {showFlow && <Particles inward={false} color={out} count={140} rMin={burnerR * 1.05} rMax={flameR * 0.96} animate={animate} seed={7 + x} />}
+      {showFlow && [0, 1, 2, 3, 4, 5].map((i) => {
         const a = (i / 6) * Math.PI * 2;
         const d: [number, number, number] = [Math.cos(a), Math.sin(a) * 0.9, Math.sin(a) * 0.3];
         return <Arrow key={i} from={[d[0] * burnerR * 1.4, d[1] * burnerR * 1.4, d[2] * burnerR * 1.4]}
           to={[d[0] * flameR * 0.7, d[1] * flameR * 0.7, d[2] * flameR * 0.7]} color={out} opacity={0.75} radius={0.012} head={0.08} />;
       })}
       {/* ambient reactant diffusing toward the flame */}
-      <Particles inward color={amb} count={220} rMin={flameR * 1.04} rMax={Math.max(hotR, flameR) * 2.1} animate={animate} seed={19 + x} />
+      {showFlow && <Particles inward color={amb} count={220} rMin={flameR * 1.04} rMax={Math.max(hotR, flameR) * 2.1} animate={animate} seed={19 + x} />}
       {/* flame shells */}
-      {regime === "hot"
-        ? <Shell radius={hotR} base={config === "normal" ? "#4f8dff" : "#5f9bff"} tip="#ffb547" intensity={1.0} animate={animate} part="flame" onSelect={onSelect} />
-        : coolR !== null
-          ? <Shell radius={coolR} base="#9fc6ff" tip="#c6dcff" intensity={0.38} animate={animate} part="coolflame" onSelect={onSelect} />
-          : null}
+      {showFlame && (
+        <Grow target={flameScale} from={flameFrom} key={`${phase ?? "full"}-${regime}`}>
+          {regime === "hot"
+            ? <Shell radius={hotR} base={config === "normal" ? "#4f8dff" : "#5f9bff"} tip="#ffb547" intensity={phase === "transition" ? 0.45 : 1.0} animate={animate} part="flame" onSelect={onSelect} />
+            : coolR !== null
+              ? <Shell radius={coolR} base="#9fc6ff" tip="#c6dcff" intensity={0.38} animate={animate} part="coolflame" onSelect={onSelect} />
+              : null}
+        </Grow>
+      )}
       {regime === "cool" && measured && <DashedRing radius={hotR} color="#ffb547" />}
       {labels && (
         <>
           <Annotation position={[0, burnerR + 0.25, 0]} label="Porous spherical burner (6.35 mm)" id="burner" selected={sel("burner")} onSelect={onSelect} tone="measured" />
           <Annotation position={[0, -2.2, 0]} label={config === "normal" ? "Fuel supply" : "O₂/N₂ supply"} id="tube" selected={sel("tube")} onSelect={onSelect} />
-          <Annotation position={[flameR * 0.72 + 0.35, flameR * 0.72 + 0.35, 0]} label={regime === "hot" ? (measured ? "Hot flame (measured radius)" : "Hot flame (illustrative size)")
+          {showFlame && <Annotation position={[flameR * 0.72 + 0.35, flameR * 0.72 + 0.35, 0]} label={regime === "hot" ? (measured ? "Hot flame (measured radius)" : "Hot flame (illustrative size)")
             : coolR === null ? "Cool-flame radius not measured" : measured ? "Cool flame (measured radius)" : "Cool flame (illustrative size)"}
             id={regime === "hot" ? "flame" : "coolflame"} selected={sel(regime === "hot" ? "flame" : "coolflame")} onSelect={onSelect}
-            tone={measured ? "measured" : "default"} />
+            tone={measured ? "measured" : "default"} />}
           <Annotation position={[-Math.max(hotR, flameR) * 1.5, -0.5, 0]} label={config === "normal" ? "Ambient O₂/N₂" : "Ambient fuel/N₂"} id="ambient" selected={sel("ambient")} onSelect={onSelect} />
           {caption && <Annotation position={[0, Math.max(hotR, flameR) + 0.55, 0]} label={caption} id={`cap-${config}`} selected={false} onSelect={() => {}} />}
         </>

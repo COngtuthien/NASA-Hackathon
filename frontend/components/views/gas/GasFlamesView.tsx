@@ -5,6 +5,8 @@
 // and the Gaseous Flame Studio (conceptual 3D; measured radii drawn only for a selected CFI-G Table 3 event).
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
+import type { GasPhase } from "@/components/3d/GasFlameScene";
+import { createTimeline, GAS_STAGES, useStageId } from "@/lib/timeline";
 import { AskSuggestions } from "@/components/ask-suggestions";
 import { DocLink, EvidenceTag, type EvidenceKind } from "@/components/evidence-tag";
 import { MediaPanelBlock } from "@/components/media";
@@ -40,10 +42,16 @@ function GasStudio() {
   const [labels, setLabels] = useState(true);
   const [animate, setAnimate] = useState(true);
   const cf = useApi<CfigResp>("/gasflames/cfig");
+  // Phase 16 guided exploration (conceptual stages, 7 s each at 1×): drives what the scene shows.
+  const guideStore = useMemo(() => createTimeline(42), []);
+  const phase = (useStageId(guideStore, GAS_STAGES) ?? undefined) as GasPhase | undefined;
   const events: CoolFlame[] = cf.data?.cool_flames ?? [];
   const ev = events.find((e) => e.record_id === eventId) ?? null;
   const test = cf.data?.tests.find((t) => t.test_id === testId) ?? null;
   const effConfig = ev ? "normal" : config;
+  // At the transition stage a cool flame is drawn only for a selected, measured Table 3 event; otherwise the hot flame
+  // shrinks toward extinction. No other test is implied to have had a cool flame.
+  const effRegime: "hot" | "cool" = phase === "transition" ? (ev ? "cool" : "hot") : regime;
   const measured = ev ? { hot_mm: ev.r_hot_mm, cool_mm: ev.r_cool_mm, label: `${ev.test_id}${ev.sub_event ? `-${ev.sub_event}` : ""}` } : null;
   const measuredLabel = ev ? `Measured radii drawn to scale: ${measured!.label}, hot ${ev.r_hot_mm} mm${ev.r_cool_mm ? `, cool ${ev.r_cool_mm} mm` : ", cool radius not measured"} (Table 3, p.46)` : null;
   const legend = useMemo(() => [
@@ -57,10 +65,12 @@ function GasStudio() {
     <LiteStudio id="gas" kicker="Gaseous Flame Studio" title="A spherical diffusion flame on a porous burner"
       intro={<>Rotate a gas-fed spherical flame, switch between <b>normal</b> and <b>inverse</b> arrangements and between the <b>hot</b> and <b>cool</b> regimes,
         then pick a measured CFI-G cool-flame event to see its radii drawn to scale.</>}
-      scene={{ key: "gas", props: { config: effConfig, regime, compare: compare && !ev, measured, animate, labels, selected, onSelect: setSelected } }}
+      scene={{ key: "gas", props: { config: effConfig, regime: effRegime, compare: compare && !ev, measured, animate, labels, selected, onSelect: setSelected, phase } }}
       home={compare && !ev ? { position: [0, 0.8, 9.5], target: [0, 0, 0], min: 3, max: 18 } : { position: [0, 0.6, 6], target: [0, 0, 0], min: 1.6, max: 14 }}
       legend={legend} labels={labels} onLabels={setLabels} animate={animate} onAnimate={setAnimate} measuredLabel={measuredLabel}
       onReset={() => { setConfig("normal"); setRegime("hot"); setCompare(false); setEventId(""); setTestId(""); setSelected(null); }}
+      guide={{ store: guideStore, stages: GAS_STAGES, title: "Guided gaseous flame exploration",
+        caveat: "Conceptual stages: not the timeline of any CFI-G test", startLabel: "Start guided exploration" }}
       banner={<>{ev ? <>Burner and radii to scale (1 unit = 10 mm) <EvidenceTag kind="measured" /></> : <>Flame size illustrative <EvidenceTag kind="illustration" /></>}{" "}
         · arrangement <EvidenceTag kind="guided" /></>}
       textAlternative="A small porous sphere on a supply tube sits at the centre. Gas flows out of the sphere in all directions; in a normal flame this is fuel, in an inverse flame it is an oxygen and nitrogen mixture. Around it, a translucent spherical flame shell marks where the outflowing and ambient reactants meet. In the cool-flame view a fainter, smaller shell is shown instead; for a selected measured event the earlier hot-flame radius is drawn as a dashed circle."

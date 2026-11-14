@@ -97,3 +97,36 @@ export function goToStage(store: TimelineStore, stages: Stage[], index: number) 
   const s = stages[Math.max(0, Math.min(stages.length - 1, index))];
   store.set({ p: s.from + 0.001, playing: false, active: true });
 }
+
+/** Phase 16: conceptual guided stages for the Gaseous Flame Studio (ACME CFI-G / Flame Design). Boundaries are
+ *  positions on a normalized axis, not times of any test; outcomes differ between tests (see the stage-5 text). */
+export const GAS_STAGES: Stage[] = [
+  { id: "setup", label: "Setup", from: 0, to: 0.14,
+    text: "A porous sphere 6.35 mm across sits on a supply tube inside the ACME chamber, which holds the test atmosphere (CFI-G report p.3; Flame Design report p.24)." },
+  { id: "delivery", label: "Gas delivery", from: 0.14, to: 0.3,
+    text: "Normal flame: fuel flows out of the burner into an O₂/N₂ atmosphere. Inverse flame: O₂/N₂ flows out into a fuel/N₂ atmosphere (CFI-G report p.3)." },
+  { id: "ignition", label: "Ignition", from: 0.3, to: 0.44,
+    text: "A retracting resistive igniter lights the gas near the burner (CFI-G report p.7). Some CFI-G test points did not ignite." },
+  { id: "established", label: "Established flame", from: 0.44, to: 0.66,
+    text: "Without buoyancy the flame is a nearly spherical shell where outflowing and ambient reactants meet by diffusion; it grows slowly (Flame Design report p.26)." },
+  { id: "transition", label: "Extinction or transition", from: 0.66, to: 0.86,
+    text: "Outcomes differ by test: self-extinction, flow termination (burn time censored), or no ignition. A cool flame after radiative extinction was seen only at 30 % n-butane, normal, 2.03 bar (Table 3, p.46): pick a Table 3 event to draw a measured case." },
+  { id: "interpret", label: "Interpretation", from: 0.86, to: 1,
+    text: "Which conditions led to which outcome is in the CFI-G charts and the Explorer. This sequence is a conceptual guide, not the timeline of one test." },
+];
+
+/** Phase 16: conceptual guided stages for the Smoke Detection Studio (SAME). Not to time scale. */
+export const SMOKE_STAGES: Stage[] = [
+  { id: "heating", label: "Material heating", from: 0, to: 1 / 6,
+    text: "A wire coil heats the sample until it pyrolyzes, without flaming (SAME Final Science Report)." },
+  { id: "formation", label: "Smoke formation", from: 1 / 6, to: 2 / 6,
+    text: "Vapour from the overheated material condenses into fine liquid and solid smoke particles near the sample." },
+  { id: "transport", label: "Particle transport", from: 2 / 6, to: 3 / 6,
+    text: "A flow carries the smoke along the duct toward the aging chamber. Dot paths are illustrative, not measured trajectories." },
+  { id: "aging", label: "Aging chamber", from: 3 / 6, to: 4 / 6,
+    text: "Smoke is held so particles grow by coagulation; for Table 1 the aged samples were held 720 s (Final Science Report p.27)." },
+  { id: "sampling", label: "Instrument sampling", from: 4 / 6, to: 5 / 6,
+    text: "Diluted smoke reaches the P-Trak (number), ionization sensor (diameter-weighted) and two DustTraks (mass); their ratios give the moment-method sizes." },
+  { id: "detection", label: "Detector interpretation", from: 5 / 6, to: 1,
+    text: "The Space Shuttle ionization detector favours small particles, the ISS light-scattering detector larger ones; the authors report reduced ISS-detector performance for Kapton and Teflon smoke (ICES 2013, slide 28)." },
+];

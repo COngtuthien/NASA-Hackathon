@@ -15,6 +15,11 @@ import { Icon } from "@/components/icons";
 import { useMedia } from "@/components/motion";
 import { useFullscreen } from "@/components/studio/immersive";
 import type { LiteScene } from "@/components/studio/LiteViewport";
+import TimelineBar from "@/components/studio/TimelineBar";
+import { goToStage, useTimelineValue, type Stage, type TimelineStore } from "@/lib/timeline";
+
+/** A guided, ILLUSTRATIVE stage sequence for the studio (Phase 16), driven by the same store as the FLEX timeline. */
+export type StudioGuide = { store: TimelineStore; stages: Stage[]; title: string; caveat: string; startLabel: string; explainer?: ReactNode };
 
 const LiteViewport = dynamic(() => import("@/components/studio/LiteViewport"), {
   ssr: false,
@@ -32,6 +37,9 @@ class Boundary extends Component<{ children: ReactNode; fallback: ReactNode }, {
 }
 
 export { EVIDENCE, EvidenceTag, type EvidenceKind } from "@/components/evidence-tag";
+
+const NULL_STORE: TimelineStore = { get: () => ({ p: 0, playing: false, speed: 1, active: false }), set: () => {}, tick: () => {},
+  subscribe: () => () => {}, duration: 1 };
 
 export const CONCEPTUAL_NOTICE = "Conceptual 3D educational visualization; experimental values are displayed separately where available.";
 
@@ -55,7 +63,7 @@ function Toggle({ label, on, onClick, testid, icon }: { label: string; on: boole
 }
 
 export default function LiteStudio({ id, title, kicker, intro, scene, home, legend, banner, measuredLabel, textAlternative,
-  controls, explanation, evidence, labels, onLabels, animate, onAnimate, onReset, extraToolbar }: {
+  controls, explanation, evidence, labels, onLabels, animate, onAnimate, onReset, extraToolbar, guide }: {
   id: string; title: string; kicker: string; intro: ReactNode; scene: LiteScene; home: CameraHome; legend: LegendItem[];
   /** Short line in the viewport naming what is drawn and how it is classified. */ banner: ReactNode;
   measuredLabel?: string | null; textAlternative: string;
@@ -65,6 +73,7 @@ export default function LiteStudio({ id, title, kicker, intro, scene, home, lege
   labels: boolean; onLabels: (v: boolean) => void; animate: boolean; onAnimate: (v: boolean) => void;
   /** Restore the page's documented initial scientific state; the studio resets camera and view itself. */ onReset: () => void;
   /** Step controls (e.g. previous / next stage) shown beside Play/Pause. */ extraToolbar?: ReactNode;
+  /** Optional guided timeline shown under the viewport. */ guide?: StudioGuide;
 }) {
   const section = useRef<HTMLElement>(null);
   const cam = useRef<CameraApi>(null);
@@ -78,11 +87,26 @@ export default function LiteStudio({ id, title, kicker, intro, scene, home, lege
   const [controlsShown, setControlsShown] = useState(true);
   const [explainShown, setExplainShown] = useState(true);
   const [evidenceShown, setEvidenceShown] = useState(true);
-  const motion = animate && !reduce;
+  // The guide advances only while the scene renders: it renders continuously while the guide plays (also under reduced
+  // motion, because the user pressed Play), and pausing the animation pauses the guide.
+  const guidePlaying = useTimelineValue(guide?.store ?? NULL_STORE, (t) => t.playing, false);
+  const motion = (animate && !reduce) || (!!guide && guidePlaying);
+  const setAnimate = (v: boolean) => {
+    onAnimate(v);
+    if (!v && guide?.store.get().playing) guide.store.set({ playing: false });
+  };
+  const startGuide = () => {
+    if (!guide) return;
+    goToStage(guide.store, guide.stages, 0);
+    guide.store.set({ playing: true, active: true });
+    onAnimate(true);
+    if (!controlsShown) setControlsShown(true);
+  };
   const panelId = `${id}-studio-panel`;
 
   const resetAll = () => {
     onReset();
+    guide?.store.set({ p: 0, playing: false, active: false });
     onAnimate(true);
     onLabels(true);
     setExplainShown(true);
@@ -119,6 +143,11 @@ export default function LiteStudio({ id, title, kicker, intro, scene, home, lege
           {!fs.active && <div className="mt-1 text-[14.5px] leading-relaxed text-text-2">{intro}</div>}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {guide && (
+            <button type="button" onClick={startGuide} data-testid="guide-start"
+              className="press glow-flame inline-flex min-h-10 items-center gap-2 rounded-lg bg-flame px-4 text-[14px] font-semibold text-flame-ink">
+              <Icon name="play" size={15} />{guide.startLabel}</button>
+          )}
           <button type="button" onClick={() => setControlsShown(!controlsShown)} aria-expanded={controlsShown} aria-controls={panelId}
             data-testid="lite-toggle-controls"
             className="press inline-flex min-h-10 items-center gap-2 rounded-lg border border-line-strong px-3 text-[13.5px] text-text-2 hover:border-electric hover:text-text">
@@ -134,6 +163,7 @@ export default function LiteStudio({ id, title, kicker, intro, scene, home, lege
         <Icon name="info" size={14} className="mr-1.5 inline -translate-y-px" />{CONCEPTUAL_NOTICE}
       </p>
       <div className={`grid gap-4 ${fs.active ? "flex-1" : ""} ${controlsShown ? "lg:grid-cols-[minmax(0,1fr)_360px]" : ""}`}>
+        <div className="flex min-w-0 flex-col gap-3">
         <div data-testid="lite-viewport-box" className={`theme-dark relative overflow-hidden rounded-xl border border-line/70 bg-[radial-gradient(120%_90%_at_50%_45%,rgba(30,52,90,0.55),rgba(5,10,20,0.98)_70%)] ${
           fs.active ? "min-h-[60vh]" : "h-[440px] md:h-[520px]"}`}>
           {webgl === false ? fallback("This browser or device does not provide WebGL, so the 3D view is replaced by a description.")
@@ -145,7 +175,7 @@ export default function LiteStudio({ id, title, kicker, intro, scene, home, lege
                       aria-label={`${title}: arrow keys rotate, plus and minus zoom, 0 resets the camera, space plays or pauses`}
                       onKeyDown={(e) => {
                         const c = cam.current;
-                        if (e.key === " ") { onAnimate(!animate); e.preventDefault(); return; }
+                        if (e.key === " ") { setAnimate(!animate); e.preventDefault(); return; }
                         if (!c) return;
                         if (e.key === "ArrowLeft") c.rotate(-0.15, 0); else if (e.key === "ArrowRight") c.rotate(0.15, 0);
                         else if (e.key === "ArrowUp") c.rotate(0, -0.12); else if (e.key === "ArrowDown") c.rotate(0, 0.12);
@@ -153,7 +183,7 @@ export default function LiteStudio({ id, title, kicker, intro, scene, home, lege
                         else if (e.key === "0") c.reset(); else return;
                         e.preventDefault();
                       }}>
-                      <LiteViewport scene={scene} home={home} animate={motion} cameraRef={cam} label={title}
+                      <LiteViewport scene={scene} home={home} animate={motion} cameraRef={cam} label={title} timeline={guide?.store ?? null}
                         onContextLost={() => setFailed("context-lost")} />
                     </div>
                   </Boundary>
@@ -179,7 +209,7 @@ export default function LiteStudio({ id, title, kicker, intro, scene, home, lege
               </div>
               <div className="pointer-events-auto ml-auto flex max-w-full flex-col items-end gap-1.5">
                 <div className="flex flex-wrap justify-end gap-1.5" role="toolbar" aria-label="Playback" data-testid="lite-main-toolbar">
-                  <Btn label={animate ? "Pause animation" : "Play animation"} onClick={() => onAnimate(!animate)} testid="motion-toggle" pressed={animate}>
+                  <Btn label={animate ? "Pause animation" : "Play animation"} onClick={() => setAnimate(!animate)} testid="motion-toggle" pressed={animate}>
                     <Icon name={animate ? "pause" : "play"} size={14} />{animate ? "Pause" : "Play"}</Btn>
                   {extraToolbar}
                   <Btn label="Reset the studio to its starting state" onClick={resetAll} testid="studio-reset-all"><Icon name="restart" size={14} />Reset</Btn>
@@ -204,6 +234,12 @@ export default function LiteStudio({ id, title, kicker, intro, scene, home, lege
             </div>
           )}
           {fs.notice && <p className="absolute left-1/2 top-14 z-40 -translate-x-1/2 rounded-lg border border-warn/60 bg-void/90 px-3 py-1.5 text-[12.5px] text-text">{fs.notice}</p>}
+        </div>
+        {guide && controlsShown && (
+          <div data-testid="studio-guide">
+            <TimelineBar store={guide.store} stages={guide.stages} title={guide.title} caveat={guide.caveat}>{guide.explainer}</TimelineBar>
+          </div>
+        )}
         </div>
         <div className="flex min-w-0 flex-col gap-3" data-testid="studio-panel" id={panelId} hidden={!controlsShown}>
           {controls}

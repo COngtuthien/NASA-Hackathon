@@ -3,12 +3,14 @@
 // Viewport for the Phase 13 studios (Gaseous Flame, Smoke Detection). Loaded client-only in its own chunk with
 // three.js; reuses the lab's canvas (on-demand rendering, adaptive resolution, context-loss handling, disposal
 // counters) and camera controls (orbit + zoom, no pan, reset).
+import { useFrame } from "@react-three/fiber";
 import { lazy, Suspense, useEffect, type Ref } from "react";
 import SceneCanvas from "@/components/3d/SceneCanvas";
 import type { CameraApi, CameraHome } from "@/components/3d/ScientificCameraControls";
 import { labStats } from "@/components/3d/webgl";
 import type { GasSceneProps } from "@/components/3d/GasFlameScene";
 import type { SmokeSceneProps } from "@/components/3d/SmokeScene";
+import type { TimelineStore } from "@/lib/timeline";
 
 const GasFlameScene = lazy(() => import("@/components/3d/GasFlameScene"));
 const SmokeScene = lazy(() => import("@/components/3d/SmokeScene"));
@@ -26,6 +28,12 @@ function Lights() {
   );
 }
 
+/** Advances a guided timeline with the render loop, so it moves only while the scene is actually rendering. */
+function TimelineDriver({ store }: { store: TimelineStore }) {
+  useFrame((_, dt) => { if (store.get().playing) store.tick(Math.min(dt, 0.1)); });
+  return null;
+}
+
 function Mounted({ id }: { id: string }) {
   useEffect(() => {
     const s = labStats();
@@ -34,12 +42,14 @@ function Mounted({ id }: { id: string }) {
   return null;
 }
 
-export default function LiteViewport({ scene, home, animate, cameraRef, onContextLost, label }: {
+export default function LiteViewport({ scene, home, animate, cameraRef, onContextLost, label, timeline }: {
   scene: LiteScene; home: CameraHome; animate: boolean; cameraRef: Ref<CameraApi>; onContextLost: () => void; label: string;
+  timeline?: TimelineStore | null;
 }) {
   return (
     <SceneCanvas home={home} animate={animate} cameraRef={cameraRef} onContextLost={onContextLost} label={label}>
       <Lights />
+      {timeline && <TimelineDriver store={timeline} />}
       <Suspense fallback={null}>
         {scene.key === "gas" ? <GasFlameScene {...scene.props} /> : <SmokeScene {...scene.props} />}
         <Mounted id={scene.key} />
