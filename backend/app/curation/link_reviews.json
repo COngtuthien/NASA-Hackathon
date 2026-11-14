@@ -1,0 +1,40 @@
+{
+  "title": "Manual review of automatically found BASS-II test-ID mentions (evidence_links level auto_unreviewed)",
+  "reviewed_on": "2026-11-11",
+  "method": "Each bare ID mention was read in its page context in the BASS-II Summary Report (NASA/TM-20210011385) and checked against the curated Appendix A row (as-run number, sample number, GMT day of year) and the BASS-II CSV (bass2_tests.gmt_doy, material). Decisions: own_row = the mention is the test's own Appendix A log row (row split across text chunks, so the verified-row link caught only one chunk); figure = a figure caption about this test; cross_reference = the ID is named inside ANOTHER test's notes (link kept, but it is not this test's data).",
+  "decisions": {
+    "own_row": {"relation_type": "table_row", "label": "Appendix A row of this test"},
+    "figure": {"relation_type": "figure_caption", "label": "Figure caption about this test"},
+    "cross_reference": {"relation_type": "cross_reference", "label": "Named in another test's notes"}
+  },
+  "reviews": [
+    {"experiment_uid": "bass2:105", "chunk_id": "bass-ii-summary-report:p121:2", "matched": "T5", "decision": "own_row", "evidence": "Appendix A p.121: run 19, sample 131, 4/10/2014 GMT 100 = CSV day 100"},
+    {"experiment_uid": "bass2:11", "chunk_id": "bass-ii-summary-report:p111:1", "matched": "B11", "decision": "own_row", "evidence": "Appendix A p.111: run 61, sample 158m, 7/7/2014 GMT 188 = CSV day 188"},
+    {"experiment_uid": "bass2:11", "chunk_id": "bass-ii-summary-report:p49:0", "matched": "B11", "decision": "figure", "evidence": "Flight-image figure on PDF p.49, panel (b) 'BASS-II B11; 200 um thick'; Appendix A gives B11 as 0.2-mm PMMA film"},
+    {"experiment_uid": "bass2:11", "chunk_id": "bass-ii-summary-report:p49:1", "matched": "B11", "decision": "figure", "evidence": "Same caption as p49:0 (overlapping chunk), panel (b)"},
+    {"experiment_uid": "bass2:116", "chunk_id": "bass-ii-summary-report:p120:2", "matched": "T17", "decision": "own_row", "evidence": "Appendix A p.120: run 46, sample 142m, 6/27/14 GMT 178 = CSV day 178"},
+    {"experiment_uid": "bass2:127", "chunk_id": "bass-ii-summary-report:p121:1", "matched": "T28a", "decision": "own_row", "evidence": "Appendix A p.121: run 123, sample 144m, 8/4/14 GMT 216 = CSV day 216"},
+    {"experiment_uid": "bass2:13", "chunk_id": "bass-ii-summary-report:p49:1", "matched": "B13", "decision": "figure", "evidence": "Figure on PDF p.49, panel (d) 'BASS-II B13; 400 um thick'; Appendix A gives B13 as 0.4-mm film"},
+    {"experiment_uid": "bass2:16", "chunk_id": "bass-ii-summary-report:p111:2", "matched": "B16", "decision": "own_row", "evidence": "Appendix A p.111: run 51, sample 150m, 7/2/14 GMT 183 = CSV day 183"},
+    {"experiment_uid": "bass2:2", "chunk_id": "bass-ii-summary-report:p112:2", "matched": "B2", "decision": "cross_reference", "evidence": "Text is B5's observation 'Repeat of B2 test conditions, to get top view images'; B2's own row is on p.112 chunk 0 (verified link)"},
+    {"experiment_uid": "bass2:20", "chunk_id": "bass-ii-summary-report:p112:1", "matched": "B20", "decision": "own_row", "evidence": "Appendix A p.112: run 50, sample 152m, 7/2/14 GMT 183 = CSV day 183"},
+    {"experiment_uid": "bass2:35", "chunk_id": "bass-ii-summary-report:p117:3", "matched": "M9", "decision": "own_row", "evidence": "Appendix A p.117: run 78, sample 179m, 7/11/14 GMT 192 = CSV day 192"},
+    {"experiment_uid": "bass2:4", "chunk_id": "bass-ii-summary-report:p49:1", "matched": "B4", "decision": "figure", "evidence": "Figure on PDF p.49, panel (c) 'BASS-II B4; 300 um thick'; Appendix A gives B4 as 300-um PMMA film"},
+    {"experiment_uid": "bass2:40", "chunk_id": "bass-ii-summary-report:p116:2", "matched": "M14", "decision": "own_row", "evidence": "Appendix A p.116: run 16, sample 223, 2/20/14 GMT 051 = CSV day 51"},
+    {"experiment_uid": "bass2:43", "chunk_id": "bass-ii-summary-report:p66:0", "matched": "M17", "decision": "figure", "evidence": "Figure 5.3 'M17 still images at different flow velocities' (PDF p.66)"},
+    {"experiment_uid": "bass2:43", "chunk_id": "bass-ii-summary-report:p116:3", "matched": "M17", "decision": "own_row", "evidence": "Appendix A p.116: 'M17 166m 2-cm-wide PMMA, 2 mm thick' = curated row (sample 166m); run number and date fall in the previous chunk"},
+    {"experiment_uid": "bass2:46", "chunk_id": "bass-ii-summary-report:p117:1", "matched": "M20", "decision": "own_row", "evidence": "Appendix A p.117: run 116, sample 172m, 8/1/14 GMT 213 = CSV day 213"},
+    {"experiment_uid": "bass2:5", "chunk_id": "bass-ii-summary-report:p112:2", "matched": "B5", "decision": "own_row", "evidence": "Appendix A p.112: run 10, sample 156, 2/19/2014 GMT 050 = CSV day 50"},
+    {"experiment_uid": "bass2:52", "chunk_id": "bass-ii-summary-report:p119:1", "matched": "O5a", "decision": "own_row", "evidence": "Appendix A p.119: run 89, sample 220m, 7/21/14 GMT 202 = CSV day 202"},
+    {"experiment_uid": "bass2:57", "chunk_id": "bass-ii-summary-report:p118:1", "matched": "O8b", "decision": "cross_reference", "evidence": "Text is O11's observation 'Repeat of clear rod O8b test ... fan slightly higher than O8b'; O8b's own row is on p.119"},
+    {"experiment_uid": "bass2:60", "chunk_id": "bass-ii-summary-report:p118:1", "matched": "O11", "decision": "own_row", "evidence": "Appendix A p.118: run 65, sample 184m, 7/8/2014 GMT 189 = CSV day 189"},
+    {"experiment_uid": "bass2:65", "chunk_id": "bass-ii-summary-report:p118:2", "matched": "O15a", "decision": "own_row", "evidence": "Appendix A p.118: run 100, sample 218m, 7/28/2014 GMT 209 = CSV day 209"},
+    {"experiment_uid": "bass2:75", "chunk_id": "bass-ii-summary-report:p114:3", "matched": "P2", "decision": "own_row", "evidence": "Appendix A p.114: run 26, sample 188M, 6/16/2014 (day 167 = CSV day 167; report prints no GMT)"},
+    {"experiment_uid": "bass2:76", "chunk_id": "bass-ii-summary-report:p115:1", "matched": "P3a", "decision": "own_row", "evidence": "Appendix A p.115: run 27, sample 215M, 6/16/2014 (day 167). Note: this row is one of the 3 report-vs-CSV conflicts (BASS-REPORT-CSV-CONFLICT)"},
+    {"experiment_uid": "bass2:77", "chunk_id": "bass-ii-summary-report:p115:2", "matched": "P3b", "decision": "own_row", "evidence": "Appendix A p.115: run 28, sample 215M, 6/16/2014 (day 167)"},
+    {"experiment_uid": "bass2:81", "chunk_id": "bass-ii-summary-report:p115:3", "matched": "P8", "decision": "own_row", "evidence": "Appendix A p.115: run 56, sample 197m, 7/3/2014 GMT 184 = CSV day 184"},
+    {"experiment_uid": "bass2:89", "chunk_id": "bass-ii-summary-report:p114:2", "matched": "P16", "decision": "own_row", "evidence": "Appendix A p.114: run 93, sample 191m, GMT 203 = CSV day 203"},
+    {"experiment_uid": "bass2:97", "chunk_id": "bass-ii-summary-report:p115:0", "matched": "P22b", "decision": "own_row", "evidence": "Appendix A p.115: run 69, sample 200m, 7/8/2014 GMT 189 = CSV day 189. Note: report-vs-CSV conflict row (BASS-REPORT-CSV-CONFLICT)"},
+    {"experiment_uid": "bass2:97", "chunk_id": "bass-ii-summary-report:p115:1", "matched": "P22b", "decision": "cross_reference", "evidence": "Text is P25's observation 'Reburn of 217m in opposed geometry, repeat of P22b'"}
+  ]
+}

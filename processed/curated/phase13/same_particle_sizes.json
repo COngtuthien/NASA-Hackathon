@@ -1,0 +1,299 @@
+{
+ "dataset_id": "same_particle_sizes",
+ "investigation_id": "PSI-102",
+ "title": "SAME particle-size results (Final Science Report Table 1)",
+ "evidence_class": "derived_experimental",
+ "description": "Moment-method particle-size statistics of smoke from overheated materials, fresh (no aging) and aged 720 s. Derived by the SAME team from 0th, 1st and 3rd moment instruments assuming a log-normal distribution; not raw instrument signals.",
+ "processor_version": "phase13-1",
+ "sources": [
+  {
+   "path": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+   "sha256": "af91c96d22d93bbefbc0f2c5e1cc06e24813f532e5379b3fec9f121cccb22193",
+   "size_bytes": 3712845,
+   "role": "final_report"
+  }
+ ],
+ "field_specs": [
+  {
+   "field": "dg_nm",
+   "variable": "Geometric mean diameter",
+   "evidence_class": "derived_experimental",
+   "raw_column": "Geom.Mean Diam. (nm)",
+   "unit_raw": "nm",
+   "unit": "nm",
+   "unit_status": "header",
+   "transform": "none"
+  },
+  {
+   "field": "d10_nm",
+   "variable": "Arithmetic (count) mean diameter",
+   "evidence_class": "derived_experimental",
+   "raw_column": "Arithmetic Mean Diam. (nm)",
+   "unit_raw": "nm",
+   "unit": "nm",
+   "unit_status": "header",
+   "transform": "none"
+  },
+  {
+   "field": "d30_nm",
+   "variable": "Diameter of average mass",
+   "evidence_class": "derived_experimental",
+   "raw_column": "Diam. of Average Mass (nm)",
+   "unit_raw": "nm",
+   "unit": "nm",
+   "unit_status": "header",
+   "transform": "none"
+  },
+  {
+   "field": "sigma_g",
+   "variable": "Geometric standard deviation",
+   "evidence_class": "derived_experimental",
+   "raw_column": "σg",
+   "unit": "-",
+   "unit_status": "dimensionless",
+   "transform": "none"
+  },
+  {
+   "field": "aged",
+   "variable": "Aged smoke (720 s aging) vs fresh",
+   "evidence_class": "test_condition",
+   "unit_status": "n/a",
+   "transform": "none",
+   "note": "Aging duration stated in SAE 2009-01-2468 (PDF p39)."
+  }
+ ],
+ "counts": {
+  "source_records": 8,
+  "processed_records": 8,
+  "excluded_records": 0,
+  "flagged_records": 0,
+  "flagged_records_warning": 0,
+  "flags": 0,
+  "dataset_level_flags": 0,
+  "excluded_reasons": {}
+ },
+ "notes": [
+  "Dibutyl phthalate (DBP) was flown but has no row in Table 1.",
+  "Values come from the moment method (0th: P-Trak number; 1st: ionization; 3rd: DustTrak mass) with an assumed log-normal distribution (Final Science Report PDF pp15-19); they are not direct sizings."
+ ],
+ "extra": {},
+ "records": [
+  {
+   "record_id": "same:size:kapton:fresh",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Final Science Report Table 1",
+    "page_pdf": 27,
+    "source_row": 1
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "kapton",
+    "material_label": "Kapton (polyimide film)",
+    "material_printed": "Kapton",
+    "aged": false,
+    "aging_s": 0,
+    "dg_nm": 80,
+    "d10_nm": 105,
+    "d30_nm": 179,
+    "sigma_g": 2.08,
+    "flight": "SAME-1 (2007)"
+   },
+   "raw": {
+    "printed": "Kapton 80 105 179 2.08"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size:kapton:aged",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Final Science Report Table 1",
+    "page_pdf": 27,
+    "source_row": 2
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "kapton",
+    "material_label": "Kapton (polyimide film)",
+    "material_printed": "Kapton",
+    "aged": true,
+    "aging_s": 720,
+    "dg_nm": 155,
+    "d10_nm": 186,
+    "d30_nm": 267,
+    "sigma_g": 1.82,
+    "flight": "SAME-1 (2007)"
+   },
+   "raw": {
+    "printed": "Kapton aged 155 186 267 1.82"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size:lampwick:fresh",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Final Science Report Table 1",
+    "page_pdf": 27,
+    "source_row": 3
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "lampwick",
+    "material_label": "Lamp wick (cellulose)",
+    "material_printed": "Lamp wick",
+    "aged": false,
+    "aging_s": 0,
+    "dg_nm": 186,
+    "d10_nm": 227,
+    "d30_nm": 341,
+    "sigma_g": 1.89,
+    "flight": "SAME-1 (2007)"
+   },
+   "raw": {
+    "printed": "Lamp wick 186 227 341 1.89"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size:lampwick:aged",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Final Science Report Table 1",
+    "page_pdf": 27,
+    "source_row": 4
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "lampwick",
+    "material_label": "Lamp wick (cellulose)",
+    "material_printed": "Lamp wick",
+    "aged": true,
+    "aging_s": 720,
+    "dg_nm": 258,
+    "d10_nm": 308,
+    "d30_nm": 438,
+    "sigma_g": 1.81,
+    "flight": "SAME-1 (2007)"
+   },
+   "raw": {
+    "printed": "Lamp wick aged 258 308 438 1.81"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size:silicone:fresh",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Final Science Report Table 1",
+    "page_pdf": 27,
+    "source_row": 5
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "silicone",
+    "material_label": "Silicone rubber",
+    "material_printed": "Silicone",
+    "aged": false,
+    "aging_s": 0,
+    "dg_nm": 189,
+    "d10_nm": 257,
+    "d30_nm": 472,
+    "sigma_g": 2.18,
+    "flight": "SAME-1 (2007)"
+   },
+   "raw": {
+    "printed": "Silicone 189 257 472 2.18"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size:silicone:aged",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Final Science Report Table 1",
+    "page_pdf": 27,
+    "source_row": 6
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "silicone",
+    "material_label": "Silicone rubber",
+    "material_printed": "Silicone",
+    "aged": true,
+    "aging_s": 720,
+    "dg_nm": 352,
+    "d10_nm": 422,
+    "d30_nm": 606,
+    "sigma_g": 1.83,
+    "flight": "SAME-1 (2007)"
+   },
+   "raw": {
+    "printed": "Silicone aged 352 422 606 1.83"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size:teflon:fresh",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Final Science Report Table 1",
+    "page_pdf": 27,
+    "source_row": 7
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "teflon",
+    "material_label": "Teflon (PTFE)",
+    "material_printed": "Teflon",
+    "aged": false,
+    "aging_s": 0,
+    "dg_nm": 170,
+    "d10_nm": 205,
+    "d30_nm": 297,
+    "sigma_g": 1.84,
+    "flight": "SAME-1 (2007)"
+   },
+   "raw": {
+    "printed": "Teflon 170 205 297 1.84"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size:teflon:aged",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Final Science Report Table 1",
+    "page_pdf": 27,
+    "source_row": 8
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "teflon",
+    "material_label": "Teflon (PTFE)",
+    "material_printed": "Teflon",
+    "aged": true,
+    "aging_s": 720,
+    "dg_nm": 228,
+    "d10_nm": 273,
+    "d30_nm": 392,
+    "sigma_g": 1.82,
+    "flight": "SAME-1 (2007)"
+   },
+   "raw": {
+    "printed": "Teflon aged 228 273 392 1.82"
+   },
+   "flags": []
+  }
+ ],
+ "flags": []
+}

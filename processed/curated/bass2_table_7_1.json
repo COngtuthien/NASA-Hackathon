@@ -1,0 +1,1273 @@
+{
+ "table": "7.1",
+ "title": "Flat SIBAL fabrics in concurrent flow (T'ien)",
+ "page_pdf": 104,
+ "rows": [
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T1",
+   "row_key": "GMT45-T1",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT45-T1",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "10",
+    "O2, vol%": "18.5b",
+    "Comments": "-----------------------------"
+   },
+   "values": {
+    "gmt_day_of_year": 45,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     10.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 18.5,
+    "o2_footnote": "b",
+    "comment": null,
+    "outcome": null
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:101",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T2",
+   "row_key": "GMT45-T2",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT45-T2",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "10 to 5",
+    "O2, vol%": "18.5b",
+    "Comments": "-----------------------------"
+   },
+   "values": {
+    "gmt_day_of_year": 45,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     10.0,
+     5.0
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 18.5,
+    "o2_footnote": "b",
+    "comment": null,
+    "outcome": null
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:102",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T4",
+   "row_key": "GMT45-T4",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT45-T4",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "10 to 2.2",
+    "O2, vol%": "18.7",
+    "Comments": "Quenched"
+   },
+   "values": {
+    "gmt_day_of_year": 45,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     10.0,
+     2.2
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 18.7,
+    "o2_footnote": null,
+    "comment": "Quenched",
+    "outcome": "quenched"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:104",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T15",
+   "row_key": "GMT45-T15",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT45-T15",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "10 to 29",
+    "O2, vol%": "18.7",
+    "Comments": "No blowoff"
+   },
+   "values": {
+    "gmt_day_of_year": 45,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     10.0,
+     29.0
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 18.7,
+    "o2_footnote": null,
+    "comment": "No blowoff",
+    "outcome": "no_blowoff"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:114",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T5",
+   "row_key": "GMT100-T5",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT100-T5",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "10 to 2.4",
+    "O2, vol%": "18.8",
+    "Comments": "-----------------------------"
+   },
+   "values": {
+    "gmt_day_of_year": 100,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     10.0,
+     2.4
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 18.8,
+    "o2_footnote": null,
+    "comment": null,
+    "outcome": null
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:105",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T6",
+   "row_key": "GMT100-T6",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT100-T6",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "4.5 to 2.6",
+    "O2, vol%": "18.8",
+    "Comments": "-----------------------------"
+   },
+   "values": {
+    "gmt_day_of_year": 100,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     4.5,
+     2.6
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 18.8,
+    "o2_footnote": null,
+    "comment": null,
+    "outcome": null
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:106",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T13",
+   "row_key": "GMT100-T13",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT100-T13",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "4 to 2.2",
+    "O2, vol%": "17.5",
+    "Comments": "Quenched"
+   },
+   "values": {
+    "gmt_day_of_year": 100,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     4.0,
+     2.2
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 17.5,
+    "o2_footnote": null,
+    "comment": "Quenched",
+    "outcome": "quenched"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:112",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T16",
+   "row_key": "GMT100-T16",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT100-T16",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "4 to 3",
+    "O2, vol%": "17.6",
+    "Comments": "-----------------------------"
+   },
+   "values": {
+    "gmt_day_of_year": 100,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     4.0,
+     3.0
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 17.6,
+    "o2_footnote": null,
+    "comment": null,
+    "outcome": null
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:115",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T9",
+   "row_key": "GMT175-T9",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT175-T9",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "10",
+    "O2, vol%": "16.4",
+    "Comments": "No ignition"
+   },
+   "values": {
+    "gmt_day_of_year": 175,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     10.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 16.4,
+    "o2_footnote": null,
+    "comment": "No ignition",
+    "outcome": "no_ignition"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:108",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T10",
+   "row_key": "GMT175-T10",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT175-T10",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "5",
+    "O2, vol%": "16.4",
+    "Comments": "No ignition"
+   },
+   "values": {
+    "gmt_day_of_year": 175,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     5.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 16.4,
+    "o2_footnote": null,
+    "comment": "No ignition",
+    "outcome": "no_ignition"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:109",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T18",
+   "row_key": "GMT175-T18",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT175-T18",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "5 to 2.6",
+    "O2, vol%": "17.4",
+    "Comments": "Quenched"
+   },
+   "values": {
+    "gmt_day_of_year": 175,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     5.0,
+     2.6
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 17.4,
+    "o2_footnote": null,
+    "comment": "Quenched",
+    "outcome": "quenched"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:117",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T11",
+   "row_key": "GMT178-T11",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT178-T11",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "4",
+    "O2, vol%": "17.1",
+    "Comments": "-----------------------------"
+   },
+   "values": {
+    "gmt_day_of_year": 178,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     4.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 17.1,
+    "o2_footnote": null,
+    "comment": null,
+    "outcome": null
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:110",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T12",
+   "row_key": "GMT178-T12",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT178-T12",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "5",
+    "O2, vol%": "16.8",
+    "Comments": "No ignition"
+   },
+   "values": {
+    "gmt_day_of_year": 178,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     5.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 16.8,
+    "o2_footnote": null,
+    "comment": "No ignition",
+    "outcome": "no_ignition"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:111",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T14",
+   "row_key": "GMT178-T14",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT178-T14",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "4 to 2.8",
+    "O2, vol%": "16.9",
+    "Comments": "Quenched"
+   },
+   "values": {
+    "gmt_day_of_year": 178,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     4.0,
+     2.8
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 16.9,
+    "o2_footnote": null,
+    "comment": "Quenched",
+    "outcome": "quenched"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:113",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T17",
+   "row_key": "GMT178-T17",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT178-T17",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "6 to 53",
+    "O2, vol%": "16.9",
+    "Comments": "No blowoff"
+   },
+   "values": {
+    "gmt_day_of_year": 178,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     6.0,
+     53.0
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 16.9,
+    "o2_footnote": null,
+    "comment": "No blowoff",
+    "outcome": "no_blowoff"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:116",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T19",
+   "row_key": "GMT190-T19",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT190-T19",
+    "Sample width, cm": "1.2",
+    "Flow, cm/s": "11",
+    "O2, vol%": "17.2",
+    "Comments": "-----------------------------"
+   },
+   "values": {
+    "gmt_day_of_year": 190,
+    "sample_width_cm": 1.2,
+    "flow_cm_s": [
+     11.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 17.2,
+    "o2_footnote": null,
+    "comment": null,
+    "outcome": null
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:118",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T20",
+   "row_key": "GMT190-T20",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT190-T20",
+    "Sample width, cm": "1.2",
+    "Flow, cm/s": "11 to 3",
+    "O2, vol%": "17.2",
+    "Comments": "Quenched"
+   },
+   "values": {
+    "gmt_day_of_year": 190,
+    "sample_width_cm": 1.2,
+    "flow_cm_s": [
+     11.0,
+     3.0
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 17.2,
+    "o2_footnote": null,
+    "comment": "Quenched",
+    "outcome": "quenched"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:119",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T21",
+   "row_key": "GMT190-T21",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT190-T21",
+    "Sample width, cm": "1.2",
+    "Flow, cm/s": "11 to 47",
+    "O2, vol%": "17.2",
+    "Comments": "Blow-off"
+   },
+   "values": {
+    "gmt_day_of_year": 190,
+    "sample_width_cm": 1.2,
+    "flow_cm_s": [
+     11.0,
+     47.0
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 17.2,
+    "o2_footnote": null,
+    "comment": "Blow-off",
+    "outcome": "blowoff"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:120",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T22",
+   "row_key": "GMT190-T22",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT190-T22",
+    "Sample width, cm": "1.2",
+    "Flow, cm/s": "10.5 to 5",
+    "O2, vol%": "17.1",
+    "Comments": "Quenched"
+   },
+   "values": {
+    "gmt_day_of_year": 190,
+    "sample_width_cm": 1.2,
+    "flow_cm_s": [
+     10.5,
+     5.0
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 17.1,
+    "o2_footnote": null,
+    "comment": "Quenched",
+    "outcome": "quenched"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:121",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T23",
+   "row_key": "GMT190-T23",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT190-T23",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "10",
+    "O2, vol%": "17.2",
+    "Comments": "Reused, did not ignite"
+   },
+   "values": {
+    "gmt_day_of_year": 190,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     10.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 17.2,
+    "o2_footnote": null,
+    "comment": "Reused, did not ignite",
+    "outcome": "no_ignition"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:122",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T24",
+   "row_key": "GMT190-T24",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT190-T24",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "10",
+    "O2, vol%": "18.2",
+    "Comments": "Reused, one-sided flame"
+   },
+   "values": {
+    "gmt_day_of_year": 190,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     10.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 18.2,
+    "o2_footnote": null,
+    "comment": "Reused, one-sided flame",
+    "outcome": "ignited_one_sided"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:123",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T25",
+   "row_key": "GMT216-T25",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT216-T25",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "5 to 2.5",
+    "O2, vol%": "20.8",
+    "Comments": "Reused, ignited"
+   },
+   "values": {
+    "gmt_day_of_year": 216,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     5.0,
+     2.5
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 20.8,
+    "o2_footnote": null,
+    "comment": "Reused, ignited",
+    "outcome": "ignited"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:124",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T26",
+   "row_key": "GMT216-T26",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT216-T26",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "5 to 2.5",
+    "O2, vol%": "20.8",
+    "Comments": "Reused, ignited"
+   },
+   "values": {
+    "gmt_day_of_year": 216,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     5.0,
+     2.5
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 20.8,
+    "o2_footnote": null,
+    "comment": "Reused, ignited",
+    "outcome": "ignited"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:125",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T27",
+   "row_key": "GMT216-T27",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT216-T27",
+    "Sample width, cm": "1.2",
+    "Flow, cm/s": "5 to 2",
+    "O2, vol%": "20.7",
+    "Comments": "Reused, ignited"
+   },
+   "values": {
+    "gmt_day_of_year": 216,
+    "sample_width_cm": 1.2,
+    "flow_cm_s": [
+     5.0,
+     2.0
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 20.7,
+    "o2_footnote": null,
+    "comment": "Reused, ignited",
+    "outcome": "ignited"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:126",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T28a",
+   "row_key": "GMT216-T28a",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT216-T28a",
+    "Sample width, cm": "1.2",
+    "Flow, cm/s": "5",
+    "O2, vol%": "20.7",
+    "Comments": "Reused, did not ignite"
+   },
+   "values": {
+    "gmt_day_of_year": 216,
+    "sample_width_cm": 1.2,
+    "flow_cm_s": [
+     5.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 20.7,
+    "o2_footnote": null,
+    "comment": "Reused, did not ignite",
+    "outcome": "no_ignition"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:127",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T28b",
+   "row_key": "GMT216-T28b",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT216-T28b",
+    "Sample width, cm": "1.2",
+    "Flow, cm/s": "5",
+    "O2, vol%": "20.7",
+    "Comments": "Reused, did not ignite"
+   },
+   "values": {
+    "gmt_day_of_year": 216,
+    "sample_width_cm": 1.2,
+    "flow_cm_s": [
+     5.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 20.7,
+    "o2_footnote": null,
+    "comment": "Reused, did not ignite",
+    "outcome": "no_ignition"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:128",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T29",
+   "row_key": "GMT216-T29",
+   "investigation": "BASS-II",
+   "raw": {
+    "Test number": "GMT216-T29",
+    "Sample width, cm": "1.2",
+    "Flow, cm/s": "5 to 2",
+    "O2, vol%": "20.7",
+    "Comments": "Reused, ignited"
+   },
+   "values": {
+    "gmt_day_of_year": 216,
+    "sample_width_cm": 1.2,
+    "flow_cm_s": [
+     5.0,
+     2.0
+    ],
+    "flow_change": "range",
+    "o2_vol_pct": 20.7,
+    "o2_footnote": null,
+    "comment": "Reused, ignited",
+    "outcome": "ignited"
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "o2_vol_pct": true,
+    "gmt_day_of_year": true
+   },
+   "experiment_uid": "bass2:129",
+   "verification": "verified"
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T8",
+   "row_key": "GMT96-T8",
+   "investigation": "BASS (I)",
+   "raw": {
+    "Test number": "GMT96-T8",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "5",
+    "O2, vol%": "21",
+    "Comments": "BASS"
+   },
+   "values": {
+    "gmt_day_of_year": 96,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     5.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 21.0,
+    "o2_footnote": null,
+    "comment": "BASS",
+    "outcome": null
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "experiment_uid": null,
+   "verification": "not_applicable",
+   "checks": {},
+   "notes": [
+    "Earlier BASS (I) test: its Test # collides with a BASS-II test name but is a different experiment."
+   ]
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T7",
+   "row_key": "GMT96-T7",
+   "investigation": "BASS (I)",
+   "raw": {
+    "Test number": "GMT96-T7",
+    "Sample width, cm": "2.2",
+    "Flow, cm/s": "10",
+    "O2, vol%": "21",
+    "Comments": "BASS"
+   },
+   "values": {
+    "gmt_day_of_year": 96,
+    "sample_width_cm": 2.2,
+    "flow_cm_s": [
+     10.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 21.0,
+    "o2_footnote": null,
+    "comment": "BASS",
+    "outcome": null
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "experiment_uid": null,
+   "verification": "not_applicable",
+   "checks": {},
+   "notes": [
+    "Earlier BASS (I) test: its Test # collides with a BASS-II test name but is a different experiment."
+   ]
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T10",
+   "row_key": "GMT131-T10",
+   "investigation": "BASS (I)",
+   "raw": {
+    "Test number": "GMT131-T10",
+    "Sample width, cm": "1.2",
+    "Flow, cm/s": "11",
+    "O2, vol%": "21",
+    "Comments": "BASS"
+   },
+   "values": {
+    "gmt_day_of_year": 131,
+    "sample_width_cm": 1.2,
+    "flow_cm_s": [
+     11.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 21.0,
+    "o2_footnote": null,
+    "comment": "BASS",
+    "outcome": null
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "experiment_uid": null,
+   "verification": "not_applicable",
+   "checks": {},
+   "notes": [
+    "Earlier BASS (I) test: its Test # collides with a BASS-II test name but is a different experiment."
+   ]
+  },
+  {
+   "table": "7.1",
+   "page_pdf": 104,
+   "page_printed": 96,
+   "test_id": "T11",
+   "row_key": "GMT222-T11",
+   "investigation": "BASS (I)",
+   "raw": {
+    "Test number": "GMT222-T11",
+    "Sample width, cm": "1.2",
+    "Flow, cm/s": "19",
+    "O2, vol%": "21",
+    "Comments": "BASS"
+   },
+   "values": {
+    "gmt_day_of_year": 222,
+    "sample_width_cm": 1.2,
+    "flow_cm_s": [
+     19.0
+    ],
+    "flow_change": "single",
+    "o2_vol_pct": 21.0,
+    "o2_footnote": null,
+    "comment": "BASS",
+    "outcome": null
+   },
+   "units": {
+    "sample_width_cm": "cm",
+    "flow_cm_s": "cm/s",
+    "o2_vol_pct": "% by volume"
+   },
+   "experiment_uid": null,
+   "verification": "not_applicable",
+   "checks": {},
+   "notes": [
+    "Earlier BASS (I) test: its Test # collides with a BASS-II test name but is a different experiment."
+   ]
+  }
+ ],
+ "header": [
+  "Test number",
+  "Sample width, cm",
+  "Flow, cm/s",
+  "O2, vol%",
+  "Comments"
+ ],
+ "footnotes": {
+  "a": "Solid Inflammability Boundary at Low Speeds.",
+  "b": "O2 reading in these two tests might be inaccurate."
+ },
+ "source": {
+  "file": "BASS-II/BASS-II Summary Report.pdf",
+  "report": "NASA/TM-20210011385",
+  "printed_page_offset": 8,
+  "method": "PyMuPDF table detection + per-character cell reconstruction; verified against CSV"
+ }
+}

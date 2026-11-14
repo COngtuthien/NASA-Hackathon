@@ -1,0 +1,665 @@
+{
+ "dataset_id": "fd_test_days",
+ "investigation_id": "PSI-10",
+ "title": "Flame Design flames ignited per test day (final report Table 1)",
+ "evidence_class": "operational_log",
+ "description": "Day-level log of flames ignited; atmospheres approximate, vitiation neglected.",
+ "processor_version": "phase13-1",
+ "sources": [
+  {
+   "path": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+   "sha256": "1d64b7f42f079579671624da5356cfe6d867ad014dd1d6932e9fcc6d3a1706fd",
+   "size_bytes": 4152310,
+   "role": "final_report"
+  }
+ ],
+ "field_specs": [
+  {
+   "field": "flames_ignited",
+   "variable": "Flames ignited that day",
+   "evidence_class": "operational_log",
+   "unit": "count",
+   "unit_status": "n/a",
+   "transform": "none"
+  }
+ ],
+ "counts": {
+  "source_records": 23,
+  "processed_records": 23,
+  "excluded_records": 0,
+  "flagged_records": 0,
+  "flagged_records_warning": 0,
+  "flags": 0,
+  "dataset_level_flags": 0,
+  "excluded_reasons": {}
+ },
+ "notes": [],
+ "extra": {
+  "totals": {
+   "table1_flames": 326,
+   "table1_round1": 188,
+   "table1_round2": 138,
+   "csv_test_points": 327
+  },
+  "findings": [
+   {
+    "id": "fd-critical-temperature",
+    "text": "All ISS flames observed by the project extinguish at a critical extinction temperature of 1130 K, at a fuel mass flux of 0.2 g/m2-s for normal flames and an oxygen mass flux of 0.68 g/m2-s for inverse flames.",
+    "page_pdf": 26,
+    "kind": "report_statement",
+    "values": [
+     {
+      "variable": "critical extinction temperature",
+      "value": 1130,
+      "unit": "K"
+     },
+     {
+      "variable": "critical fuel mass flux (normal)",
+      "value": 0.2,
+      "unit": "g/m2-s"
+     },
+     {
+      "variable": "critical oxygen mass flux (inverse)",
+      "value": 0.68,
+      "unit": "g/m2-s"
+     }
+    ]
+   },
+   {
+    "id": "fd-growth",
+    "text": "Microgravity spherical diffusion flames grow monotonically after ignition; radiative extinction occurs when, at constant reactant flow rate, the flame expands until radiation heat loss approaches the chemical heat release; an oscillatory mode can precede extinction.",
+    "page_pdf": 26,
+    "kind": "report_statement"
+   },
+   {
+    "id": "fd-burn-times",
+    "text": "Burn times in the 2021 long-duration study ranged from 28 to 336 s.",
+    "page_pdf": 26,
+    "kind": "report_statement",
+    "values": [
+     {
+      "variable": "burn time range (2021 study)",
+      "value": [
+       28,
+       336
+      ],
+      "unit": "s"
+     }
+    ]
+   },
+   {
+    "id": "fd-steady-time",
+    "text": "In the spherical, infinite-domain configuration the characteristic time to reach steady state is on the order of 10^5 s.",
+    "page_pdf": 27,
+    "kind": "report_statement"
+   },
+   {
+    "id": "fd-limits",
+    "text": "For safety, O2 was limited to 40% for normal tests and C2H4 to 65% for inverse flames; CH4 and CO2-diluent tests were slated but not allowed.",
+    "page_pdf": 27,
+    "kind": "report_statement"
+   },
+   {
+    "id": "fd-shortcomings",
+    "text": "TFP fibre array misaligned for four test days; round-1 radiometers saturated for nearly every test; burner asymmetry; MFC flows not always steady.",
+    "page_pdf": 19,
+    "kind": "report_statement"
+   }
+  ]
+ },
+ "records": [
+  {
+   "record_id": "fd:day:19115",
+   "test_id": "19115",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 1
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19115",
+    "date": "2019-04-25",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": "serial number 1002",
+    "reactant_bottle_printed": "100% C2H4",
+    "atmosphere": "21% O2",
+    "flames_ignited": 11,
+    "csv_test_points": 11
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19123",
+   "test_id": "19123",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 2
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19123",
+    "date": "2019-05-03",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "21% O2",
+    "flames_ignited": 19,
+    "csv_test_points": 19
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19137",
+   "test_id": "19137",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 3
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19137",
+    "date": "2019-05-17",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "21% O2",
+    "flames_ignited": 20,
+    "csv_test_points": 20
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19142",
+   "test_id": "19142",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 4
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19142",
+    "date": "2019-05-22",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "40% O2",
+    "flames_ignited": 8,
+    "csv_test_points": 8
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19150",
+   "test_id": "19150",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 5
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19150",
+    "date": "2019-05-30",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "30%, 40% O2",
+    "flames_ignited": 15,
+    "csv_test_points": 15
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19156",
+   "test_id": "19156",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 6
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19156",
+    "date": "2019-06-05",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "40% O2",
+    "flames_ignited": 13,
+    "csv_test_points": 13
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19161",
+   "test_id": "19161",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 7
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19161",
+    "date": "2019-06-10",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "40% O2",
+    "flames_ignited": 0,
+    "csv_test_points": 0
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19171",
+   "test_id": "19171",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 8
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19171",
+    "date": "2019-06-20",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": "serial number 1003",
+    "reactant_bottle_printed": null,
+    "atmosphere": "40% O2",
+    "flames_ignited": 12,
+    "csv_test_points": 12
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19175",
+   "test_id": "19175",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 9
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19175",
+    "date": "2019-06-24",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "40% O2",
+    "flames_ignited": 14,
+    "csv_test_points": 13
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19182",
+   "test_id": "19182",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 10
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19182",
+    "date": "2019-07-01",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "40% O2",
+    "flames_ignited": 15,
+    "csv_test_points": 15
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19189",
+   "test_id": "19189",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 11
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19189",
+    "date": "2019-07-08",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "40% O2",
+    "flames_ignited": 15,
+    "csv_test_points": 15
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19196",
+   "test_id": "19196",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 12
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19196",
+    "date": "2019-07-15",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "40% O2",
+    "flames_ignited": 13,
+    "csv_test_points": 13
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19200",
+   "test_id": "19200",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 13
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19200",
+    "date": "2019-07-19",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "30%, 40% O2",
+    "flames_ignited": 12,
+    "csv_test_points": 12
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:19206",
+   "test_id": "19206",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 14
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "19206",
+    "date": "2019-07-25",
+    "round": 1,
+    "configuration": "normal",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "21% O2",
+    "flames_ignited": 21,
+    "csv_test_points": 21
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:21301",
+   "test_id": "21301",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 15
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "21301",
+    "date": "2021-10-28",
+    "round": 2,
+    "configuration": "normal",
+    "burner_printed": "serial number 1003",
+    "reactant_bottle_printed": "100% C3H8",
+    "atmosphere": "40% O2",
+    "flames_ignited": 18,
+    "csv_test_points": 20
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:21328",
+   "test_id": "21328",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 16
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "21328",
+    "date": "2021-11-24",
+    "round": 2,
+    "configuration": "inverse",
+    "burner_printed": null,
+    "reactant_bottle_printed": "85% O2",
+    "atmosphere": "27%, 8% C2H4",
+    "flames_ignited": 9,
+    "csv_test_points": 9
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:21340",
+   "test_id": "21340",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 17
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "21340",
+    "date": "2021-12-06",
+    "round": 2,
+    "configuration": "inverse",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "17%, 12% C2H4",
+    "flames_ignited": 13,
+    "csv_test_points": 13
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:21349",
+   "test_id": "21349",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 18
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "21349",
+    "date": "2021-12-15",
+    "round": 2,
+    "configuration": "inverse",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "65%, 27.5% C2H4",
+    "flames_ignited": 15,
+    "csv_test_points": 15
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:21361",
+   "test_id": "21361",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 19
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "21361",
+    "date": "2021-12-27",
+    "round": 2,
+    "configuration": "inverse",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "20% C2H4",
+    "flames_ignited": 20,
+    "csv_test_points": 20
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:22018",
+   "test_id": "22018",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 20
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "22018",
+    "date": "2022-01-18",
+    "round": 2,
+    "configuration": "inverse",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "17%, 10% C2H4",
+    "flames_ignited": 12,
+    "csv_test_points": 12
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:22024",
+   "test_id": "22024",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 21
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "22024",
+    "date": "2022-01-24",
+    "round": 2,
+    "configuration": "inverse",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "19% C2H4",
+    "flames_ignited": 20,
+    "csv_test_points": 19
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:22027",
+   "test_id": "22027",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 22
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "22027",
+    "date": "2022-01-27",
+    "round": 2,
+    "configuration": "inverse",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "10% C2H4",
+    "flames_ignited": 16,
+    "csv_test_points": 16
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "fd:day:22035",
+   "test_id": "22035",
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_Reports_FinalRpt_ACMEFlameDesign.pdf",
+    "source_table": "Final report Table 1",
+    "page_pdf": 24,
+    "source_row": 23
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_day": "22035",
+    "date": "2022-02-04",
+    "round": 2,
+    "configuration": "inverse",
+    "burner_printed": null,
+    "reactant_bottle_printed": null,
+    "atmosphere": "17%, 10% C2H4",
+    "flames_ignited": 15,
+    "csv_test_points": 15
+   },
+   "raw": {},
+   "flags": []
+  }
+ ],
+ "flags": []
+}

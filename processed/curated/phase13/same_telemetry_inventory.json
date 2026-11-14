@@ -1,0 +1,1038 @@
+{
+ "dataset_id": "same_telemetry_inventory",
+ "investigation_id": "PSI-102",
+ "title": "SAME 1 Hz housekeeping workbooks (inventory only)",
+ "evidence_class": "direct_measurement",
+ "description": "Inventory of the 59 PSI 'Analyzed data' workbooks. They hold 1 Hz flight housekeeping exports (detector volts, P-Trak counts, DustTrak mg/m3) plus analyst sheets. Values are not processed in Phase 13.",
+ "processor_version": "phase13-1",
+ "sources": [],
+ "field_specs": [],
+ "counts": {
+  "source_records": 59,
+  "processed_records": 59,
+  "excluded_records": 59,
+  "flagged_records": 0,
+  "flagged_records_warning": 0,
+  "flags": 1,
+  "dataset_level_flags": 1,
+  "excluded_reasons": {
+   "telemetry values not processed in Phase 13": 59
+  }
+ },
+ "notes": [],
+ "extra": {},
+ "records": [
+  {
+   "record_id": "same:wb:1",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Cotton Lamp wick/GMT256HKP zgy average.xls",
+    "source_row": 1
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Cotton Lamp wick",
+    "file": "GMT256HKP zgy average.xls",
+    "size_bytes": 4487680,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:2",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Cotton Lamp wick/GMT256HKP.xls",
+    "source_row": 2
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Cotton Lamp wick",
+    "file": "GMT256HKP.xls",
+    "size_bytes": 4460544,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:3",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Cotton Lamp wick/GMT256LOG.xlsx",
+    "source_row": 3
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Cotton Lamp wick",
+    "file": "GMT256LOG.xlsx",
+    "size_bytes": 28778,
+    "kind": "log"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:4",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Cotton Lamp wick/GMT264 Run 17 lampwick.xls",
+    "source_row": 4
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Cotton Lamp wick",
+    "file": "GMT264 Run 17 lampwick.xls",
+    "size_bytes": 1867776,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:5",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Cotton Lamp wick/GMT272lampwick31.xls",
+    "source_row": 5
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Cotton Lamp wick",
+    "file": "GMT272lampwick31.xls",
+    "size_bytes": 1492480,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:6",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Cotton Lamp wick/GMT272lampwick32.xls",
+    "source_row": 6
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Cotton Lamp wick",
+    "file": "GMT272lampwick32.xls",
+    "size_bytes": 5031936,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:7",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Cotton Lamp wick/GMT273lampwick34.xls",
+    "source_row": 7
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Cotton Lamp wick",
+    "file": "GMT273lampwick34.xls",
+    "size_bytes": 3213312,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:8",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Cotton Lamp wick/GMT278Lampwick46.xls",
+    "source_row": 8
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Cotton Lamp wick",
+    "file": "GMT278Lampwick46.xls",
+    "size_bytes": 4929024,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:9",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/DBP  GMT257hkp.xls",
+    "source_row": 9
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "DBP  GMT257hkp.xls",
+    "size_bytes": 1202176,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:10",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/DBP run 4 GMT255hkp with zgy average.xls",
+    "source_row": 10
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "DBP run 4 GMT255hkp with zgy average.xls",
+    "size_bytes": 5205504,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:11",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/dbpGMT257hkp zgy average.xls",
+    "source_row": 11
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "dbpGMT257hkp zgy average.xls",
+    "size_bytes": 1257984,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:12",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT254HKPandLOGmultiple runs.xls",
+    "source_row": 12
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT254HKPandLOGmultiple runs.xls",
+    "size_bytes": 10293248,
+    "kind": "log"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:13",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT254run2btesthkp with zgy average.xls",
+    "source_row": 13
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT254run2btesthkp with zgy average.xls",
+    "size_bytes": 1851904,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:14",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT255 log.xlsx",
+    "source_row": 14
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT255 log.xlsx",
+    "size_bytes": 18763,
+    "kind": "log"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:15",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT255hkp.xlsx",
+    "source_row": 15
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT255hkp.xlsx",
+    "size_bytes": 1563904,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:16",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT262 Run 11 DBP hkp.xls",
+    "source_row": 16
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT262 Run 11 DBP hkp.xls",
+    "size_bytes": 1875456,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:17",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT262 Run 12 dbp.xls",
+    "source_row": 17
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT262 Run 12 dbp.xls",
+    "size_bytes": 1707520,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:18",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT263 Run 15 DBP.xls",
+    "source_row": 18
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT263 Run 15 DBP.xls",
+    "size_bytes": 645120,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:19",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT263 Run 16 DBP.xls",
+    "source_row": 19
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT263 Run 16 DBP.xls",
+    "size_bytes": 713728,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:20",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT264 Run 18 DBP.xls",
+    "source_row": 20
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT264 Run 18 DBP.xls",
+    "size_bytes": 4993024,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:21",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT264 Run 21 DBP.xls",
+    "source_row": 21
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT264 Run 21 DBP.xls",
+    "size_bytes": 5327872,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:22",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT264 Run 22 DBP.xls",
+    "source_row": 22
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT264 Run 22 DBP.xls",
+    "size_bytes": 5331968,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:23",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT264dbptest19and20hkp.xls",
+    "source_row": 23
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT264dbptest19and20hkp.xls",
+    "size_bytes": 4012032,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:24",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT276dbp36hkp.xls",
+    "source_row": 24
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT276dbp36hkp.xls",
+    "size_bytes": 5863936,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:25",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT276dbp37.xls",
+    "source_row": 25
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT276dbp37.xls",
+    "size_bytes": 1187328,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:26",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT276dbp38.xls",
+    "source_row": 26
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT276dbp38.xls",
+    "size_bytes": 6122496,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:27",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT276dbp39hkp.xls",
+    "source_row": 27
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT276dbp39hkp.xls",
+    "size_bytes": 2551296,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:28",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT276dbp40hkp.xls",
+    "source_row": 28
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT276dbp40hkp.xls",
+    "size_bytes": 4268544,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:29",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT277dbp42hkp peak 1.xls",
+    "source_row": 29
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT277dbp42hkp peak 1.xls",
+    "size_bytes": 4574720,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:30",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT277dbp42hkp peak 2.xls",
+    "source_row": 30
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT277dbp42hkp peak 2.xls",
+    "size_bytes": 6299136,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:31",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT277DBP43hkp.xls",
+    "source_row": 31
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT277DBP43hkp.xls",
+    "size_bytes": 3217408,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:32",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT277dbp43hkpa.xls",
+    "source_row": 32
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT277dbp43hkpa.xls",
+    "size_bytes": 6428672,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:33",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT277DBPTest44.xls",
+    "source_row": 33
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT277DBPTest44.xls",
+    "size_bytes": 11580928,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:34",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/GMT278DBP45.xls",
+    "source_row": 34
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "GMT278DBP45.xls",
+    "size_bytes": 6271488,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:35",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/Run 2 DBP GMT 254 with averages.xls",
+    "source_row": 35
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "Run 2 DBP GMT 254 with averages.xls",
+    "size_bytes": 2917376,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:36",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/Run 2 GMT254 testlog b.xlsx",
+    "source_row": 36
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "Run 2 GMT254 testlog b.xlsx",
+    "size_bytes": 20866,
+    "kind": "log"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:37",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Dibutyl Phthalate/Run 2 GMT254 testlog.xlsx",
+    "source_row": 37
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Dibutyl Phthalate",
+    "file": "Run 2 GMT254 testlog.xlsx",
+    "size_bytes": 20970,
+    "kind": "log"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:38",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Kapton/GMT263 run 14 kapton avg.xls",
+    "source_row": 38
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Kapton",
+    "file": "GMT263 run 14 kapton avg.xls",
+    "size_bytes": 1066496,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:39",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Kapton/GMT271kapton29.xls",
+    "source_row": 39
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Kapton",
+    "file": "GMT271kapton29.xls",
+    "size_bytes": 5160960,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:40",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Kapton/GMT272kapton30.xls",
+    "source_row": 40
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Kapton",
+    "file": "GMT272kapton30.xls",
+    "size_bytes": 2646528,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:41",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Kapton/GMT273kapton33.xls",
+    "source_row": 41
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Kapton",
+    "file": "GMT273kapton33.xls",
+    "size_bytes": 5982720,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:42",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Kapton/kaptonGMT257 zgy average.xls",
+    "source_row": 42
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Kapton",
+    "file": "kaptonGMT257 zgy average.xls",
+    "size_bytes": 2234368,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:43",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Kapton/kaptonGMT257.xls",
+    "source_row": 43
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Kapton",
+    "file": "kaptonGMT257.xls",
+    "size_bytes": 2120704,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:44",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Silicone/GMT252run1testhkp with plots.xls",
+    "source_row": 44
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Silicone",
+    "file": "GMT252run1testhkp with plots.xls",
+    "size_bytes": 3121152,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:45",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Silicone/GMT252run1testhkp with plotszgy average.xls",
+    "source_row": 45
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Silicone",
+    "file": "GMT252run1testhkp with plotszgy average.xls",
+    "size_bytes": 3315200,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:46",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Silicone/GMT267silicon test 23 and 24 log.xlsx",
+    "source_row": 46
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Silicone",
+    "file": "GMT267silicon test 23 and 24 log.xlsx",
+    "size_bytes": 32397,
+    "kind": "log"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:47",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Silicone/GMT267silicon23hkp.xls",
+    "source_row": 47
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Silicone",
+    "file": "GMT267silicon23hkp.xls",
+    "size_bytes": 11317248,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:48",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Silicone/GMT267silicon24hkp.xls",
+    "source_row": 48
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Silicone",
+    "file": "GMT267silicon24hkp.xls",
+    "size_bytes": 9249792,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:49",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Silicone/GMT269silicon27.xls",
+    "source_row": 49
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Silicone",
+    "file": "GMT269silicon27.xls",
+    "size_bytes": 2311168,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:50",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Silicone/GMT276silicone35.xls",
+    "source_row": 50
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Silicone",
+    "file": "GMT276silicone35.xls",
+    "size_bytes": 3540992,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:51",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Silicone/Run 1 GMT252 testlog.xls",
+    "source_row": 51
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Silicone",
+    "file": "Run 1 GMT252 testlog.xls",
+    "size_bytes": 26112,
+    "kind": "log"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:52",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Silicone/Silicone GMT255hkp run 5s zgy average.xls",
+    "source_row": 52
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Silicone",
+    "file": "Silicone GMT255hkp run 5s zgy average.xls",
+    "size_bytes": 12931072,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:53",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Silicone/Silicone GMT255hkp run 5s.xls",
+    "source_row": 53
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Silicone",
+    "file": "Silicone GMT255hkp run 5s.xls",
+    "size_bytes": 11481088,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:54",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Teflon/GMT262 RUN 13 teflon.xls",
+    "source_row": 54
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Teflon",
+    "file": "GMT262 RUN 13 teflon.xls",
+    "size_bytes": 897536,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:55",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Teflon/GMT268teflon25.xls",
+    "source_row": 55
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Teflon",
+    "file": "GMT268teflon25.xls",
+    "size_bytes": 5562880,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:56",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Teflon/GMT268teflon26.xls",
+    "source_row": 56
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Teflon",
+    "file": "GMT268teflon26.xls",
+    "size_bytes": 3776512,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:57",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Teflon/GMT269teflon28hkp.xls",
+    "source_row": 57
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Teflon",
+    "file": "GMT269teflon28hkp.xls",
+    "size_bytes": 3369472,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:58",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Teflon/TeflonGMT257hkp zgy average.xls",
+    "source_row": 58
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Teflon",
+    "file": "TeflonGMT257hkp zgy average.xls",
+    "size_bytes": 2576896,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:wb:59",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/Analyzed data/Reduced Gravity/Teflon/TeflonGMT257hkp.xls",
+    "source_row": 59
+   },
+   "verification": "listed_only",
+   "values": {
+    "folder_label": "Teflon",
+    "file": "TeflonGMT257hkp.xls",
+    "size_bytes": 2551808,
+    "kind": "housekeeping"
+   },
+   "raw": {},
+   "flags": []
+  }
+ ],
+ "flags": [
+  {
+   "rule_id": "SAME-TELEMETRY-DEFERRED",
+   "category": "missing",
+   "severity": "warning",
+   "description": "Per-test telemetry traces are deferred: the folder name does not reliably give the sample material (assignment needs the log time windows), -10 V / -999 / 500000 sentinel meanings are undocumented, time columns mix Unix epoch and elapsed seconds, and kaptonGMT257*.xls carries a day-254 TimeString.",
+   "status": "unresolved"
+  }
+ ]
+}

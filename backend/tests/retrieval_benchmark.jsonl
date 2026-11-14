@@ -1,0 +1,30 @@
+{"id": "r01", "q": "How many burns were done in total during the BASS-II campaign?", "rel": "total of 126 tests were conducted"}
+{"id": "r02", "q": "Miller flat PMMA samples flame spread rates per flow velocity table", "rel": "TWENTY BURNING AND SUPPRESSION OF SOLIDS"}
+{"id": "r03", "q": "SIBAL fabric tests in concurrent flow summary table", "rel": "TEST SUMMARY OF FLAT SIBAL"}
+{"id": "r04", "q": "square of droplet diameter decreases linearly with time", "rel": "\\(D/Do\\)2 = 1-Kot/Do|d-square law"}
+{"id": "r05", "q": "what does the GMT column mean in the BASS-II spreadsheet", "rel": "GMT- ?number is day of the year"}
+{"id": "r06", "q": "meaning of fan display numbers on the video overlay", "rel": "fan voltage"}
+{"id": "r07", "q": "which inert gases were used to dilute the atmosphere around heptane droplets", "rel": "helium, nitrogen, and carbon dioxide"}
+{"id": "r08", "q": "which Saffire image sets were recorded before and after the burns", "rel": "F1 for pre-flow and F2 for post-flow"}
+{"id": "r09", "q": "size of the large fabric sample burned on the Cygnus vehicle", "rel": "0\\.4 m wide by 0\\.94 m tall"}
+{"id": "r10", "q": "did the aramid fabric samples catch fire", "rel": "Nomex samples did not ignite|three Nomex"}
+{"id": "r11", "q": "low temperature second stage burning after the visible flame goes out for alkane drops", "rel": "cool flame"}
+{"id": "r12", "q": "chemical reaction for complete burning of polymethylmethacrylate to carbon dioxide and water", "rel": "C5H8O2"}
+{"id": "r13", "q": "how was the oxygen level in the glovebox lowered before tests", "rel": "dilut\\w*.{0,80}(GN2|nitrogen)|(GN2|nitrogen).{0,80}dilut"}
+{"id": "r14", "q": "relationship between extinction diameter and initial droplet size for methanol", "rel": "extinction diameter"}
+{"id": "r15", "q": "water absorption into burning methanol drops", "rel": "water absorption|absorb"}
+{"id": "r16", "q": "critical opposed flow velocity for thin film radiative extinction", "rel": "critical.{0,40}velocit"}
+{"id": "r17", "q": "limiting oxygen index definition", "rel": "Limiting Oxygen Index|LOI"}
+{"id": "r18", "q": "downlink data volume limit for the Saffire experiment", "rel": "20 gigabit"}
+{"id": "r19", "q": "naming convention of Saffire image folders such as jpeg_corrupt", "rel": "jpeg_corrupt|Raw_DistroMaster"}
+{"id": "r20", "q": "blowoff of the flame at high flow speed for PMMA rods", "rel": "blow-?off"}
+{"id": "r21", "q": "what happened in BASS-II test M5 that damaged the door", "rel": "M5"}
+{"id": "r22", "q": "carbon monoxide sensor over range readings", "rel": "over.?range"}
+{"id": "r23", "q": "effect of fiber support on droplet burning", "rel": "fiber-supported"}
+{"id": "r24", "q": "sooting dynamics of large droplets", "rel": "sooting|soot shell"}
+{"id": "r25", "q": "camera frame rate and resolution requirements for droplet imaging", "rel": "30 fps|frames per second|fps"}
+{"id": "r26", "q": "pressure range planned for FLEX-2 combustion chamber", "rel": "0\\.5.{0,20}3(\\.0)? ?atm"}
+{"id": "r27", "q": "heat release rate computed from oxygen consumption", "rel": "13\\.1 kJ|heat release"}
+{"id": "r28", "q": "does PMMA slab thickness change the flame spread behaviour in opposed flow", "rel": "no clear dependence on thickness"}
+{"id": "r29", "q": "objective of comparing large scale fire to small sample flammability screening", "rel": "screening"}
+{"id": "r30", "q": "test matrix for the T'ien sphere samples in stagnation flow", "rel": "spherical section|sphere"}

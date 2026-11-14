@@ -1,0 +1,1238 @@
+{
+ "table": "5.1",
+ "title": "Twenty BASS-II tests (Miller, flat PMMA)",
+ "page_pdf": 65,
+ "rows": [
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M1",
+   "raw": {
+    "Test no.": "M1",
+    "Thickness, mm": "1",
+    "Width, cm": "2.2",
+    "One or two sides burning": "1",
+    "Velocity, cm/s": "9",
+    "Spread rate, mm/s": "0.071",
+    "Burn time, min": "6.4",
+    "Initial O2, vol%": "22.2",
+    "Final O2, vol%": "21.9"
+   },
+   "values": {
+    "thickness_mm": 1.0,
+    "width_cm": 2.2,
+    "sides_burning": 1.0,
+    "velocity_cm_s": [
+     9.0
+    ],
+    "spread_rate_mm_s": [
+     0.071
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 6.4,
+    "initial_o2_vol_pct": 22.2,
+    "final_o2_vol_pct": 21.9
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 9.0,
+     "spread_rate_mm_s": 0.071
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:27",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M2",
+   "raw": {
+    "Test no.": "M2",
+    "Thickness, mm": "3",
+    "Width, cm": "2.2",
+    "One or two sides burning": "1",
+    "Velocity, cm/s": "20 and 15",
+    "Spread rate, mm/s": "0.052 and 0.033",
+    "Burn time, min": "22.9",
+    "Initial O2, vol%": "22.2",
+    "Final O2, vol%": "21.2"
+   },
+   "values": {
+    "thickness_mm": 3.0,
+    "width_cm": 2.2,
+    "sides_burning": 1.0,
+    "velocity_cm_s": [
+     20.0,
+     15.0
+    ],
+    "spread_rate_mm_s": [
+     0.052,
+     0.033
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 22.9,
+    "initial_o2_vol_pct": 22.2,
+    "final_o2_vol_pct": 21.2
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 20.0,
+     "spread_rate_mm_s": 0.052
+    },
+    {
+     "velocity_cm_s": 15.0,
+     "spread_rate_mm_s": 0.033
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:28",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M3",
+   "raw": {
+    "Test no.": "M3",
+    "Thickness, mm": "5",
+    "Width, cm": "2.2",
+    "One or two sides burning": "1",
+    "Velocity, cm/s": "10 and 20",
+    "Spread rate, mm/s": "0.029 and 0.024",
+    "Burn time, min": "20.1",
+    "Initial O2, vol%": "20.8",
+    "Final O2, vol%": "19.7"
+   },
+   "values": {
+    "thickness_mm": 5.0,
+    "width_cm": 2.2,
+    "sides_burning": 1.0,
+    "velocity_cm_s": [
+     10.0,
+     20.0
+    ],
+    "spread_rate_mm_s": [
+     0.029,
+     0.024
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 20.1,
+    "initial_o2_vol_pct": 20.8,
+    "final_o2_vol_pct": 19.7
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 10.0,
+     "spread_rate_mm_s": 0.029
+    },
+    {
+     "velocity_cm_s": 20.0,
+     "spread_rate_mm_s": 0.024
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:29",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M4",
+   "raw": {
+    "Test no.": "M4",
+    "Thickness, mm": "5",
+    "Width, cm": "2.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "5 and 3",
+    "Spread rate, mm/s": "0.045 and 0.033",
+    "Burn time, min": "19.8",
+    "Initial O2, vol%": "21.8",
+    "Final O2, vol%": "19.8"
+   },
+   "values": {
+    "thickness_mm": 5.0,
+    "width_cm": 2.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     5.0,
+     3.0
+    ],
+    "spread_rate_mm_s": [
+     0.045,
+     0.033
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 19.8,
+    "initial_o2_vol_pct": 21.8,
+    "final_o2_vol_pct": 19.8
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 5.0,
+     "spread_rate_mm_s": 0.045
+    },
+    {
+     "velocity_cm_s": 3.0,
+     "spread_rate_mm_s": 0.033
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:30",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M5",
+   "raw": {
+    "Test no.": "M5",
+    "Thickness, mm": "3",
+    "Width, cm": "2.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "10",
+    "Spread rate, mm/s": "0.071",
+    "Burn time, min": "27.2",
+    "Initial O2, vol%": "22.2",
+    "Final O2, vol%": "19"
+   },
+   "values": {
+    "thickness_mm": 3.0,
+    "width_cm": 2.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     10.0
+    ],
+    "spread_rate_mm_s": [
+     0.071
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 27.2,
+    "initial_o2_vol_pct": 22.2,
+    "final_o2_vol_pct": 19.0
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 10.0,
+     "spread_rate_mm_s": 0.071
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:31",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M6",
+   "raw": {
+    "Test no.": "M6",
+    "Thickness, mm": "1",
+    "Width, cm": "2.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "10 and 8",
+    "Spread rate, mm/s": "Not tracked",
+    "Burn time, min": "16.8",
+    "Initial O2, vol%": "21.8",
+    "Final O2, vol%": "20.7"
+   },
+   "values": {
+    "thickness_mm": 1.0,
+    "width_cm": 2.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     10.0,
+     8.0
+    ],
+    "spread_rate_mm_s": [],
+    "spread_rate_status": "not tracked",
+    "burn_time_min": 16.8,
+    "initial_o2_vol_pct": 21.8,
+    "final_o2_vol_pct": 20.7
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:32",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M7",
+   "raw": {
+    "Test no.": "M7",
+    "Thickness, mm": "1",
+    "Width, cm": "1.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "10, 6, 5, and 3",
+    "Spread rate, mm/s": "0.106, 0.099, 0.083, and 0.07",
+    "Burn time, min": "18.4",
+    "Initial O2, vol%": "18.9",
+    "Final O2, vol%": "18.4"
+   },
+   "values": {
+    "thickness_mm": 1.0,
+    "width_cm": 1.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     10.0,
+     6.0,
+     5.0,
+     3.0
+    ],
+    "spread_rate_mm_s": [
+     0.106,
+     0.099,
+     0.083,
+     0.07
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 18.4,
+    "initial_o2_vol_pct": 18.9,
+    "final_o2_vol_pct": 18.4
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 10.0,
+     "spread_rate_mm_s": 0.106
+    },
+    {
+     "velocity_cm_s": 6.0,
+     "spread_rate_mm_s": 0.099
+    },
+    {
+     "velocity_cm_s": 5.0,
+     "spread_rate_mm_s": 0.083
+    },
+    {
+     "velocity_cm_s": 3.0,
+     "spread_rate_mm_s": 0.07
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:33",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M8",
+   "raw": {
+    "Test no.": "M8",
+    "Thickness, mm": "2",
+    "Width, cm": "1.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "10, 6, and 5",
+    "Spread rate, mm/s": "0.057, 0.056, and 0.04",
+    "Burn time, min": "25.2",
+    "Initial O2, vol%": "19.1",
+    "Final O2, vol%": "18.2"
+   },
+   "values": {
+    "thickness_mm": 2.0,
+    "width_cm": 1.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     10.0,
+     6.0,
+     5.0
+    ],
+    "spread_rate_mm_s": [
+     0.057,
+     0.056,
+     0.04
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 25.2,
+    "initial_o2_vol_pct": 19.1,
+    "final_o2_vol_pct": 18.2
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 10.0,
+     "spread_rate_mm_s": 0.057
+    },
+    {
+     "velocity_cm_s": 6.0,
+     "spread_rate_mm_s": 0.056
+    },
+    {
+     "velocity_cm_s": 5.0,
+     "spread_rate_mm_s": 0.04
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:34",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M9",
+   "raw": {
+    "Test no.": "M9",
+    "Thickness, mm": "3",
+    "Width, cm": "1.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "14",
+    "Spread rate, mm/s": "0.025",
+    "Burn time, min": "16.8",
+    "Initial O2, vol%": "18",
+    "Final O2, vol%": "17.6"
+   },
+   "values": {
+    "thickness_mm": 3.0,
+    "width_cm": 1.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     14.0
+    ],
+    "spread_rate_mm_s": [
+     0.025
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 16.8,
+    "initial_o2_vol_pct": 18.0,
+    "final_o2_vol_pct": 17.6
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 14.0,
+     "spread_rate_mm_s": 0.025
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:35",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M10",
+   "raw": {
+    "Test no.": "M10",
+    "Thickness, mm": "4",
+    "Width, cm": "1.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "15 and 10",
+    "Spread rate, mm/s": "0.0373 and 0.03",
+    "Burn time, min": "30.5",
+    "Initial O2, vol%": "20.1",
+    "Final O2, vol%": "18.6"
+   },
+   "values": {
+    "thickness_mm": 4.0,
+    "width_cm": 1.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     15.0,
+     10.0
+    ],
+    "spread_rate_mm_s": [
+     0.0373,
+     0.03
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 30.5,
+    "initial_o2_vol_pct": 20.1,
+    "final_o2_vol_pct": 18.6
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 15.0,
+     "spread_rate_mm_s": 0.0373
+    },
+    {
+     "velocity_cm_s": 10.0,
+     "spread_rate_mm_s": 0.03
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:36",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M11",
+   "raw": {
+    "Test no.": "M11",
+    "Thickness, mm": "5",
+    "Width, cm": "1.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "21, 15, and 13",
+    "Spread rate, mm/s": "0.048, 0.028, and 0.022",
+    "Burn time, min": "28.5",
+    "Initial O2, vol%": "20",
+    "Final O2, vol%": "18.5"
+   },
+   "values": {
+    "thickness_mm": 5.0,
+    "width_cm": 1.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     21.0,
+     15.0,
+     13.0
+    ],
+    "spread_rate_mm_s": [
+     0.048,
+     0.028,
+     0.022
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 28.5,
+    "initial_o2_vol_pct": 20.0,
+    "final_o2_vol_pct": 18.5
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 21.0,
+     "spread_rate_mm_s": 0.048
+    },
+    {
+     "velocity_cm_s": 15.0,
+     "spread_rate_mm_s": 0.028
+    },
+    {
+     "velocity_cm_s": 13.0,
+     "spread_rate_mm_s": 0.022
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:37",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M12",
+   "raw": {
+    "Test no.": "M12",
+    "Thickness, mm": "2",
+    "Width, cm": "2.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "12 and 10",
+    "Spread rate, mm/s": "Not tracked",
+    "Burn time, min": "16.2",
+    "Initial O2, vol%": "21.7",
+    "Final O2, vol%": "20.4"
+   },
+   "values": {
+    "thickness_mm": 2.0,
+    "width_cm": 2.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     12.0,
+     10.0
+    ],
+    "spread_rate_mm_s": [],
+    "spread_rate_status": "not tracked",
+    "burn_time_min": 16.2,
+    "initial_o2_vol_pct": 21.7,
+    "final_o2_vol_pct": 20.4
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:38",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M13",
+   "raw": {
+    "Test no.": "M13",
+    "Thickness, mm": "4",
+    "Width, cm": "2.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "6, 5, and 4",
+    "Spread rate, mm/s": "0.047, 0.035, and 0.033",
+    "Burn time, min": "20.5",
+    "Initial O2, vol%": "20.8",
+    "Final O2, vol%": "19"
+   },
+   "values": {
+    "thickness_mm": 4.0,
+    "width_cm": 2.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     6.0,
+     5.0,
+     4.0
+    ],
+    "spread_rate_mm_s": [
+     0.047,
+     0.035,
+     0.033
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 20.5,
+    "initial_o2_vol_pct": 20.8,
+    "final_o2_vol_pct": 19.0
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 6.0,
+     "spread_rate_mm_s": 0.047
+    },
+    {
+     "velocity_cm_s": 5.0,
+     "spread_rate_mm_s": 0.035
+    },
+    {
+     "velocity_cm_s": 4.0,
+     "spread_rate_mm_s": 0.033
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:39",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M14",
+   "raw": {
+    "Test no.": "M14",
+    "Thickness, mm": "2",
+    "Width, cm": "2.2",
+    "One or two sides burning": "1",
+    "Velocity, cm/s": "15, 14, and 10",
+    "Spread rate, mm/s": "0.0624, 0.055, and 0.0353",
+    "Burn time, min": "15.4",
+    "Initial O2, vol%": "22.2",
+    "Final O2, vol%": "21.6"
+   },
+   "values": {
+    "thickness_mm": 2.0,
+    "width_cm": 2.2,
+    "sides_burning": 1.0,
+    "velocity_cm_s": [
+     15.0,
+     14.0,
+     10.0
+    ],
+    "spread_rate_mm_s": [
+     0.0624,
+     0.055,
+     0.0353
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 15.4,
+    "initial_o2_vol_pct": 22.2,
+    "final_o2_vol_pct": 21.6
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 15.0,
+     "spread_rate_mm_s": 0.0624
+    },
+    {
+     "velocity_cm_s": 14.0,
+     "spread_rate_mm_s": 0.055
+    },
+    {
+     "velocity_cm_s": 10.0,
+     "spread_rate_mm_s": 0.0353
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:40",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M15",
+   "raw": {
+    "Test no.": "M15",
+    "Thickness, mm": "4",
+    "Width, cm": "2.2",
+    "One or two sides burning": "1",
+    "Velocity, cm/s": "20",
+    "Spread rate, mm/s": "0.045",
+    "Burn time, min": "22.0",
+    "Initial O2, vol%": "21",
+    "Final O2, vol%": "20"
+   },
+   "values": {
+    "thickness_mm": 4.0,
+    "width_cm": 2.2,
+    "sides_burning": 1.0,
+    "velocity_cm_s": [
+     20.0
+    ],
+    "spread_rate_mm_s": [
+     0.045
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 22.0,
+    "initial_o2_vol_pct": 21.0,
+    "final_o2_vol_pct": 20.0
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 20.0,
+     "spread_rate_mm_s": 0.045
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:41",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M16",
+   "raw": {
+    "Test no.": "M16",
+    "Thickness, mm": "1",
+    "Width, cm": "2.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "5, 3, and 2",
+    "Spread rate, mm/s": "0.144, 0.1309, and 0.1062",
+    "Burn time, min": "8.4",
+    "Initial O2, vol%": "19.2",
+    "Final O2, vol%": "18.7"
+   },
+   "values": {
+    "thickness_mm": 1.0,
+    "width_cm": 2.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     5.0,
+     3.0,
+     2.0
+    ],
+    "spread_rate_mm_s": [
+     0.144,
+     0.1309,
+     0.1062
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 8.4,
+    "initial_o2_vol_pct": 19.2,
+    "final_o2_vol_pct": 18.7
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 5.0,
+     "spread_rate_mm_s": 0.144
+    },
+    {
+     "velocity_cm_s": 3.0,
+     "spread_rate_mm_s": 0.1309
+    },
+    {
+     "velocity_cm_s": 2.0,
+     "spread_rate_mm_s": 0.1062
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:42",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M17",
+   "raw": {
+    "Test no.": "M17",
+    "Thickness, mm": "2",
+    "Width, cm": "2.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "5, 4, and 3",
+    "Spread rate, mm/s": "0.053, 0.042, and 0.026",
+    "Burn time, min": "30.7",
+    "Initial O2, vol%": "18.8",
+    "Final O2, vol%": "17.1"
+   },
+   "values": {
+    "thickness_mm": 2.0,
+    "width_cm": 2.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     5.0,
+     4.0,
+     3.0
+    ],
+    "spread_rate_mm_s": [
+     0.053,
+     0.042,
+     0.026
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 30.7,
+    "initial_o2_vol_pct": 18.8,
+    "final_o2_vol_pct": 17.1
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 5.0,
+     "spread_rate_mm_s": 0.053
+    },
+    {
+     "velocity_cm_s": 4.0,
+     "spread_rate_mm_s": 0.042
+    },
+    {
+     "velocity_cm_s": 3.0,
+     "spread_rate_mm_s": 0.026
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:43",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M18",
+   "raw": {
+    "Test no.": "M18",
+    "Thickness, mm": "3",
+    "Width, cm": "2.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "10 and 8",
+    "Spread rate, mm/s": "0.026 and 0.013",
+    "Burn time, min": "25.5",
+    "Initial O2, vol%": "17.9",
+    "Final O2, vol%": "16.8"
+   },
+   "values": {
+    "thickness_mm": 3.0,
+    "width_cm": 2.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     10.0,
+     8.0
+    ],
+    "spread_rate_mm_s": [
+     0.026,
+     0.013
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 25.5,
+    "initial_o2_vol_pct": 17.9,
+    "final_o2_vol_pct": 16.8
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 10.0,
+     "spread_rate_mm_s": 0.026
+    },
+    {
+     "velocity_cm_s": 8.0,
+     "spread_rate_mm_s": 0.013
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:44",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M19",
+   "raw": {
+    "Test no.": "M19",
+    "Thickness, mm": "4",
+    "Width, cm": "2.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "10 and 6",
+    "Spread rate, mm/s": "0.027 and 0.0159",
+    "Burn time, min": "25.7",
+    "Initial O2, vol%": "19",
+    "Final O2, vol%": "17.4"
+   },
+   "values": {
+    "thickness_mm": 4.0,
+    "width_cm": 2.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     10.0,
+     6.0
+    ],
+    "spread_rate_mm_s": [
+     0.027,
+     0.0159
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 25.7,
+    "initial_o2_vol_pct": 19.0,
+    "final_o2_vol_pct": 17.4
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 10.0,
+     "spread_rate_mm_s": 0.027
+    },
+    {
+     "velocity_cm_s": 6.0,
+     "spread_rate_mm_s": 0.0159
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:45",
+   "verification": "verified"
+  },
+  {
+   "table": "5.1",
+   "page_pdf": 65,
+   "page_printed": 57,
+   "test_id": "M20",
+   "raw": {
+    "Test no.": "M20",
+    "Thickness, mm": "5",
+    "Width, cm": "2.2",
+    "One or two sides burning": "2",
+    "Velocity, cm/s": "10",
+    "Spread rate, mm/s": "0.012",
+    "Burn time, min": "16.5",
+    "Initial O2, vol%": "18",
+    "Final O2, vol%": "17.4"
+   },
+   "values": {
+    "thickness_mm": 5.0,
+    "width_cm": 2.2,
+    "sides_burning": 2.0,
+    "velocity_cm_s": [
+     10.0
+    ],
+    "spread_rate_mm_s": [
+     0.012
+    ],
+    "spread_rate_status": "tracked",
+    "burn_time_min": 16.5,
+    "initial_o2_vol_pct": 18.0,
+    "final_o2_vol_pct": 17.4
+   },
+   "units": {
+    "thickness_mm": "mm",
+    "width_cm": "cm",
+    "velocity_cm_s": "cm/s",
+    "spread_rate_mm_s": "mm/s",
+    "burn_time_min": "min",
+    "initial_o2_vol_pct": "% by volume",
+    "final_o2_vol_pct": "% by volume"
+   },
+   "paired_stages": [
+    {
+     "velocity_cm_s": 10.0,
+     "spread_rate_mm_s": 0.012
+    }
+   ],
+   "notes": [],
+   "checks": {
+    "test_id": true,
+    "initial_o2_vol_pct": true,
+    "final_o2_vol_pct": true
+   },
+   "experiment_uid": "bass2:46",
+   "verification": "verified"
+  }
+ ],
+ "header": [
+  "Test no.",
+  "Thickness, mm",
+  "Width, cm",
+  "One or two sides burning",
+  "Velocity, cm/s",
+  "Spread rate, mm/s",
+  "Burn time, min",
+  "Initial O2, vol%",
+  "Final O2, vol%"
+ ],
+ "source": {
+  "file": "BASS-II/BASS-II Summary Report.pdf",
+  "report": "NASA/TM-20210011385",
+  "printed_page_offset": 8,
+  "method": "PyMuPDF table detection + per-character cell reconstruction; verified against CSV"
+ }
+}

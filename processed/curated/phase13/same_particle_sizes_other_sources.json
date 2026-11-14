@@ -1,0 +1,741 @@
+{
+ "dataset_id": "same_particle_sizes_other_sources",
+ "investigation_id": "PSI-102",
+ "title": "SAME particle sizes as printed in other SAME documents",
+ "evidence_class": "derived_experimental",
+ "description": "The same quantities as printed by three attached papers and the ICES 2012 deck (SAME-1 & SAME-2). Kept source-specific to show the provenance spread; never averaged or reconciled.",
+ "processor_version": "phase13-1",
+ "sources": [
+  {
+   "path": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+   "sha256": "af91c96d22d93bbefbc0f2c5e1cc06e24813f532e5379b3fec9f121cccb22193",
+   "size_bytes": 3712845,
+   "role": "final_report"
+  },
+  {
+   "path": "SAME/SAME ICES 2012 07 15 2012.pptx",
+   "sha256": "6e2800c0985e1b4b88819adea7513c64e7a6a24a00961785363d9dd3ab8fb8ee",
+   "size_bytes": 11483943,
+   "role": "presentation"
+  }
+ ],
+ "field_specs": [
+  {
+   "field": "d10",
+   "variable": "Count (arithmetic) mean diameter",
+   "evidence_class": "derived_experimental",
+   "unit": "nm",
+   "unit_status": "header",
+   "transform": "µm values x 1000 into d10_nm; original value and unit kept"
+  },
+  {
+   "field": "dg",
+   "variable": "Geometric mean diameter",
+   "evidence_class": "derived_experimental",
+   "unit": "nm",
+   "unit_status": "header",
+   "transform": "µm x 1000"
+  },
+  {
+   "field": "d30",
+   "variable": "Diameter of average mass",
+   "evidence_class": "derived_experimental",
+   "unit": "nm",
+   "unit_status": "header",
+   "transform": "µm x 1000"
+  },
+  {
+   "field": "dusttrak_b_over_a",
+   "variable": "DustTrak B (10 µm cutoff) / A (1 µm cutoff) ratio",
+   "evidence_class": "derived_experimental",
+   "unit": "-",
+   "unit_status": "dimensionless",
+   "transform": "none"
+  },
+  {
+   "field": "pct_larger_than_1g",
+   "variable": "Count mean diameter, % larger than a comparable 1-g test",
+   "evidence_class": "derived_experimental",
+   "unit": "%",
+   "unit_status": "header",
+   "transform": "none"
+  }
+ ],
+ "counts": {
+  "source_records": 22,
+  "processed_records": 22,
+  "excluded_records": 0,
+  "flagged_records": 0,
+  "flagged_records_warning": 0,
+  "flags": 1,
+  "dataset_level_flags": 1,
+  "excluded_reasons": {}
+ },
+ "notes": [],
+ "extra": {},
+ "records": [
+  {
+   "record_id": "same:size-alt:p48:kapton",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Diameter results from baseline runs",
+    "page_pdf": 48,
+    "source_row": 1
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "kapton",
+    "aged": false,
+    "source_label": "AIAA 'Properties of Smoke from Overheated Materials in Low-Gravity' (attached paper)",
+    "flight": "SAME-1",
+    "original_unit": "µm",
+    "dg_nm": 80.0,
+    "d10_nm": 105.0,
+    "d30_nm": 172.0
+   },
+   "raw": {
+    "original": {
+     "dg": 0.08,
+     "d10": 0.105,
+     "d30": 0.172
+    },
+    "check": "Kapton 0.080 0.105 0.172"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:p48:lampwick",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Diameter results from baseline runs",
+    "page_pdf": 48,
+    "source_row": 2
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "lampwick",
+    "aged": false,
+    "source_label": "AIAA 'Properties of Smoke from Overheated Materials in Low-Gravity' (attached paper)",
+    "flight": "SAME-1",
+    "original_unit": "µm",
+    "dg_nm": 186.0,
+    "d10_nm": 227.0,
+    "d30_nm": 420.0
+   },
+   "raw": {
+    "original": {
+     "dg": 0.186,
+     "d10": 0.227,
+     "d30": 0.42
+    },
+    "check": "Lamp wick 0.186 0.227 0.420"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:p48:silicone",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Diameter results from baseline runs",
+    "page_pdf": 48,
+    "source_row": 3
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "silicone",
+    "aged": false,
+    "source_label": "AIAA 'Properties of Smoke from Overheated Materials in Low-Gravity' (attached paper)",
+    "flight": "SAME-1",
+    "original_unit": "µm",
+    "dg_nm": 189.0,
+    "d10_nm": null,
+    "d30_nm": null
+   },
+   "raw": {
+    "original": {
+     "dg": 0.189,
+     "d10": null,
+     "d30": null
+    },
+    "check": "Silicone 0.189 N/A N/A"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:p48:teflon",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Diameter results from baseline runs",
+    "page_pdf": 48,
+    "source_row": 4
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "teflon",
+    "aged": false,
+    "source_label": "AIAA 'Properties of Smoke from Overheated Materials in Low-Gravity' (attached paper)",
+    "flight": "SAME-1",
+    "original_unit": "µm",
+    "dg_nm": 159.0,
+    "d10_nm": 205.0,
+    "d30_nm": 219.0
+   },
+   "raw": {
+    "original": {
+     "dg": 0.159,
+     "d10": 0.205,
+     "d30": 0.219
+    },
+    "check": "Teflon 0.159 0.205 0.219"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:p57:silicone",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Average Count Mean Diameters and ratios of the Dust Trak instruments",
+    "page_pdf": 57,
+    "source_row": 5
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "silicone",
+    "aged": false,
+    "source_label": "SAE 2008-01-2089 'Measurement of Smoke Particle Size under Low-Gravity Conditions' (attached)",
+    "flight": "SAME-1",
+    "original_unit": "nm",
+    "d10_nm": 227,
+    "dusttrak_b_over_a": 1.92
+   },
+   "raw": {
+    "original": {
+     "d10": 227,
+     "dusttrak_b_over_a": 1.92
+    },
+    "check": "Rubber 227 1.92"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:p57:teflon",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Average Count Mean Diameters and ratios of the Dust Trak instruments",
+    "page_pdf": 57,
+    "source_row": 6
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "teflon",
+    "aged": false,
+    "source_label": "SAE 2008-01-2089 'Measurement of Smoke Particle Size under Low-Gravity Conditions' (attached)",
+    "flight": "SAME-1",
+    "original_unit": "nm",
+    "d10_nm": 158,
+    "dusttrak_b_over_a": 1.22
+   },
+   "raw": {
+    "original": {
+     "d10": 158,
+     "dusttrak_b_over_a": 1.22
+    },
+    "check": "158 1.22"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:p57:lampwick",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Average Count Mean Diameters and ratios of the Dust Trak instruments",
+    "page_pdf": 57,
+    "source_row": 7
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "lampwick",
+    "aged": false,
+    "source_label": "SAE 2008-01-2089 'Measurement of Smoke Particle Size under Low-Gravity Conditions' (attached)",
+    "flight": "SAME-1",
+    "original_unit": "nm",
+    "d10_nm": 172,
+    "dusttrak_b_over_a": 1.79
+   },
+   "raw": {
+    "original": {
+     "d10": 172,
+     "dusttrak_b_over_a": 1.79
+    },
+    "check": "Lamp wick 172 1.79"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:p57:kapton",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Average Count Mean Diameters and ratios of the Dust Trak instruments",
+    "page_pdf": 57,
+    "source_row": 8
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "kapton",
+    "aged": false,
+    "source_label": "SAE 2008-01-2089 'Measurement of Smoke Particle Size under Low-Gravity Conditions' (attached)",
+    "flight": "SAME-1",
+    "original_unit": "nm",
+    "d10_nm": 128,
+    "dusttrak_b_over_a": 1.26
+   },
+   "raw": {
+    "original": {
+     "d10": 128,
+     "dusttrak_b_over_a": 1.26
+    },
+    "check": "128 1.26"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:p64:silicone",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Count Mean Diameters for Baseline Runs with comparison to 1-g tests",
+    "page_pdf": 64,
+    "source_row": 9
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "silicone",
+    "aged": false,
+    "source_label": "AIAA 'Spacecraft Fire Detection: Smoke Properties and Transport in Low-Gravity' (attached)",
+    "flight": "SAME-1",
+    "original_unit": "nm",
+    "d10_nm": 263,
+    "pct_larger_than_1g": 53
+   },
+   "raw": {
+    "original": {
+     "d10": 263,
+     "pct_larger_than_1g": 53
+    },
+    "check": "263 53"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:p64:teflon",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Count Mean Diameters for Baseline Runs with comparison to 1-g tests",
+    "page_pdf": 64,
+    "source_row": 10
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "teflon",
+    "aged": false,
+    "source_label": "AIAA 'Spacecraft Fire Detection: Smoke Properties and Transport in Low-Gravity' (attached)",
+    "flight": "SAME-1",
+    "original_unit": "nm",
+    "d10_nm": 223,
+    "pct_larger_than_1g": null
+   },
+   "raw": {
+    "original": {
+     "d10": 223,
+     "pct_larger_than_1g": null
+    },
+    "check": "223"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:p64:lampwick",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Count Mean Diameters for Baseline Runs with comparison to 1-g tests",
+    "page_pdf": 64,
+    "source_row": 11
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "lampwick",
+    "aged": false,
+    "source_label": "AIAA 'Spacecraft Fire Detection: Smoke Properties and Transport in Low-Gravity' (attached)",
+    "flight": "SAME-1",
+    "original_unit": "nm",
+    "d10_nm": 248,
+    "pct_larger_than_1g": 65
+   },
+   "raw": {
+    "original": {
+     "d10": 248,
+     "pct_larger_than_1g": 65
+    },
+    "check": "Lamp wick 248 65"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:p64:kapton",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Table 1: Count Mean Diameters for Baseline Runs with comparison to 1-g tests",
+    "page_pdf": 64,
+    "source_row": 12
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "kapton",
+    "aged": false,
+    "source_label": "AIAA 'Spacecraft Fire Detection: Smoke Properties and Transport in Low-Gravity' (attached)",
+    "flight": "SAME-1",
+    "original_unit": "nm",
+    "d10_nm": 114,
+    "pct_larger_than_1g": 58
+   },
+   "raw": {
+    "original": {
+     "d10": 114,
+     "pct_larger_than_1g": 58
+    },
+    "check": "114 58"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:ices2012:kapton:fresh",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME ICES 2012 07 15 2012.pptx",
+    "source_table": "Slide 24 'SAME-1&2 Results'",
+    "source_row": 1
+   },
+   "verification": "verified_against_source_table",
+   "values": {
+    "material": "kapton",
+    "aged": false,
+    "aging_s": 0,
+    "source_label": "ICES 2012 presentation, slide 24 (SAME-1 & SAME-2 results)",
+    "flight": "SAME-1 & SAME-2",
+    "original_unit": "µm",
+    "dg_nm": 47.0,
+    "d10_nm": 62.0,
+    "d30_nm": 106.0,
+    "sigma_g": 2.072
+   },
+   "raw": {
+    "printed": [
+     "0.047",
+     "0.062",
+     "0.106",
+     "2.072"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:ices2012:kapton:aged",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME ICES 2012 07 15 2012.pptx",
+    "source_table": "Slide 24 'SAME-1&2 Results'",
+    "source_row": 2
+   },
+   "verification": "verified_against_source_table",
+   "values": {
+    "material": "kapton",
+    "aged": true,
+    "aging_s": 720,
+    "source_label": "ICES 2012 presentation, slide 24 (SAME-1 & SAME-2 results)",
+    "flight": "SAME-1 & SAME-2",
+    "original_unit": "µm",
+    "dg_nm": 102.0,
+    "d10_nm": 121.0,
+    "d30_nm": 169.0,
+    "sigma_g": 1.79
+   },
+   "raw": {
+    "printed": [
+     "0.102",
+     "0.121",
+     "0.169",
+     "1.790"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:ices2012:lampwick:fresh",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME ICES 2012 07 15 2012.pptx",
+    "source_table": "Slide 24 'SAME-1&2 Results'",
+    "source_row": 3
+   },
+   "verification": "verified_against_source_table",
+   "values": {
+    "material": "lampwick",
+    "aged": false,
+    "aging_s": 0,
+    "source_label": "ICES 2012 presentation, slide 24 (SAME-1 & SAME-2 results)",
+    "flight": "SAME-1 & SAME-2",
+    "original_unit": "µm",
+    "dg_nm": 103.0,
+    "d10_nm": 142.0,
+    "d30_nm": 271.0,
+    "sigma_g": 2.232
+   },
+   "raw": {
+    "printed": [
+     "0.103",
+     "0.142",
+     "0.271",
+     "2.232"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:ices2012:lampwick:aged",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME ICES 2012 07 15 2012.pptx",
+    "source_table": "Slide 24 'SAME-1&2 Results'",
+    "source_row": 4
+   },
+   "verification": "verified_against_source_table",
+   "values": {
+    "material": "lampwick",
+    "aged": true,
+    "aging_s": 720,
+    "source_label": "ICES 2012 presentation, slide 24 (SAME-1 & SAME-2 results)",
+    "flight": "SAME-1 & SAME-2",
+    "original_unit": "µm",
+    "dg_nm": 269.0,
+    "d10_nm": 308.0,
+    "d30_nm": 401.0,
+    "sigma_g": 1.673
+   },
+   "raw": {
+    "printed": [
+     "0.269",
+     "0.308",
+     "0.401",
+     "1.673"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:ices2012:silicone:fresh",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME ICES 2012 07 15 2012.pptx",
+    "source_table": "Slide 24 'SAME-1&2 Results'",
+    "source_row": 5
+   },
+   "verification": "verified_against_source_table",
+   "values": {
+    "material": "silicone",
+    "aged": false,
+    "aging_s": 0,
+    "source_label": "ICES 2012 presentation, slide 24 (SAME-1 & SAME-2 results)",
+    "flight": "SAME-1 & SAME-2",
+    "original_unit": "µm",
+    "dg_nm": 152.0,
+    "d10_nm": 221.0,
+    "d30_nm": 468.0,
+    "sigma_g": 2.382
+   },
+   "raw": {
+    "printed": [
+     "0.152",
+     "0.221",
+     "0.468",
+     "2.382"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:ices2012:silicone:aged",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME ICES 2012 07 15 2012.pptx",
+    "source_table": "Slide 24 'SAME-1&2 Results'",
+    "source_row": 6
+   },
+   "verification": "verified_against_source_table",
+   "values": {
+    "material": "silicone",
+    "aged": true,
+    "aging_s": 720,
+    "source_label": "ICES 2012 presentation, slide 24 (SAME-1 & SAME-2 results)",
+    "flight": "SAME-1 & SAME-2",
+    "original_unit": "µm",
+    "dg_nm": 320.0,
+    "d10_nm": 400.0,
+    "d30_nm": 628.0,
+    "sigma_g": 1.956
+   },
+   "raw": {
+    "printed": [
+     "0.320",
+     "0.400",
+     "0.628",
+     "1.956"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:ices2012:teflon:fresh",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME ICES 2012 07 15 2012.pptx",
+    "source_table": "Slide 24 'SAME-1&2 Results'",
+    "source_row": 7
+   },
+   "verification": "verified_against_source_table",
+   "values": {
+    "material": "teflon",
+    "aged": false,
+    "aging_s": 0,
+    "source_label": "ICES 2012 presentation, slide 24 (SAME-1 & SAME-2 results)",
+    "flight": "SAME-1 & SAME-2",
+    "original_unit": "µm",
+    "dg_nm": 93.0,
+    "d10_nm": 111.0,
+    "d30_nm": 173.0,
+    "sigma_g": 2.081
+   },
+   "raw": {
+    "printed": [
+     "0.093",
+     "0.111",
+     "0.173",
+     "2.081"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:ices2012:teflon:aged",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME ICES 2012 07 15 2012.pptx",
+    "source_table": "Slide 24 'SAME-1&2 Results'",
+    "source_row": 8
+   },
+   "verification": "verified_against_source_table",
+   "values": {
+    "material": "teflon",
+    "aged": true,
+    "aging_s": 720,
+    "source_label": "ICES 2012 presentation, slide 24 (SAME-1 & SAME-2 results)",
+    "flight": "SAME-1 & SAME-2",
+    "original_unit": "µm",
+    "dg_nm": 80.0,
+    "d10_nm": 115.0,
+    "d30_nm": 237.0,
+    "sigma_g": 2.342
+   },
+   "raw": {
+    "printed": [
+     "0.080",
+     "0.115",
+     "0.237",
+     "2.342"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:ices2012:pyrell:fresh",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME ICES 2012 07 15 2012.pptx",
+    "source_table": "Slide 24 'SAME-1&2 Results'",
+    "source_row": 9
+   },
+   "verification": "verified_against_source_table",
+   "values": {
+    "material": "pyrell",
+    "aged": false,
+    "aging_s": 0,
+    "source_label": "ICES 2012 presentation, slide 24 (SAME-1 & SAME-2 results)",
+    "flight": "SAME-1 & SAME-2",
+    "original_unit": "µm",
+    "dg_nm": 177.0,
+    "d10_nm": 227.0,
+    "d30_nm": 377.0,
+    "sigma_g": 2.032
+   },
+   "raw": {
+    "printed": [
+     "0.177",
+     "0.227",
+     "0.377",
+     "2.032"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "same:size-alt:ices2012:pyrell:aged",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME ICES 2012 07 15 2012.pptx",
+    "source_table": "Slide 24 'SAME-1&2 Results'",
+    "source_row": 10
+   },
+   "verification": "verified_against_source_table",
+   "values": {
+    "material": "pyrell",
+    "aged": true,
+    "aging_s": 720,
+    "source_label": "ICES 2012 presentation, slide 24 (SAME-1 & SAME-2 results)",
+    "flight": "SAME-1 & SAME-2",
+    "original_unit": "µm",
+    "dg_nm": 348.0,
+    "d10_nm": 400.0,
+    "d30_nm": 529.0,
+    "sigma_g": 1.697
+   },
+   "raw": {
+    "printed": [
+     "0.348",
+     "0.400",
+     "0.529",
+     "1.697"
+    ]
+   },
+   "flags": []
+  }
+ ],
+ "flags": [
+  {
+   "rule_id": "SAME-SIZE-SOURCES-DIFFER",
+   "category": "document_conflict",
+   "severity": "info",
+   "description": "Particle-size statistics for the same material differ between the Final Science Report, the attached papers and the ICES 2012 deck (successive analyses; ICES 2012 also includes SAME-2). All versions are kept with their source; none is preferred silently.",
+   "status": "confirmed"
+  }
+ ]
+}

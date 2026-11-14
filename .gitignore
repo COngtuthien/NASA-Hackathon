@@ -1,0 +1,33 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+backend/.venv/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Generated data (regenerate with scripts/ingest.py)
+processed/*
+!processed/README.md
+!processed/curated/
+processed/curated/*.tmp
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+*.tsbuildinfo
+
+# Tools / OS
+.playwright-mcp/
+.DS_Store
+Thumbs.db
+*.log

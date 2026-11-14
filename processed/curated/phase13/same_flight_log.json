@@ -1,0 +1,1514 @@
+{
+ "dataset_id": "same_flight_log",
+ "investigation_id": "PSI-102",
+ "title": "SAME flight-test log (Final Science Report Appendix A)",
+ "evidence_class": "operational_log",
+ "description": "The 47 SAME-1 flight tests (2007, GMT days 252-278) with sample type, initial/reheat, carousel and position, plus 4 un-numbered carousel operation rows.",
+ "processor_version": "phase13-1",
+ "sources": [
+  {
+   "path": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+   "sha256": "af91c96d22d93bbefbc0f2c5e1cc06e24813f532e5379b3fec9f121cccb22193",
+   "size_bytes": 3712845,
+   "role": "final_report"
+  }
+ ],
+ "field_specs": [
+  {
+   "field": "gmt_day",
+   "variable": "GMT day of year (2007)",
+   "evidence_class": "operational_log",
+   "unit": "day of year",
+   "unit_status": "n/a",
+   "transform": "none"
+  },
+  {
+   "field": "sample",
+   "variable": "Sample type",
+   "evidence_class": "test_condition",
+   "unit_status": "n/a",
+   "transform": "none",
+   "note": "DBP = dibutyl phthalate on a porous wick."
+  },
+  {
+   "field": "reheat",
+   "variable": "Initial heating or reheat of the same sample",
+   "evidence_class": "test_condition",
+   "unit_status": "n/a",
+   "transform": "'Intiial' (test 47) read as Initial; original kept"
+  },
+  {
+   "field": "record_time",
+   "variable": "Record time window as printed",
+   "evidence_class": "operational_log",
+   "unit_status": "unknown",
+   "transform": "none",
+   "note": "Units/clock reference not defined in the report."
+  }
+ ],
+ "counts": {
+  "source_records": 51,
+  "processed_records": 51,
+  "excluded_records": 0,
+  "flagged_records": 6,
+  "flagged_records_warning": 0,
+  "flags": 6,
+  "dataset_level_flags": 0,
+  "excluded_reasons": {}
+ },
+ "notes": [
+  "The report's test numbers (1-47) differ from the flight software's test-matrix file numbers (same_test_N.txt in the workbook logs); no crosswalk is asserted.",
+  "Record-time units and clock reference are not defined in the report; times are kept as printed."
+ ],
+ "extra": {
+  "summary": {
+   "tests": 47,
+   "operation_rows": 4,
+   "by_sample": {
+    "silicone": 6,
+    "dbp": 22,
+    "teflon": 7,
+    "lampwick": 6,
+    "kapton": 6
+   },
+   "gmt_days": [
+    252,
+    254,
+    255,
+    256,
+    257,
+    262,
+    263,
+    264,
+    267,
+    268,
+    269,
+    271,
+    272,
+    273,
+    276,
+    277,
+    278
+   ]
+  }
+ },
+ "records": [
+  {
+   "record_id": "same:log:1",
+   "test_id": "1",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 1
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 1,
+    "gmt_day": 252,
+    "sample": "silicone",
+    "sample_printed": "Silicone",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 1,
+    "position": 1,
+    "record_time_printed": "11:50 - 13:20",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:2",
+   "test_id": "2",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 2
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 2,
+    "gmt_day": 254,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 1,
+    "position": 5,
+    "record_time_printed": "5:50 - 7:01",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:3",
+   "test_id": "3",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 3
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 3,
+    "gmt_day": 254,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 1,
+    "position": 5,
+    "record_time_printed": "4:48 - 6:10",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:4",
+   "test_id": "4",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 4
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 4,
+    "gmt_day": 255,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 1,
+    "position": 5,
+    "record_time_printed": "37:42 - 38:51",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:5",
+   "test_id": "5",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 5
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 5,
+    "gmt_day": 255,
+    "sample": "silicone",
+    "sample_printed": "Silicone",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 1,
+    "position": 6,
+    "record_time_printed": "39:99 - 41:15",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": [
+    "SAME-LOG-TIME-INVALID"
+   ]
+  },
+  {
+   "record_id": "same:log:6",
+   "test_id": "6",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 6
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 6,
+    "gmt_day": 256,
+    "sample": "teflon",
+    "sample_printed": "Teflon",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 1,
+    "position": 2,
+    "record_time_printed": null,
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:7",
+   "test_id": "7",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 7
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 7,
+    "gmt_day": 256,
+    "sample": "lampwick",
+    "sample_printed": "Lampwick",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 1,
+    "position": 3,
+    "record_time_printed": "18:54 - 20.25",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": [
+    "SAME-LOG-TIME-FORMAT"
+   ]
+  },
+  {
+   "record_id": "same:log:8",
+   "test_id": "8",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 8
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 8,
+    "gmt_day": 257,
+    "sample": "kapton",
+    "sample_printed": "Kapton",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 1,
+    "position": 4,
+    "record_time_printed": "1:13 - 1:46",
+    "comment": "run abort because of high Rt/Ro, finished manually",
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:9",
+   "test_id": "9",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 9
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 9,
+    "gmt_day": 257,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 1,
+    "position": 5,
+    "record_time_printed": "1:13 - 2:50",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:op10",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 10
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": null,
+    "gmt_day": 257,
+    "sample": null,
+    "sample_printed": null,
+    "reheat": null,
+    "initial_reheat_printed": null,
+    "carousel": null,
+    "position": null,
+    "record_time_printed": "3:40 -3:50",
+    "comment": "engage carousel",
+    "kind": "carousel_operation"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:10",
+   "test_id": "10",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 11
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 10,
+    "gmt_day": 257,
+    "sample": "teflon",
+    "sample_printed": "Teflon",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 1,
+    "position": 2,
+    "record_time_printed": "6:35 - 8:17",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:op12",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 12
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": null,
+    "gmt_day": 257,
+    "sample": null,
+    "sample_printed": null,
+    "reheat": null,
+    "initial_reheat_printed": null,
+    "carousel": null,
+    "position": null,
+    "record_time_printed": "8:30 - 8:39",
+    "comment": "disengage carousel",
+    "kind": "carousel_operation"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:11",
+   "test_id": "11",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 13
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 11,
+    "gmt_day": 262,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 2,
+    "position": 4,
+    "record_time_printed": "1:39 - 3:07",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:12",
+   "test_id": "12",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 14
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 12,
+    "gmt_day": 262,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 2,
+    "position": 4,
+    "record_time_printed": "5:37 - 7:05",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:13",
+   "test_id": "13",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 15
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 13,
+    "gmt_day": 262,
+    "sample": "teflon",
+    "sample_printed": "Teflon",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 2,
+    "position": 1,
+    "record_time_printed": "9:36 - 10:59",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:14",
+   "test_id": "14",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 16
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 14,
+    "gmt_day": 263,
+    "sample": "kapton",
+    "sample_printed": "Kapton",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 2,
+    "position": 3,
+    "record_time_printed": "33:05 - 34:18",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:15",
+   "test_id": "15",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 17
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 15,
+    "gmt_day": 263,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 2,
+    "position": 5,
+    "record_time_printed": "38:29 - 40:03",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:16",
+   "test_id": "16",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 18
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 16,
+    "gmt_day": 263,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 2,
+    "position": 4,
+    "record_time_printed": "35:42 - 36:48",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:17",
+   "test_id": "17",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 19
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 17,
+    "gmt_day": 264,
+    "sample": "lampwick",
+    "sample_printed": "Lampwick",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 2,
+    "position": 2,
+    "record_time_printed": "14:05 - 15: 50",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:op20",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 20
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": null,
+    "gmt_day": 264,
+    "sample": null,
+    "sample_printed": null,
+    "reheat": null,
+    "initial_reheat_printed": null,
+    "carousel": null,
+    "position": null,
+    "record_time_printed": "16:31 - 17:30",
+    "comment": "rotate carousel",
+    "kind": "carousel_operation"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:18",
+   "test_id": "18",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 21
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 18,
+    "gmt_day": 264,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 2,
+    "position": 6,
+    "record_time_printed": "<6.:39",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": [
+    "SAME-LOG-TIME-FORMAT"
+   ]
+  },
+  {
+   "record_id": "same:log:19",
+   "test_id": "19",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 22
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 19,
+    "gmt_day": 264,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 2,
+    "position": 6,
+    "record_time_printed": "6:39 - 8:00",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:20",
+   "test_id": "20",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 23
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 20,
+    "gmt_day": 264,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 2,
+    "position": 6,
+    "record_time_printed": "8:00 - 11:00",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:21",
+   "test_id": "21",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 24
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 21,
+    "gmt_day": 264,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 2,
+    "position": 6,
+    "record_time_printed": "19:32 - 21:10",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:22",
+   "test_id": "22",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 25
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 22,
+    "gmt_day": 264,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 2,
+    "position": 6,
+    "record_time_printed": "22:30 - 24:16",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:23",
+   "test_id": "23",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 26
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 23,
+    "gmt_day": 267,
+    "sample": "silicone",
+    "sample_printed": "Silicone",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 3,
+    "position": 1,
+    "record_time_printed": "12:28 - 13:48",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:24",
+   "test_id": "24",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 27
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 24,
+    "gmt_day": 267,
+    "sample": "silicone",
+    "sample_printed": "Silicone",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 3,
+    "position": 2,
+    "record_time_printed": "17:40 - 19:10",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:25",
+   "test_id": "25",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 28
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 25,
+    "gmt_day": 268,
+    "sample": "teflon",
+    "sample_printed": "Teflon",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 3,
+    "position": 4,
+    "record_time_printed": "17:58 - 19:12",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:26",
+   "test_id": "26",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 29
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 26,
+    "gmt_day": 268,
+    "sample": "teflon",
+    "sample_printed": "Teflon",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 3,
+    "position": 5,
+    "record_time_printed": "20:33 - 21:58",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:27",
+   "test_id": "27",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 30
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 27,
+    "gmt_day": 269,
+    "sample": "silicone",
+    "sample_printed": "Silicone",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 3,
+    "position": 3,
+    "record_time_printed": "1:48 - 3:09",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:28",
+   "test_id": "28",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 31
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 28,
+    "gmt_day": 269,
+    "sample": "teflon",
+    "sample_printed": "Teflon",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 3,
+    "position": 6,
+    "record_time_printed": "4:35 - 5:36",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:29",
+   "test_id": "29",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 32
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 29,
+    "gmt_day": 271,
+    "sample": "kapton",
+    "sample_printed": "Kapton",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 4,
+    "position": 4,
+    "record_time_printed": "1:22 - 2:23",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:30",
+   "test_id": "30",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 33
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 30,
+    "gmt_day": 272,
+    "sample": "kapton",
+    "sample_printed": "Kapton",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 4,
+    "position": 5,
+    "record_time_printed": "1:00 - 2.30",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": [
+    "SAME-LOG-TIME-FORMAT"
+   ]
+  },
+  {
+   "record_id": "same:log:31",
+   "test_id": "31",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 34
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 31,
+    "gmt_day": 272,
+    "sample": "lampwick",
+    "sample_printed": "Lampwick",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 4,
+    "position": 1,
+    "record_time_printed": "2:50 - 4:20",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:32",
+   "test_id": "32",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 35
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 32,
+    "gmt_day": 272,
+    "sample": "lampwick",
+    "sample_printed": "Lampwick",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 4,
+    "position": 2,
+    "record_time_printed": "8:35 - 9:57",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:33",
+   "test_id": "33",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 36
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 33,
+    "gmt_day": 273,
+    "sample": "kapton",
+    "sample_printed": "Kapton",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 4,
+    "position": 6,
+    "record_time_printed": "9:58 - 10:59",
+    "comment": "missed first part of heating, using 2 cm/s",
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:34",
+   "test_id": "34",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 37
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 34,
+    "gmt_day": 273,
+    "sample": "lampwick",
+    "sample_printed": "Lampwick",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 4,
+    "position": 3,
+    "record_time_printed": "14:38 - 15:48",
+    "comment": "using 2 cm/s",
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:op38",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 38
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": null,
+    "gmt_day": null,
+    "sample": null,
+    "sample_printed": null,
+    "reheat": null,
+    "initial_reheat_printed": null,
+    "carousel": null,
+    "position": null,
+    "record_time_printed": "16: 18 - 16:27",
+    "comment": "disengage carousel",
+    "kind": "carousel_operation"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:35",
+   "test_id": "35",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 39
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 35,
+    "gmt_day": 276,
+    "sample": "silicone",
+    "sample_printed": "Silicone",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 5,
+    "position": 1,
+    "record_time_printed": "10:10 - 11:05",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:36",
+   "test_id": "36",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 40
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 36,
+    "gmt_day": 276,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 5,
+    "position": 6,
+    "record_time_printed": "12:08 - 13:32",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:37",
+   "test_id": "37",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 41
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 37,
+    "gmt_day": 276,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 5,
+    "position": 6,
+    "record_time_printed": "14:46 - 15:45",
+    "comment": "8 cm/s",
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:38",
+   "test_id": "38",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 42
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 38,
+    "gmt_day": 276,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 5,
+    "position": 6,
+    "record_time_printed": "18:46 - 20:18",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:39",
+   "test_id": "39",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 43
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 39,
+    "gmt_day": 276,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 5,
+    "position": 6,
+    "record_time_printed": "20:25 -21:55",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:40",
+   "test_id": "40",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 44
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 40,
+    "gmt_day": 276,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 5,
+    "position": 6,
+    "record_time_printed": "22:58 - 23:58",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:41",
+   "test_id": "41",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 45
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 41,
+    "gmt_day": 277,
+    "sample": "teflon",
+    "sample_printed": "Teflon",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 5,
+    "position": 2,
+    "record_time_printed": "3:57 - 5:15",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:42",
+   "test_id": "42",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 46
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 42,
+    "gmt_day": 277,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 5,
+    "position": 5,
+    "record_time_printed": "00:53 - 2.21",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": [
+    "SAME-LOG-TIME-FORMAT"
+   ]
+  },
+  {
+   "record_id": "same:log:43",
+   "test_id": "43",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 47
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 43,
+    "gmt_day": 277,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 5,
+    "position": 5,
+    "record_time_printed": "6:19 - 7:55",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:44",
+   "test_id": "44",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 48
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 44,
+    "gmt_day": 277,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 5,
+    "position": 5,
+    "record_time_printed": "8:05 - 9:42",
+    "comment": "30 minute aging, 75 second heating",
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:45",
+   "test_id": "45",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 49
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 45,
+    "gmt_day": 278,
+    "sample": "dbp",
+    "sample_printed": "DBP",
+    "reheat": true,
+    "initial_reheat_printed": "Reheat",
+    "carousel": 5,
+    "position": 5,
+    "record_time_printed": "10:58 - 12:17",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:46",
+   "test_id": "46",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 50
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 46,
+    "gmt_day": 278,
+    "sample": "lampwick",
+    "sample_printed": "Lampwick",
+    "reheat": false,
+    "initial_reheat_printed": "Initial",
+    "carousel": 5,
+    "position": 3,
+    "record_time_printed": "13:34 - 14:29",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "same:log:47",
+   "test_id": "47",
+   "provenance": {
+    "source_file": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf",
+    "source_table": "Appendix A",
+    "page_pdf": 33,
+    "source_row": 51
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "test_number": 47,
+    "gmt_day": 278,
+    "sample": "kapton",
+    "sample_printed": "Kapton",
+    "reheat": false,
+    "initial_reheat_printed": "Intiial",
+    "carousel": 5,
+    "position": 4,
+    "record_time_printed": "15: 59 - 17:06",
+    "comment": null,
+    "kind": "test"
+   },
+   "raw": {},
+   "flags": [
+    "SAME-LOG-TYPO"
+   ]
+  }
+ ],
+ "flags": [
+  {
+   "rule_id": "SAME-LOG-TIME-INVALID",
+   "category": "invalid",
+   "severity": "info",
+   "description": "Record time '39:99 - 41:15' contains a seconds value ≥ 60.",
+   "record_id": "same:log:5",
+   "test_id": "5",
+   "raw_field": "Record Time",
+   "raw_value": "39:99 - 41:15",
+   "source_row": 5,
+   "evidence_ref": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf PDF p33",
+   "status": "reported"
+  },
+  {
+   "rule_id": "SAME-LOG-TIME-FORMAT",
+   "category": "invalid",
+   "severity": "info",
+   "description": "Record time '18:54 - 20.25' is not a clean mm:ss range (typo or partial); kept as printed.",
+   "record_id": "same:log:7",
+   "test_id": "7",
+   "raw_field": "Record Time",
+   "raw_value": "18:54 - 20.25",
+   "source_row": 7,
+   "evidence_ref": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf PDF p33",
+   "status": "reported"
+  },
+  {
+   "rule_id": "SAME-LOG-TIME-FORMAT",
+   "category": "invalid",
+   "severity": "info",
+   "description": "Record time '<6.:39' is not a clean mm:ss range (typo or partial); kept as printed.",
+   "record_id": "same:log:18",
+   "test_id": "18",
+   "raw_field": "Record Time",
+   "raw_value": "<6.:39",
+   "source_row": 21,
+   "evidence_ref": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf PDF p33",
+   "status": "reported"
+  },
+  {
+   "rule_id": "SAME-LOG-TIME-FORMAT",
+   "category": "invalid",
+   "severity": "info",
+   "description": "Record time '1:00 - 2.30' is not a clean mm:ss range (typo or partial); kept as printed.",
+   "record_id": "same:log:30",
+   "test_id": "30",
+   "raw_field": "Record Time",
+   "raw_value": "1:00 - 2.30",
+   "source_row": 33,
+   "evidence_ref": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf PDF p33",
+   "status": "reported"
+  },
+  {
+   "rule_id": "SAME-LOG-TIME-FORMAT",
+   "category": "invalid",
+   "severity": "info",
+   "description": "Record time '00:53 - 2.21' is not a clean mm:ss range (typo or partial); kept as printed.",
+   "record_id": "same:log:42",
+   "test_id": "42",
+   "raw_field": "Record Time",
+   "raw_value": "00:53 - 2.21",
+   "source_row": 46,
+   "evidence_ref": "SAME/SAME Final Science report  03 18 10 with papers attached.pdf PDF p33",
+   "status": "reported"
+  },
+  {
+   "rule_id": "SAME-LOG-TYPO",
+   "category": "info",
+   "severity": "info",
+   "description": "'Intiial' read as Initial.",
+   "record_id": "same:log:47",
+   "test_id": "47",
+   "raw_field": "Reheat/Initial",
+   "raw_value": "Intiial",
+   "source_row": 51,
+   "status": "reported"
+  }
+ ]
+}
