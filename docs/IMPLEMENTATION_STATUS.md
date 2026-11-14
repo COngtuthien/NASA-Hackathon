@@ -1,5 +1,14 @@
 # SpaceFire AI — Implementation Status
 
+## New NASA dataset audit (branch `audit/spacefire-new-nasa-datasets`, 2026-11-14): AUDIT ONLY
+Base: `bcd76ce`. No app, data, model or database change; no Gemini request. Downloads stay untracked.
+- Found `FLEX-2/` (PSI-68), `PSI-117/`, `PSI-62/` (metadata ZIP only), `SAME/` (PSI-102). The expected ACME
+  investigations (PSI-159, PSI-10) are **not on disk**.
+- Report `docs/NEW_NASA_DATASET_AUDIT.md`; inventory `docs/NEW_NASA_DATASET_INVENTORY.csv` (154 rows, rebuilt by
+  `research/scripts/new_dataset_inventory.py`); `docs/NEW_NASA_DATASET_INTEGRATION_MATRIX.md`;
+  `docs/NEW_NASA_DATASET_DOWNLOAD_GAPS.md`.
+- Recommended order: PSI-117 → SAME → FLEX-2 → PSI-62. Nothing integrated yet.
+
 ## Copilot server-error repair (branch `fix/spacefire-copilot-server-error`, 2026-11-13): DONE
 Base: Phase 12 `66242ac`. Diagnosis and evidence: `docs/COPILOT_SERVER_ERROR_DIAGNOSIS.md`.
 - First failing component: the external provider (`gemini-3.8-flash` returned 503 "high demand", 503, then 504; one
