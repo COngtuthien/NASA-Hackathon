@@ -34,6 +34,11 @@ by conditions present in the data, and get the NASA investigations ranked by a t
 Copilot also queries; the Copilot now classifies questions and abstains on certification or prediction requests without
 calling the model. See `docs/PHASE14_IMPLEMENTATION_REPORT.md`.
 
+**Phase 15** makes the product demo-ready: a **Guided Demo** (`/demo`, or "Start guided demo" on Home) walks through
+the challenge, the Explorer, NASA evidence, a 3D studio and the Copilot for one of four journeys; all five 3D studios
+share the same controls (Play/Pause, Reset, Fullscreen, Hide/Show controls, Labels / Explanation / Evidence); NASA video
+and animation players gained status, Replay and error states. See `docs/PHASE15_DEMO_GUIDE.md`.
+
 Every number in the UI links back to the CSV row, document page or external record it came from. The investigations
 are different physical systems and are never pooled into one dataset or model.
 

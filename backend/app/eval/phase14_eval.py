@@ -22,6 +22,9 @@ from pathlib import Path
 
 GOLDEN = Path(__file__).resolve().parents[2] / "tests" / "golden_phase14.jsonl"
 HOLDOUT = Path(__file__).resolve().parents[2] / "tests" / "golden_phase14_holdout.jsonl"  # written after tuning; never tuned on
+# Phase 15 final benchmark: written before any Phase 15 change to the rules and run once; includes SAFFIRE-I, BRE and
+# Flame Design questions and questions opened from the Explorer (with explorer_context).
+PHASE15 = Path(__file__).resolve().parents[2] / "tests" / "golden_phase15.jsonl"
 STRUCTURED = {"graph", "curated_record", "report_statement", "analysis", "report_table", "experiment",
               "explorer_context"}
 
@@ -69,7 +72,7 @@ def run(path: Path = GOLDEN) -> dict:
     conn = connect(get_settings().db_path)
     rows = []
     for g in load(path):
-        res = assistant.ask(conn, g["question"], "internal")
+        res = assistant.ask(conn, g["question"], "internal", explorer_ctx=dict(g["explorer"]) if g.get("explorer") else None)
         rows.append({"id": g["id"], "scenario": g["scenario"], "category": g["category"],
                      "got_type": res["question_type"]["type"], "status": res["status"],
                      "citations": len(res["citations"]), **score_one(res, g["expect"])})
@@ -99,8 +102,9 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--holdout", action="store_true", help="the held-out set written after the rules were tuned")
+    ap.add_argument("--phase15", action="store_true", help="the Phase 15 final benchmark (incl. Explorer-opened questions)")
     a = ap.parse_args()
-    rep = run(HOLDOUT if a.holdout else GOLDEN)
+    rep = run(PHASE15 if a.phase15 else HOLDOUT if a.holdout else GOLDEN)
     if a.json:
         print(json.dumps(rep, indent=1))
         return

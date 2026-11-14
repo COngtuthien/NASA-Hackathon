@@ -1,5 +1,27 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 15 — Final Demo Experience, UX Polish & Scientific Validation (branch `feature/spacefire-phase15-final-demo`, 2026-11-14): COMPLETE (with the limits listed)
+Base `10e9d6a` (Phase 14). Rollback: `backup/spacefire-before-phase15`.
+- Done:
+  - The new studios (Gaseous Flame, Smoke Detection) now match the original studios: Hide/Show controls with a floating
+    restore, Play/Pause that stops rendering, Reset, Reset camera, Fullscreen, and Labels / Explanation / Evidence toggles.
+  - The original studios gained a visible Play/Pause.
+  - NASA clip and animation players have status, Replay and error states; the CFI-G clip is shown on the Gaseous Flame
+    page.
+  - Guided Demo Mode (`/demo` plus a demo bar over real pages, 4 journeys).
+  - An Explorer scenario switcher; the Copilot shows the Explorer context it used.
+  - One citation added (cool-flame temperature, CFI-G report p.24); "BRE" acronym detection.
+- Tests, all on the final build:
+  - Backend 257 passed.
+  - Browser 196 tests, 195 passed and 1 skipped (live LLM by design).
+  - tsc/eslint clean; production build OK.
+  - AI benchmark, Phase 15 untuned set: type 15/16, abstention 16/16. Retrieval unchanged.
+- Limits:
+  - The original studios keep "Reset camera" plus "Reset parameters" and their existing explainer/evidence modes.
+  - No live Gemini check.
+  - Data gaps unchanged.
+  - Details: `docs/PHASE15_*.md`.
+
 ## Phase 14 — Research-to-Safety Explorer, Knowledge Graph & Evidence-Aware Copilot (branch `feature/spacefire-phase14-safety-explorer`, 2026-11-14): COMPLETE (with the limits listed)
 Base `33b8478` (latest Phase 13). Rollback: `backup/spacefire-before-phase14`.
 - Done:

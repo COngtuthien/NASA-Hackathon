@@ -159,6 +159,7 @@ test("Copilot handoff: Explorer context is shown, sent as ids, and resolved by t
   expect(body.explorer_context.investigation).toBe("PSI-159");
   await expect(page.getByTestId("question-type").first()).toBeVisible({ timeout: 60_000 });
   await expect(page.getByText("Research-to-Safety Explorer: Gaseous Flame Behavior").first()).toBeAttached();
+  await expect(page.getByTestId("answer-explorer-context").first()).toContainText("Gaseous Flame Behavior · PSI-159");
 });
 
 test("Copilot abstains on an unsupported certification question (no model call)", async ({ request }) => {
