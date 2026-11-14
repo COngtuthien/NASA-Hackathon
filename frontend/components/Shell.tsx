@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, ViewTransition, type FormEvent, type ReactNode } from "react";
+import DemoBar from "@/components/demo/DemoBar";
 import { Icon } from "@/components/icons";
 import ThemeSwitcher from "@/components/theme-switcher";
 import { AnimatePresence, motion, MotionProvider, DUR, EASE } from "@/components/motion";
@@ -284,6 +285,7 @@ export default function Shell({ children }: { children: ReactNode }) {
             <main id="main" className={showcase ? "w-full" : "mx-auto w-full max-w-[1400px] px-4 py-7 md:px-8 md:py-10"}>{children}</main>
           </ViewTransition>
           <SiteFooter />
+          <DemoBar />
         </div>
       </div>
     </MotionProvider>

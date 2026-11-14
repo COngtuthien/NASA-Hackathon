@@ -3,17 +3,21 @@
 // Phase 14: Research-to-Safety Explorer entry page. Four research scenarios, how the ranking works, and the
 // research-support (not certification) notice. Everything shown comes from /api/v1/explorer/scenarios.
 import Link from "next/link";
+import { StartDemoButton } from "@/components/demo/DemoBar";
 import { Icon } from "@/components/icons";
 import { Callout, Loadable, PageHeader } from "@/components/ui";
 import { useApi } from "@/lib/api";
+import { setDemo, useDemo, type DemoScenario } from "@/lib/demo";
 import type { ScenarioList } from "./types";
 
 export default function ExplorerHome() {
   const d = useApi<ScenarioList>("/explorer/scenarios");
+  const demo = useDemo();
   return (
     <>
       <PageHeader kicker="Research-to-Safety Explorer" title="Research-to-Safety Explorer"
-        lead={<>Start from a research question about spacecraft fire, not from an investigation name. SpaceFire finds the NASA investigations that bear on it, ranks them by research relevance, and shows what was actually measured, and what was not.</>} />
+        lead={<>Start from a research question about spacecraft fire, not from an investigation name. SpaceFire finds the NASA investigations that bear on it, ranks them by research relevance, and shows what was actually measured, and what was not.</>}
+        actions={<StartDemoButton />} />
       <Loadable state={d} rows={8}>{(x) => (
         <div className="flex flex-col gap-8">
           <Callout tone="warn"><span data-testid="explorer-disclaimer">{x.disclaimer}</span></Callout>
@@ -22,8 +26,10 @@ export default function ExplorerHome() {
             <ul className="grid gap-4 md:grid-cols-2">
               {x.scenarios.map((s) => (
                 <li key={s.id}>
-                  <Link href={`/safety-explorer/${s.id}`} data-testid={`scenario-card-${s.id}`}
-                    className="lift hairline-top group flex h-full flex-col gap-3 rounded-2xl border border-line/70 bg-panel/70 p-5 no-underline hover:border-flame/60 hover:no-underline">
+                  <Link href={`/safety-explorer/${s.id}`} data-testid={`scenario-card-${s.id}`} data-selected={demo.active && demo.scenario === s.id ? "true" : undefined}
+                    onClick={() => { if (demo.active) setDemo({ active: true, step: 3, scenario: s.id as DemoScenario }); }}
+                    className={`lift hairline-top group flex h-full flex-col gap-3 rounded-2xl border p-5 no-underline hover:border-flame/60 hover:no-underline ${
+                      demo.active && demo.scenario === s.id ? "border-flame bg-flame/[0.07] ring-1 ring-flame/50" : "border-line/70 bg-panel/70"}`}>
                     <div className="flex items-center gap-3">
                       <span className="grid size-10 place-items-center rounded-xl border border-line-strong/70 bg-ink/60 text-flame"><Icon name={s.icon} size={20} /></span>
                       <div className="min-w-0">

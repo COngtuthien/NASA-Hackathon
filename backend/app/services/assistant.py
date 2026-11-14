@@ -45,6 +45,7 @@ NEW_INVESTIGATION_RE = {
     "PSI-20": re.compile(r"\b(psi-20|burning rate emulator|acme bre|emulat\w*)\b", re.I),
 }
 SAME_ACRONYM_RE = re.compile(r"\bSAME\b")   # case-sensitive on purpose
+BRE_ACRONYM_RE = re.compile(r"\bBRE\b")     # case-sensitive on purpose
 INV_SHORT = {"PSI-69": "FLEX", "PSI-25": "BASS-II", "PSI-98": "SAFFIRE-I", "PSI-117": "PSI-117", "PSI-102": "SAME",
              "PSI-68": "FLEX-2", "PSI-62": "PSI-62", "PSI-159": "ACME CFI-G", "PSI-10": "ACME Flame Design",
              "PSI-20": "ACME BRE"}
@@ -130,6 +131,8 @@ def _detect_investigations(q: str, explicit: list[str] | None) -> list[str]:
     found += [inv for inv, rx in NEW_INVESTIGATION_RE.items() if rx.search(q)]
     if "PSI-102" not in found and SAME_ACRONYM_RE.search(q):   # 'SAME' in capitals is the acronym; 'the same' is not
         found.append("PSI-102")
+    if "PSI-20" not in found and BRE_ACRONYM_RE.search(q):     # Phase 15: 'BRE' alone (capitals) is the ACME BRE
+        found.append("PSI-20")
     return found
 
 

@@ -8,8 +8,8 @@ import { useState, type ReactNode } from "react";
 import { EVIDENCE, EvidenceTag, docHref } from "@/components/evidence-tag";
 import { Icon } from "@/components/icons";
 import { Callout, Field, FilterChips, LinkButton, Loadable, inputCls } from "@/components/ui";
-import { qs, useApi } from "@/lib/api";
-import { READINESS_LABEL, ROLE_LABEL, type EvidenceItem, type Facet, type Ranked, type Workspace } from "./types";
+import { qs, useApi, useCachedApi } from "@/lib/api";
+import { READINESS_LABEL, ROLE_LABEL, type EvidenceItem, type Facet, type Ranked, type ScenarioList, type Workspace } from "./types";
 
 const PARAMS = ["material", "flow", "geometry", "configuration", "fuel", "aging", "investigation", "evidence",
   "o2_min", "o2_max", "pressure_min", "pressure_max"] as const;
@@ -201,6 +201,7 @@ export default function ExplorerWorkspace() {
   const [all, setAll] = useState(false);
   const params = Object.fromEntries(PARAMS.map((p) => [p, sp.get(p)]));
   const d = useApi<Workspace>(`/explorer/scenarios/${scenario}${qs(params)}`);
+  const list = useCachedApi<ScenarioList>("/explorer/scenarios");
   const set = (k: string, v: string) => {
     const n = new URLSearchParams(window.location.search);
     if (v) n.set(k, v); else n.delete(k);
@@ -210,7 +211,23 @@ export default function ExplorerWorkspace() {
   const clear = () => router.replace(pathname, { scroll: false });
   return (
     <>
-      <nav className="mb-4 text-[13.5px]"><Link href="/safety-explorer" className="inline-flex items-center gap-1"><Icon name="chevron" size={13} className="rotate-180" />All research scenarios</Link></nav>
+      <nav className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13.5px]" aria-label="Research scenarios">
+        <Link href="/safety-explorer" className="inline-flex items-center gap-1"><Icon name="chevron" size={13} className="rotate-180" />All research scenarios</Link>
+        {list.data && (
+          <ul className="flex flex-wrap gap-1.5" data-testid="scenario-switcher">
+            {list.data.scenarios.map((s) => {
+              const on = s.id === scenario;
+              return (
+                <li key={s.id}>
+                  <Link href={`/safety-explorer/${s.id}`} aria-current={on ? "page" : undefined}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12.5px] no-underline hover:no-underline ${on ? "border-flame bg-flame/15 font-medium text-text" : "border-line-strong/70 text-text-2 hover:border-flame/60 hover:text-text"}`}>
+                    <Icon name={s.icon} size={13} />{s.title}</Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </nav>
       <Loadable state={d} rows={12}>{(w) => {
         const inv = Object.fromEntries(w.ranked.map((r) => [r.investigation_id, r.short_name]));
         const ev = all ? w.evidence : w.evidence.slice(0, SHOWN);

@@ -209,6 +209,11 @@ function AnswerBlock({ a, onRetry }: { a: Answer; onRetry?: () => void }) {
         <span className={`rounded border px-2 py-0.5 text-sm font-semibold ${st.cls}`}>{st.label}</span>
         {a.question_type && <span data-testid="question-type" data-type={a.question_type.type} className="rounded border border-line-strong px-2 py-0.5 text-[12.5px] text-text-2">{a.question_type.label}</span>}
         <span className="text-sm text-text-3">{st.note}</span>
+        {a.explorer_context && (
+          <span className="basis-full text-[12.5px] text-text-3" data-testid="answer-explorer-context">
+            Explorer context used: {a.explorer_context.title}{a.explorer_context.investigation ? ` · ${a.explorer_context.investigation}` : ""}{a.explorer_context.test ? ` · test ${a.explorer_context.test}` : ""} (resolved from the SpaceFire database).
+          </span>
+        )}
       </div>
       {a.llm.configured && !a.llm.error && (a.llm.calls || a.llm.cached) ? (
         <p className="text-xs text-text-3">

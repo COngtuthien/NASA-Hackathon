@@ -11,6 +11,7 @@ import { JourneyCard, useJourney } from "@/components/journey";
 import { Credit, MediaImage, RelationBadge } from "@/components/media";
 import { DUR, EASE, motion, Parallax, Reveal, Stagger, StaggerItem, useRichMotion, useScroll, useTransform, WordReveal } from "@/components/motion";
 import { Starfield } from "@/components/illustrations";
+import { StartDemoButton } from "@/components/demo/DemoBar";
 import { Button, inputCls, LinkButton } from "@/components/ui";
 import { qs, useApi } from "@/lib/api";
 import { journeyHref, type Topic } from "@/lib/journey";
@@ -84,6 +85,7 @@ function Hero() {
             transition={{ duration: DUR.slow, ease: EASE, delay: 0.65 }}>
             <LinkButton href={journeyHref("choose", null)} variant="primary" size="lg">Start exploring</LinkButton>
             <LinkButton href="#explore" variant="quiet" size="lg">Explore on my own</LinkButton>
+            <StartDemoButton />
           </motion.div>
           <motion.p className="mt-3 text-[13px] text-text-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: DUR.slow, delay: 0.8 }}>
             “Start exploring” is an optional seven-step guided journey; you can leave it at any time.
