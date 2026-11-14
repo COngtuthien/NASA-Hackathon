@@ -1,10 +1,31 @@
 "use client";
 
 import { PerformanceMonitor } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { useEffect, useRef, useState, type ReactNode, type Ref } from "react";
 import ScientificCameraControls, { type CameraApi, type CameraHome } from "@/components/3d/ScientificCameraControls";
 import { labStats } from "@/components/3d/webgl";
+
+// drei's <Html> (the 3D part labels) appends its own nodes beside the canvas and removes them in a cleanup. When a
+// page is swapped quickly (client navigation during a view transition) that node can already be detached, and the
+// cleanup throws "removeChild: not a child of this node", an error with no effect on the new page. Phase 15 guards
+// exactly that case (the standard workaround from React issue #11538): removing a node that is not a child is a no-op.
+// Installed once, only in the lazily loaded 3D bundle.
+type GuardedNode = typeof Node.prototype & { __sfSafeRemove?: boolean };
+if (typeof Node !== "undefined" && !(Node.prototype as GuardedNode).__sfSafeRemove) {
+  const original = Node.prototype.removeChild;
+  Node.prototype.removeChild = function <T extends Node>(this: Node, child: T): T {
+    if (child.parentNode !== this) return child;
+    return original.call(this, child) as T;
+  };
+  (Node.prototype as GuardedNode).__sfSafeRemove = true;
+}
+
+/** Counts rendered frames (diagnostics and Play/Pause tests). Costs one integer increment per frame. */
+function FrameCounter() {
+  useFrame(() => { const s = labStats(); s.frames = (s.frames ?? 0) + 1; });
+  return null;
+}
 
 /**
  * One WebGL canvas for the lab. It renders continuously only while decorative motion is on, the viewport is on
@@ -65,6 +86,7 @@ export default function SceneCanvas({ home, animate, children, cameraRef, onCont
       >
         <PerformanceMonitor onDecline={() => setDprMax(1)} onIncline={() => setDprMax(1.75)} flipflops={3} />
         <ScientificCameraControls ref={cameraRef} home={home} damping={animate} />
+        <FrameCounter />
         {children}
       </Canvas>
     </div>

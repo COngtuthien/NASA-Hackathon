@@ -8,7 +8,7 @@ import { AskSuggestions } from "@/components/ask-suggestions";
 import { Disclosure } from "@/components/disclosure";
 import { DocLink, EvidenceTag, type EvidenceKind } from "@/components/evidence-tag";
 import Plot, { baseLayout, CAT } from "@/components/Plot";
-import LiteStudio from "@/components/studio/LiteStudio";
+import LiteStudio, { Btn } from "@/components/studio/LiteStudio";
 import { Callout, Loadable, PageHeader, Segmented } from "@/components/ui";
 import { useApi } from "@/lib/api";
 import { FlagRules } from "@/components/views/gas/CfigSection";
@@ -69,11 +69,15 @@ function SmokeStudio({ data, initialMaterial }: { data: SameResp | null; initial
       legend={[{ color: "#c9d3e2", label: "Fresh smoke particles (not to scale)" }, { color: "#d8c6a8", label: "Aged smoke: fewer, larger (illustration)" },
         { color: "#4fd1e8", label: "Air flow" }, { color: "#ff8a3d", label: "Heater coil" }]}
       labels={labels} onLabels={setLabels} animate={animate} onAnimate={setAnimate}
+      onReset={() => { setStage(1); setAged(false); setMaterial(null); setSelected(null); }}
       banner={<>Original simplified schematic: instrument list <EvidenceTag kind="guided" />, layout and particles <EvidenceTag kind="illustration" /></>}
       measuredLabel={row ? `Measured for ${row.material_label}, ${aged ? "aged 720 s" : "fresh"}: Dg ${row.dg_nm} nm, mean ${row.d10_nm} nm (Table 1, p.27)` : null}
       textAlternative="A schematic smoke path from left to right: a small heated sample with a glowing coil, a smoke duct, a vertical aging chamber with a piston, a diluter, and six instrument boxes: a particle counter, an ionization sensor, two dust monitors with 1 and 10 micrometre cut-offs, and the Space Shuttle and ISS smoke detectors. Dots representing smoke particles move through the stage that is selected."
-      extraToolbar={<button type="button" onClick={() => setStage((s) => (s % 6) + 1)} data-testid="smoke-next"
-        className="press inline-flex h-9 items-center rounded-lg border border-line-strong/80 bg-void/70 px-2.5 text-[12.5px] text-text-2 backdrop-blur-md hover:border-flame/70 hover:text-text">Next stage</button>}
+      // Stages are stepped by the user (they are not a timed sequence), so nothing advances while the animation is paused.
+      extraToolbar={<>
+        <Btn label="Previous stage" onClick={() => setStage((s) => (s === 1 ? 6 : s - 1))} testid="smoke-prev"><span aria-hidden>‹</span> Stage</Btn>
+        <Btn label="Next stage" onClick={() => setStage((s) => (s % 6) + 1)} testid="smoke-next">Next stage <span aria-hidden>›</span></Btn>
+      </>}
       controls={
         <div className="flex flex-col gap-3 rounded-xl border border-line/70 bg-panel/60 p-3" data-testid="smoke-controls">
           <div role="radiogroup" aria-label="Stage" className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-2">
@@ -85,12 +89,15 @@ function SmokeStudio({ data, initialMaterial }: { data: SameResp | null; initial
           <Segmented label="Sample material" value={material} onChange={setMaterial} options={[...MATERIALS, ["dbp", "DBP"]]} />
           <Segmented label="Smoke age" value={aged ? "aged" : "fresh"} onChange={(v) => setAged(v === "aged")} options={[["fresh", "Fresh"], ["aged", "Aged 720 s"]]} />
         </div>}
-      panel={
-        <div className="flex flex-col gap-3">
+      explanation={<>
           <div className="rounded-xl border border-line/70 bg-panel/60 p-3 text-[13.5px] leading-relaxed text-text-2" data-testid="smoke-stage-text">
             <p className="flex flex-wrap items-center gap-2 font-medium text-text">Stage {stage}: {STAGES[stage - 1][0]} <EvidenceTag kind={STAGES[stage - 1][2] as EvidenceKind} /></p>
             <p className="mt-1">{STAGES[stage - 1][1]}</p>
           </div>
+          {part && <div className="rounded-xl border border-electric/50 bg-electric/[0.06] p-3 text-[13.5px] text-text-2" data-testid="smoke-part">
+            <p className="flex flex-wrap items-center gap-2 font-medium text-text">{part.title} <EvidenceTag kind={part.kind} /></p><p className="mt-1">{part.text}</p></div>}
+      </>}
+      evidence={<>
           <div className="rounded-xl border border-line/70 bg-panel/60 p-3 text-[13.5px]" data-testid="smoke-measured">
             <p className="flex flex-wrap items-center gap-2 font-medium text-text">Measured particle sizes <EvidenceTag kind="derived" /></p>
             {row ? <dl className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[13px]">
@@ -101,9 +108,7 @@ function SmokeStudio({ data, initialMaterial }: { data: SameResp | null; initial
               : <p className="mt-1 text-text-3">{material === "dbp" ? "DBP was flown but has no row in Final Science Report Table 1." : "Loading…"}</p>}
             <p className="mt-1 text-[12px] text-text-3">Moment-method results (log-normal assumption), <DocLink id={DOC} page={27}>Table 1, p.27</DocLink>. Particle dots in the scene are not drawn to these sizes.</p>
           </div>
-          {part && <div className="rounded-xl border border-electric/50 bg-electric/[0.06] p-3 text-[13.5px] text-text-2" data-testid="smoke-part">
-            <p className="flex flex-wrap items-center gap-2 font-medium text-text">{part.title} <EvidenceTag kind={part.kind} /></p><p className="mt-1">{part.text}</p></div>}
-        </div>}
+      </>}
     />
   );
 }

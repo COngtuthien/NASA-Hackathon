@@ -634,6 +634,7 @@ export default function ScienceStudio({ sceneId }: { sceneId: SceneId }) {
                     measuredLabel={measuredLabel} onStatic={() => setStaticView(true)} cameraRef={setCam} single={single} split={split}
                     legend={LEGEND[sceneId]} timeline={timelineOn ? timeline : null} presets={presets}
                     immersive={immersive} labelsOn={labelsEff !== "off"} onLabels={toggleLabels}
+                    motionOn={motionOn} onMotion={() => setMotionPref(!motionOn)}
                     stageChip={activeInfo && stagePos ? `${stagePos} · ${activeInfo.title}` : null} />
                 </ViewportBoundary>
               )}

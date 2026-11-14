@@ -109,38 +109,68 @@ export function MediaViewer({ m, sizes = "(min-width: 1024px) 60vw, 94vw" }: { m
   return <MediaImage m={m} sizes={sizes} className="max-h-[70vh] w-full rounded-lg object-contain" />;
 }
 
-/** SAFFIRE-I: a still poster; NASA's animated frames load and play only when asked. */
+/** SAFFIRE-I: a still poster; NASA's animated frames load and play only when asked. An animated image cannot be paused
+ *  mid-way, so "Show still frame" stops it and "Replay" restarts it from the first frame. */
 export function AnimationPlayer({ m }: { m: ScientificMedia }) {
   const [playing, setPlaying] = useState(false);
+  const [run, setRun] = useState(0);
+  const [failed, setFailed] = useState(false);
   const p = m.poster ?? largest(m);
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" data-testid="animation-player" data-state={failed ? "error" : playing ? "playing" : "still"}>
       <div className="relative overflow-hidden rounded-lg border border-line bg-black" style={{ aspectRatio: `${p.width} / ${p.height}` }}>
-        <img src={playing ? m.animation : p.src} width={p.width} height={p.height} alt={playing ? `${m.alt} (playing)` : m.alt}
+        <img key={run} src={playing ? `${m.animation}?run=${run}` : p.src} width={p.width} height={p.height} alt={playing ? `${m.alt} (playing)` : m.alt}
+          onError={() => setFailed(true)} onLoad={() => setFailed(false)}
           className="h-full w-full object-contain [image-rendering:auto]" decoding="async" />
+        {failed && <p className="absolute inset-0 grid place-items-center bg-black/80 p-4 text-center text-[13px] text-text" role="alert" data-testid="media-error">
+          The animation could not be loaded. <a href={m.sourceUrl} target="_blank" rel="noreferrer">Open it at NASA</a></p>}
       </div>
-      <div className="flex flex-wrap items-center gap-3 text-sm">
-        <button type="button" onClick={() => setPlaying((x) => !x)}
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <button type="button" onClick={() => setPlaying((x) => !x)} data-testid="animation-play"
           className="press inline-flex items-center gap-2 rounded-full border border-flame/60 bg-flame/10 px-3.5 py-1.5 text-text hover:bg-flame/20">
           {playing ? <><span aria-hidden className="h-3 w-3 rounded-sm bg-current" />Show still frame</> : <><PlayGlyph />Play NASA animation</>}
         </button>
+        {playing && <button type="button" onClick={() => setRun((r) => r + 1)} data-testid="animation-replay"
+          className="press inline-flex items-center gap-1.5 rounded-full border border-line-strong px-3 py-1.5 text-text-2 hover:text-text"><Icon name="restart" size={14} />Replay</button>}
         <span className="text-text-3">{m.caveat}</span>
       </div>
     </div>
   );
 }
 
-/** Local NASA clip: preload none, never autoplays, muted (the source has no audio). */
+type ClipState = "idle" | "loading" | "playing" | "paused" | "ended" | "error";
+const CLIP_STATUS: Record<ClipState, string> = {
+  idle: "Not loaded yet: press play.", loading: "Loading…", playing: "Playing", paused: "Paused", ended: "Ended", error: "Could not load the clip.",
+};
+
+/** Local NASA clip: preload none, never autoplays, muted (the source has no audio track). The browser's own controls
+ *  give play/pause, seek, volume/mute and fullscreen; this adds a status line, Replay, and an error state. */
 export function ClipPlayer({ m }: { m: ScientificMedia }) {
   const p = m.poster ?? largest(m);
+  const ref = useRef<HTMLVideoElement>(null);
+  const [state, setState] = useState<ClipState>("idle");
   return (
-    <div className="flex flex-col gap-2">
-      <video controls preload="none" playsInline muted poster={p.src} width={p.width} height={p.height}
-        className="w-full rounded-lg border border-line bg-black" aria-label={m.title}>
-        <source src={m.video!.src} type={m.video!.mime} />
-        Your browser cannot play this video. <a href={m.sourceUrl}>Open it at NASA</a>.
-      </video>
-      <span className="text-xs text-text-3">{m.video!.durationNote}. {m.caveat}</span>
+    <div className="flex flex-col gap-2" data-testid="clip-player" data-state={state}>
+      <div className="relative">
+        <video ref={ref} controls preload="none" playsInline muted poster={p.src} width={p.width} height={p.height}
+          className="w-full rounded-lg border border-line bg-black" aria-label={m.title} data-testid="clip-video"
+          onLoadStart={() => setState((s) => (s === "idle" ? s : "loading"))} onWaiting={() => setState("loading")}
+          onPlaying={() => setState("playing")} onPause={(e) => setState(e.currentTarget.ended ? "ended" : "paused")}
+          onEnded={() => setState("ended")} onError={() => setState("error")}>
+          <source src={m.video!.src} type={m.video!.mime} onError={() => setState("error")} />
+          Your browser cannot play this video. <a href={m.sourceUrl}>Open it at NASA</a>.
+        </video>
+        {state === "error" && <p className="absolute inset-0 grid place-items-center rounded-lg bg-black/85 p-4 text-center text-[13px] text-text" role="alert" data-testid="media-error">
+          The clip could not be loaded. <a href={m.sourceUrl} target="_blank" rel="noreferrer">Watch it at NASA</a></p>}
+      </div>
+      <div className="flex flex-wrap items-center gap-2 text-xs text-text-3">
+        <span role="status" aria-live="polite" data-testid="clip-status" className="rounded-full border border-line-strong/70 px-2 py-0.5 text-text-2">{CLIP_STATUS[state]}</span>
+        {(state === "ended" || state === "paused") && (
+          <button type="button" data-testid="clip-replay" onClick={() => { const v = ref.current; if (v) { v.currentTime = 0; void v.play(); } }}
+            className="press inline-flex items-center gap-1.5 rounded-full border border-line-strong px-2.5 py-0.5 text-text-2 hover:text-text"><Icon name="restart" size={13} />Replay</button>
+        )}
+        <span>{m.video!.durationNote}. {m.caveat}</span>
+      </div>
     </div>
   );
 }
@@ -266,9 +296,10 @@ export function OrbitMediaPanel({ title, lead, items, schematic, galleryInv }: {
 }
 
 /** Inline player block for pages (not in a lightbox): title, the medium and its provenance. */
-export function MediaPanelBlock({ id, children }: { id: string; children?: ReactNode }) {
-  const m = MEDIA_BY_ID[id];
-  if (!m) return null;
+export function MediaPanelBlock({ id, children, caveat }: { id: string; children?: ReactNode; caveat?: string }) {
+  const base = MEDIA_BY_ID[id];
+  if (!base) return null;
+  const m = caveat ? { ...base, caveat } : base;     // a page can state how the medium relates to *its* data
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <MediaViewer m={m} />

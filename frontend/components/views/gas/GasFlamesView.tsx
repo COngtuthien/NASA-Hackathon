@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AskSuggestions } from "@/components/ask-suggestions";
 import { DocLink, EvidenceTag, type EvidenceKind } from "@/components/evidence-tag";
+import { MediaPanelBlock } from "@/components/media";
 import LiteStudio from "@/components/studio/LiteStudio";
 import { Field, inputCls, PageHeader, Segmented } from "@/components/ui";
 import { fmt, useApi } from "@/lib/api";
@@ -59,6 +60,7 @@ function GasStudio() {
       scene={{ key: "gas", props: { config: effConfig, regime, compare: compare && !ev, measured, animate, labels, selected, onSelect: setSelected } }}
       home={compare && !ev ? { position: [0, 0.8, 9.5], target: [0, 0, 0], min: 3, max: 18 } : { position: [0, 0.6, 6], target: [0, 0, 0], min: 1.6, max: 14 }}
       legend={legend} labels={labels} onLabels={setLabels} animate={animate} onAnimate={setAnimate} measuredLabel={measuredLabel}
+      onReset={() => { setConfig("normal"); setRegime("hot"); setCompare(false); setEventId(""); setTestId(""); setSelected(null); }}
       banner={<>{ev ? <>Burner and radii to scale (1 unit = 10 mm) <EvidenceTag kind="measured" /></> : <>Flame size illustrative <EvidenceTag kind="illustration" /></>}{" "}
         · arrangement <EvidenceTag kind="guided" /></>}
       textAlternative="A small porous sphere on a supply tube sits at the centre. Gas flows out of the sphere in all directions; in a normal flame this is fuel, in an inverse flame it is an oxygen and nitrogen mixture. Around it, a translucent spherical flame shell marks where the outflowing and ambient reactants meet. In the cool-flame view a fainter, smaller shell is shown instead; for a selected measured event the earlier hot-flame radius is drawn as a dashed circle."
@@ -76,19 +78,20 @@ function GasStudio() {
             </select></Field>
           <p className="text-[12px] text-text-3">Changing arrangement, regime or test never changes the drawn flame size unless a Table 3 event is selected; its radii apply to that event&apos;s condition only (30 % n-butane, 2.03 bar).</p>
         </div>}
-      panel={
-        <div className="flex flex-col gap-3">
+      explanation={<>
           <div className="rounded-xl border border-line/70 bg-panel/60 p-3 text-[13.5px] leading-relaxed text-text-2" data-testid="gas-explain">
             <p className="font-medium text-text">{effConfig === "normal" ? "Normal flame" : "Inverse flame"} · {regime === "hot" ? "hot regime" : "cool regime"}</p>
             <p className="mt-1">{effConfig === "normal"
               ? "Fuel flows out of the burner and meets oxygen diffusing in from the surroundings; soot, if any, forms inside the flame."
               : "Oxidizer flows out of the burner into a fuel-laden atmosphere, so the flame is effectively inside out (soot forms outside it)."}{" "}
               {regime === "hot" ? "Without buoyancy the flame grows slowly; it can extinguish by radiative heat loss." :
-                "A cool flame is a low-temperature (roughly 500–1000 K) reaction zone; CFI-G found it only after a hot flame extinguished radiatively."}</p>
-            <p className="mt-1 text-[12.5px]">Sources: <DocLink id={DOC} page={3}>CFI-G report p.3</DocLink>, <DocLink id={DOC} page={44}>p.44</DocLink>; <DocLink id={FD_DOC} page={26}>Flame Design p.26</DocLink>.</p>
+                "A cool flame is a low-temperature reaction zone (peak temperatures of cool diffusion flames are 500–1000 K, CFI-G report p.24); CFI-G found it only after a hot flame extinguished radiatively."}</p>
+            <p className="mt-1 text-[12.5px]">Sources: <DocLink id={DOC} page={3}>CFI-G report p.3</DocLink>, <DocLink id={DOC} page={24}>p.24</DocLink>, <DocLink id={DOC} page={44}>p.44</DocLink>; <DocLink id={FD_DOC} page={26}>Flame Design p.26</DocLink>.</p>
           </div>
           {part && <div className="rounded-xl border border-electric/50 bg-electric/[0.06] p-3 text-[13.5px] text-text-2" data-testid="gas-part">
             <p className="flex flex-wrap items-center gap-2 font-medium text-text">{part.title} <EvidenceTag kind={part.kind} /></p><p className="mt-1">{part.text}</p></div>}
+      </>}
+      evidence={<>
           <div className="rounded-xl border border-line/70 bg-panel/60 p-3 text-[13.5px]" data-testid="gas-test-inspect">
             <Field label="Inspect an actual CFI-G test (values only; geometry unchanged)" htmlFor="gas-test">
               <select id="gas-test" className={inputCls} value={testId} onChange={(e) => setTestId(e.target.value)}>
@@ -104,7 +107,7 @@ function GasStudio() {
               <dt className="text-text-3">Burn time</dt><dd>{test.burn_time_s === null ? "–" : `${test.censored ? "≥ " : ""}${fmt(test.burn_time_s)} s`}</dd>
             </dl>}
           </div>
-        </div>}
+      </>}
     />
   );
 }
@@ -127,6 +130,14 @@ export default function GasFlamesView() {
         source={{ source: "ACME CFI-G · Flame Design · BRE", inv: "PSI-159" }}
         sections={[{ id: "studio", label: "3D studio" }, { id: "investigations", label: "Investigations" }, { id: "ask", label: "Ask" }]} />
       <GasStudio />
+      <section aria-labelledby="gas-footage-title" className="mt-6 rounded-2xl border border-line/60 bg-panel/50 p-4 md:p-5" data-testid="gas-footage">
+        <h2 id="gas-footage-title" className="subhead text-[18px]">NASA footage from a CFI-G test</h2>
+        <p className="mt-1 max-w-[72ch] text-[14px] text-text-2">Real experiment video, not a visualization. It loads only when you press play and has no sound.</p>
+        <div className="mt-3 max-w-[640px]">
+          <MediaPanelBlock id="cfi-g-cool-flame-video"
+            caveat="NASA public footage of one CFI-G test; NASA gives no test number, so it is not tied to a data row. The 3D studio above is not reconstructed from it." />
+        </div>
+      </section>
       <div className="h-8" />
       <section id="investigations" className="scroll-mt-36" aria-labelledby="inv-title">
         <h2 id="inv-title" className="subhead text-[22px] md:text-[26px]">Three ACME investigations, three kinds of evidence</h2>

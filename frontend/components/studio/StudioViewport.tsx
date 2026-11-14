@@ -66,6 +66,8 @@ function CamButton({ label, onClick, children }: { label: string; onClick: () =>
 }
 
 export type StudioViewportProps = {
+  /** Decorative motion state and its toggle (Play/Pause in the camera toolbar). */
+  motionOn?: boolean; onMotion?: () => void;
   /** Active stage or walkthrough step, shown as a small chip (the explainer below carries the text). */
   stageChip?: string | null;
   sceneId: SceneId;
@@ -88,7 +90,7 @@ export type StudioViewportProps = {
   onLabels?: () => void;
 };
 
-export default function StudioViewport({ sceneId, mode, animate, measuredLabel, onStatic, cameraRef, single, split, legend, timeline, presets, stageChip, immersive = false, labelsOn = true, onLabels }: StudioViewportProps) {
+export default function StudioViewport({ sceneId, mode, animate, measuredLabel, onStatic, cameraRef, single, split, legend, timeline, presets, stageChip, immersive = false, labelsOn = true, onLabels, motionOn, onMotion }: StudioViewportProps) {
   // Phones: a comparison is stacked (top / bottom) instead of two narrow halves; same canvas and camera.
   const stacked = useMedia("(max-width: 639px)");
   const [webgl] = useState(hasWebGL);
@@ -203,7 +205,15 @@ export default function StudioViewport({ sceneId, mode, animate, measuredLabel, 
                 Drag to rotate · Scroll or pinch to zoom · Select a component to inspect
               </p>
             )}
-            <div className="flex gap-1.5" role="toolbar" aria-label="Camera">
+            <div className="flex flex-wrap justify-end gap-1.5" role="toolbar" aria-label="Camera and motion">
+              {onMotion && (
+                // Phase 15: the decorative-motion switch (also in Display settings) as a visible Play/Pause.
+                <button type="button" onClick={onMotion} aria-pressed={!!motionOn} data-testid="motion-toggle"
+                  aria-label={motionOn ? "Pause animation" : "Play animation"} title={motionOn ? "Pause animation (flicker and drift)" : "Play animation (flicker and drift)"}
+                  className={`press inline-flex h-9 items-center gap-1.5 rounded-lg border px-2.5 text-[12.5px] backdrop-blur-md ${motionOn ? "border-electric/70 bg-electric/15 text-text" : "border-line-strong/80 bg-void/70 text-text-2 hover:border-flame/70 hover:text-text"}`}>
+                  <Icon name={motionOn ? "pause" : "play"} size={14} />{motionOn ? "Pause" : "Play"}
+                </button>
+              )}
               <CamButton label="Rotate left" onClick={() => cam?.rotate(-0.3, 0)}><Icon name="chevron" className="rotate-180" /></CamButton>
               <CamButton label="Rotate right" onClick={() => cam?.rotate(0.3, 0)}><Icon name="chevron" /></CamButton>
               <CamButton label="Zoom in" onClick={() => cam?.zoom(1.25)}><span aria-hidden className="text-lg leading-none">+</span></CamButton>

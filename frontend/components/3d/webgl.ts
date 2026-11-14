@@ -14,7 +14,8 @@ export function hasWebGL(): boolean {
   }
 }
 
-type LabStats = { live: number; mounts: number; disposed: number; contextLost: number; sceneLoads: Record<string, number>; camera?: number[] };
+/** `frames` counts rendered frames: it rises continuously only while a studio animates (used to verify Pause). */
+type LabStats = { live: number; mounts: number; disposed: number; contextLost: number; sceneLoads: Record<string, number>; camera?: number[]; frames?: number };
 
 declare global {
   interface Window { __spacefireLab?: LabStats }
