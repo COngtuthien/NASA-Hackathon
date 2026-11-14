@@ -1,0 +1,163 @@
+{
+ "dataset_id": "bre_literature",
+ "investigation_id": "PSI-20",
+ "title": "Materials near BRE heats of combustion (final report Table 2: literature)",
+ "evidence_class": "literature_value",
+ "description": "Literature lower heating value (LHV) and heat of gasification (L) quoted by the BRE report. These are not BRE measurements.",
+ "processor_version": "phase13-1",
+ "sources": [
+  {
+   "path": "ACME BRE/BRE_final_report_20220201.pdf",
+   "sha256": "c2f22c914b38d9e6742709688a2d1d81d8306e3c901b47314faf3b6ab43cec60",
+   "size_bytes": 5957884,
+   "role": "final_report"
+  }
+ ],
+ "field_specs": [
+  {
+   "field": "lhv_kj_g",
+   "variable": "Lower heating value",
+   "evidence_class": "literature_value",
+   "unit_raw": "kJ/g",
+   "unit": "kJ/g",
+   "unit_status": "header",
+   "transform": "none"
+  },
+  {
+   "field": "l_kj_g",
+   "variable": "Heat of gasification (as printed; some cells list two values)",
+   "evidence_class": "literature_value",
+   "unit_raw": "kJ/g",
+   "unit": "kJ/g",
+   "unit_status": "header",
+   "transform": "none"
+  }
+ ],
+ "counts": {
+  "source_records": 5,
+  "processed_records": 5,
+  "excluded_records": 0,
+  "flagged_records": 0,
+  "flagged_records_warning": 0,
+  "flags": 0,
+  "dataset_level_flags": 0,
+  "excluded_reasons": {}
+ },
+ "notes": [],
+ "extra": {},
+ "records": [
+  {
+   "record_id": "bre:lit:PE",
+   "test_id": null,
+   "provenance": {
+    "source_file": "ACME BRE/BRE_final_report_20220201.pdf",
+    "source_table": "Final report Table 2",
+    "page_pdf": 29,
+    "source_row": 1
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "PE",
+    "lhv_kj_g": 43.4,
+    "l_kj_g": [
+     1.9
+    ]
+   },
+   "raw": {
+    "l_printed": "1.9"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "bre:lit:PP",
+   "test_id": null,
+   "provenance": {
+    "source_file": "ACME BRE/BRE_final_report_20220201.pdf",
+    "source_table": "Final report Table 2",
+    "page_pdf": 29,
+    "source_row": 2
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "PP",
+    "lhv_kj_g": 44.0,
+    "l_kj_g": [
+     2.0
+    ]
+   },
+   "raw": {
+    "l_printed": "2.0"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "bre:lit:Nylon",
+   "test_id": null,
+   "provenance": {
+    "source_file": "ACME BRE/BRE_final_report_20220201.pdf",
+    "source_table": "Final report Table 2",
+    "page_pdf": 29,
+    "source_row": 3
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "Nylon",
+    "lhv_kj_g": 28.8,
+    "l_kj_g": [
+     1.5,
+     2.4
+    ]
+   },
+   "raw": {
+    "l_printed": "1.5, 2.4"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "bre:lit:PMMA",
+   "test_id": null,
+   "provenance": {
+    "source_file": "ACME BRE/BRE_final_report_20220201.pdf",
+    "source_table": "Final report Table 2",
+    "page_pdf": 29,
+    "source_row": 4
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "PMMA",
+    "lhv_kj_g": 24.2,
+    "l_kj_g": [
+     1.6,
+     2.3
+    ]
+   },
+   "raw": {
+    "l_printed": "1.6, 2.3"
+   },
+   "flags": []
+  },
+  {
+   "record_id": "bre:lit:Phenolic glass fibers",
+   "test_id": null,
+   "provenance": {
+    "source_file": "ACME BRE/BRE_final_report_20220201.pdf",
+    "source_table": "Final report Table 2",
+    "page_pdf": 29,
+    "source_row": 5
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "material": "Phenolic glass fibers",
+    "lhv_kj_g": 22.0,
+    "l_kj_g": [
+     7.3
+    ]
+   },
+   "raw": {
+    "l_printed": "7.3"
+   },
+   "flags": []
+  }
+ ],
+ "flags": []
+}

@@ -1,0 +1,716 @@
+{
+ "dataset_id": "investigation_registry",
+ "investigation_id": "ALL",
+ "title": "SpaceFire investigation registry",
+ "evidence_class": "report_statement",
+ "description": "Identity from ISA-Tab metadata; scope, readiness, routes and limitations are SpaceFire's documented assessment.",
+ "processor_version": "phase13-1",
+ "sources": [
+  {
+   "path": "FLEX/PSI-69_metadata_PSI-133_FLEX/i_Investigation.txt",
+   "sha256": "f425bf49ed355cc4941e5f6dde215d477f084834bd9a4bf77e8bf231cd9a7520",
+   "size_bytes": 24488,
+   "role": "isa_tab_metadata"
+  },
+  {
+   "path": "BASS-II/PSI-25_metadata_PSI_metadata_PSI-101_BASS-II.zip",
+   "sha256": "629faf104a8ff0e8d335f2527c019e740380163ea7f74b8ad754ae71f7da2559",
+   "size_bytes": 13439,
+   "role": "isa_tab_metadata"
+  },
+  {
+   "path": "SAFFIRE-1/PSI-98_metadata_PSI-166_SAFFIRE-I (1).zip",
+   "sha256": "ac398e9688f2b003fdbcdcc754d0d7703a006b6fb8b7a6afa598447bb5d72d0e",
+   "size_bytes": 10031,
+   "role": "isa_tab_metadata"
+  },
+  {
+   "path": "PSI-117/PSI-117_metadata_NEWID-13_Effect of External T.zip",
+   "sha256": "a9698dbe10629c226dc498610d62ab8c5c7f15e2668412e831164ab74df99222",
+   "size_bytes": 10382,
+   "role": "isa_tab_metadata"
+  },
+  {
+   "path": "SAME/PSI-102_metadata_PSI-170_SAME.zip",
+   "sha256": "809127b7c6578263dc829d8ef8b15fa98fd1626dcf9c9d44d832a48974e146c6",
+   "size_bytes": 13127,
+   "role": "isa_tab_metadata"
+  },
+  {
+   "path": "FLEX-2/PSI-68_metadata_PSI-132_FLEX-2.zip",
+   "sha256": "914253706ecde55d3f497f3f081ecb2f0f0ed1a7a19136b3926d7d37848b8d78",
+   "size_bytes": 24115,
+   "role": "isa_tab_metadata"
+  },
+  {
+   "path": "PSI-62/PSI-62_metadata_NEWID-7_Concurrent Flame Spr.zip",
+   "sha256": "e8f984349473da4763818a424719afcb212c4876e35961792aefc3604aa9ea7a",
+   "size_bytes": 9694,
+   "role": "isa_tab_metadata"
+  },
+  {
+   "path": "ACME CFI-G/PSI-159_metadata_PSI-159-ISA.zip",
+   "sha256": "0ef60d1ee8d4d53bbe58139d56fa99e9500ca48dd7913b25ac85dc853d6710ab",
+   "size_bytes": 8404,
+   "role": "isa_tab_metadata"
+  },
+  {
+   "path": "ACME Flame Design/PSI-10_metadata_PSI-10-ISA.zip",
+   "sha256": "611b404c92125223ae099f086727ba1f5f031abf22d31eaa58d066a825f87b56",
+   "size_bytes": 17047,
+   "role": "isa_tab_metadata"
+  },
+  {
+   "path": "ACME BRE/PSI-20_metadata_PSI-96_ACME BRE.zip",
+   "sha256": "f3e85d8acff7a83de65f0974fa60e8b6b9fb07591c56b9749503517280ce0ff9",
+   "size_bytes": 15061,
+   "role": "isa_tab_metadata"
+  }
+ ],
+ "field_specs": [
+  {
+   "field": "readiness",
+   "variable": "Quantitative readiness (SpaceFire assessment)",
+   "evidence_class": "report_statement",
+   "unit_status": "n/a",
+   "transform": "none"
+  }
+ ],
+ "counts": {
+  "source_records": 10,
+  "processed_records": 10,
+  "excluded_records": 0,
+  "flagged_records": 0,
+  "flagged_records_warning": 0,
+  "flags": 0,
+  "dataset_level_flags": 0,
+  "excluded_reasons": {}
+ },
+ "notes": [],
+ "extra": {
+  "scenarios": {
+   "material_flame_spread": "Flame spread over spacecraft materials",
+   "gaseous_flame_behavior": "Gaseous flame behaviour (spherical diffusion flames, cool flames, burning emulation)",
+   "early_smoke_detection": "Early smoke detection from overheated materials",
+   "droplet_flame_extinction": "Droplet flame extinction and cool flames"
+  },
+  "readiness": {
+   "quantitative": "Per-test data processed and charted",
+   "curated_tables": "Verified report tables and logs; no per-test outcome data",
+   "figure_data": "Published figure data (experiment and model series)",
+   "conditions_only": "Test conditions only; outcomes reported only as author findings",
+   "documentation_only": "Documents and metadata only",
+   "metadata_only": "Metadata only"
+  }
+ },
+ "records": [
+  {
+   "record_id": "inv:PSI-69",
+   "test_id": null,
+   "provenance": {
+    "source_file": "FLEX/PSI-69_metadata_PSI-133_FLEX/i_Investigation.txt",
+    "source_table": "ISA-Tab i_Investigation.txt",
+    "source_row": 1
+   },
+   "verification": "identity_from_isa_tab",
+   "values": {
+    "investigation_id": "PSI-69",
+    "key": "flex",
+    "short_name": "FLEX",
+    "folder": "FLEX",
+    "scenario": "droplet_flame_extinction",
+    "readiness": "quantitative",
+    "route": "/phenomena/flame-extinction",
+    "studio": "/phenomena/flame-extinction#studio",
+    "datasets": [
+     "flex_tests"
+    ],
+    "conditions": [
+     "fuel",
+     "pressure_atm",
+     "x_o2",
+     "diluent",
+     "d0_mm"
+    ],
+    "scenario_label": "Droplet flame extinction and cool flames",
+    "readiness_label": "Per-test data processed and charted",
+    "title": "Flame Extinguishment Experiment",
+    "doi": "10.60555/mbq8-0451",
+    "platform": "International Space Station (ISS)",
+    "hardware": "Combustion Integrated Rack (CIR)-Fluids and Combustion Facility (FCF), Multi-user Droplet Combustion Appartatus (MDCA)",
+    "start": "08-01-2007",
+    "end": "07-31-2016",
+    "objective": "The FLEX (Flame Extinguishment Experiment) investigation aims to map the flammability limits of liquid fuels in microgravity environments, measure the effectiveness of various gaseous fire suppressants such as CO2, He, and SF6, and develop reliable predictive models for combustion limits under reduced gravity conditions. The mission seeks to validate and improve simplified models by incorporating detailed chemical reactions, heat transfer, and material movement, using both space-based data and extensive ground-based tests. Key flight experiment goals include obtaining high-resolution measurements of droplet burning rates, flame extinction behavior, heat radiation, soot levels, and temperature profiles, while systematically analyzing the effects of different ambient conditions and suppressant concentrations. These investigations are essential for advancing the fundamental understanding of combustion processes in microgravity and enhancing fire safety protocols for future space missions.",
+    "psi_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69",
+    "publications": 51,
+    "limitations": [
+     {
+      "code": "ADAPTIVE-DESIGN",
+      "text": "Conditions chosen adaptively; outcome shares are not probabilities."
+     },
+     {
+      "code": "K-UNIT",
+      "text": "Burning-rate header says 'mm'; interpreted as mm²/s."
+     }
+    ],
+    "related": [
+     {
+      "investigation_id": "PSI-117",
+      "relation": "PSI-117 models FLEX cool flames (no row-level join)"
+     },
+     {
+      "investigation_id": "PSI-68",
+      "relation": "follow-on campaign"
+     }
+    ],
+    "isa_key": "FLEX/PSI-69_metadata_PSI-133_FLEX/i_Investigation.txt"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "inv:PSI-25",
+   "test_id": null,
+   "provenance": {
+    "source_file": "BASS-II/PSI-25_metadata_PSI_metadata_PSI-101_BASS-II.zip::i_Investigation.txt",
+    "source_table": "ISA-Tab i_Investigation.txt",
+    "source_row": 2
+   },
+   "verification": "identity_from_isa_tab",
+   "values": {
+    "investigation_id": "PSI-25",
+    "key": "bass2",
+    "short_name": "BASS-II",
+    "folder": "BASS-II",
+    "scenario": "material_flame_spread",
+    "readiness": "quantitative",
+    "route": "/phenomena/flame-spread",
+    "studio": "/phenomena/flame-spread#studio",
+    "datasets": [
+     "bass2_tests"
+    ],
+    "conditions": [
+     "material_class",
+     "geometry",
+     "flow_direction",
+     "o2_initial",
+     "air_single_cm_s"
+    ],
+    "scenario_label": "Flame spread over spacecraft materials",
+    "readiness_label": "Per-test data processed and charted",
+    "title": "Burning and Suppression of Solids - II",
+    "doi": "10.60555/4qc4-de67",
+    "platform": "International Space Station (ISS)",
+    "hardware": "Microgravity Science Glovebox (MSG)",
+    "start": "01-01-2010",
+    "end": "12-31-2022",
+    "objective": "BASS-II results contribute to the combustion computational models used in the design of fire detection and suppression systems in microgravity and on Earth.\nObjectives Include:\n  1) Study the ignition, flame growth, flame spread, and extinction limits for solid fuels burning in low-velocity forced flows in microgravity.\n  2) Begin to bridge the gap between the normal gravity NASA-STD-6001 Test #1 method, ground-based microgravity tests, and actual material flammability in microgravity.\n  3) Provide SoFIE PIs with preliminary data to refine Science Requirements.\n  4)  Practical, realistic (thicker) fuels in typical geometries will be examined, including slabs, cylinders, and spherical sections.\n\nThe primary variables include:\n     • Forced flow velocity (speed and direction)\n     • Ambient oxygen concentration (via working volume nitrogen vitiation)\n     • Sample geometry (rods, spherical section, slabs, films, and fabric sheets",
+    "psi_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+    "publications": 17,
+    "limitations": [
+     {
+      "code": "AIR-DISPLAY",
+      "text": "'Air display' is a facility readout, not the analysed flow velocity."
+     }
+    ],
+    "related": [
+     {
+      "investigation_id": "PSI-62",
+      "relation": "PSI-62 models BASS/BASS-II flame spread (metadata only)"
+     },
+     {
+      "investigation_id": "PSI-20",
+      "relation": "BRE emulates steady burning of flat materials; qualitative comparison only"
+     }
+    ],
+    "isa_key": "BASS-II/PSI-25_metadata_PSI_metadata_PSI-101_BASS-II.zip::i_Investigation.txt"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "inv:PSI-98",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAFFIRE-1/PSI-98_metadata_PSI-166_SAFFIRE-I (1).zip::i_Investigation.txt",
+    "source_table": "ISA-Tab i_Investigation.txt",
+    "source_row": 3
+   },
+   "verification": "identity_from_isa_tab",
+   "values": {
+    "investigation_id": "PSI-98",
+    "key": "saffire1",
+    "short_name": "SAFFIRE-I",
+    "folder": "SAFFIRE-1",
+    "scenario": "material_flame_spread",
+    "readiness": "quantitative",
+    "route": "/phenomena/spacecraft-fire",
+    "studio": "/phenomena/spacecraft-fire#studio",
+    "datasets": [
+     "saffire_burns"
+    ],
+    "conditions": [
+     "flow_direction",
+     "air_flow_cm_s"
+    ],
+    "scenario_label": "Flame spread over spacecraft materials",
+    "readiness_label": "Per-test data processed and charted",
+    "title": "Spacecraft Fire Safety Experiment-I",
+    "doi": "10.60555/0t15-1z43",
+    "platform": "International Space Station (ISS)",
+    "hardware": "Saffire 1 enclosure in Cygnus",
+    "start": "03-02-2001",
+    "end": "02-28-2008",
+    "objective": "The objectives of this investigation were to:\n(1) determine how rapidly a large scale fire grows in low-gravity and (2) investigate the low-g flammability limits compared to those obtained in NASA’s normal\ngravity material flammability screening test.",
+    "psi_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-98",
+    "publications": 6,
+    "limitations": [
+     {
+      "code": "NO-SENSOR-SERIES",
+      "text": "No sensor time series in the local data."
+     }
+    ],
+    "related": [],
+    "isa_key": "SAFFIRE-1/PSI-98_metadata_PSI-166_SAFFIRE-I (1).zip::i_Investigation.txt"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "inv:PSI-117",
+   "test_id": null,
+   "provenance": {
+    "source_file": "PSI-117/PSI-117_metadata_NEWID-13_Effect of External T.zip::i_Investigation.txt",
+    "source_table": "ISA-Tab i_Investigation.txt",
+    "source_row": 4
+   },
+   "verification": "identity_from_isa_tab",
+   "values": {
+    "investigation_id": "PSI-117",
+    "key": "psi117",
+    "short_name": "PSI-117",
+    "folder": "PSI-117",
+    "scenario": "droplet_flame_extinction",
+    "readiness": "figure_data",
+    "route": "/phenomena/flame-extinction#psi117",
+    "studio": "/phenomena/flame-extinction#studio",
+    "datasets": [
+     "psi117_series"
+    ],
+    "conditions": [
+     "fuel",
+     "pressure_atm",
+     "d0_mm"
+    ],
+    "scenario_label": "Droplet flame extinction and cool flames",
+    "readiness_label": "Published figure data (experiment and model series)",
+    "title": "Effect of External Thermo-Convective Perturbation on Cool Flame Dynamics: A Multidimensional Multi-Physics CFD Analysis",
+    "doi": "10.60555/gz0q-b577",
+    "platform": null,
+    "hardware": null,
+    "start": "02-15-2017",
+    "end": "02-14-2022",
+    "objective": "The objective of this ground investigation was to use flight data obtained from PSI through NASA’s Flame Extinguishment Experiment (FLEX) to quantify how externally imposed thermal and convective perturbations regulated the dynamics and ultimate fate of already established droplet cool flames, and to explain run-to-run variability by isolating the roles of deliberate heating and unintentional drift-induced convection. Focusing on both small and large droplets, the work mapped stability windows for ignition, sustained oscillation, transitions to hot ignition and warm-flame behavior, and extinction under microgravity. By leveraging and extending the FLEX data in the PSI, this study produced reusable models and sensitivity analyses that coupled low-temperature chemistry with transport and radiative effects.",
+    "psi_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-117",
+    "publications": 10,
+    "limitations": [
+     {
+      "code": "FIGURE-DATA",
+      "text": "Experimental points are published figure data (digitized)."
+     },
+     {
+      "code": "MODEL-1D",
+      "text": "Model is 1-D sphero-symmetric; no 3-D CFD output is available."
+     },
+     {
+      "code": "NO-FLEX-JOIN",
+      "text": "FLEX test numbers cited by PSI-117 have no key in SpaceFire's FLEX table."
+     },
+     {
+      "code": "UNITS",
+      "text": "Several units are inferred or unknown (flagged per series)."
+     }
+    ],
+    "related": [
+     {
+      "investigation_id": "PSI-69",
+      "relation": "uses FLEX flight data"
+     },
+     {
+      "investigation_id": "PSI-159",
+      "relation": "cool flames in a gaseous configuration"
+     }
+    ],
+    "isa_key": "PSI-117/PSI-117_metadata_NEWID-13_Effect of External T.zip::i_Investigation.txt"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "inv:PSI-102",
+   "test_id": null,
+   "provenance": {
+    "source_file": "SAME/PSI-102_metadata_PSI-170_SAME.zip::i_Investigation.txt",
+    "source_table": "ISA-Tab i_Investigation.txt",
+    "source_row": 5
+   },
+   "verification": "identity_from_isa_tab",
+   "values": {
+    "investigation_id": "PSI-102",
+    "key": "same",
+    "short_name": "SAME",
+    "folder": "SAME",
+    "scenario": "early_smoke_detection",
+    "readiness": "curated_tables",
+    "route": "/phenomena/smoke-detection",
+    "studio": "/phenomena/smoke-detection#studio",
+    "datasets": [
+     "same_particle_sizes",
+     "same_particle_sizes_other_sources",
+     "same_flight_log",
+     "same_telemetry_inventory"
+    ],
+    "conditions": [
+     "material",
+     "aged"
+    ],
+    "scenario_label": "Early smoke detection from overheated materials",
+    "readiness_label": "Verified report tables and logs; no per-test outcome data",
+    "title": "Smoke and Aerosol Measurement Experiment",
+    "doi": "10.60555/gd4k-8h62",
+    "platform": "International Space Station (ISS)",
+    "hardware": "Comparitive Soot Diagnostic Hardware",
+    "start": "03-02-2001",
+    "end": "02-28-2008",
+    "objective": "One of the major goals of this investigation was to quantify the sizes that the liquid smoke particulate achieves in low gravity and to relate the droplet size distribution to the smoke generation and smoke transport conditions in the experiment. A numerical code was to be developed to predict the smoke droplet growth as a function of the fuel pyrolysis rate, the thermodynamic properties of the pyrolysis vapor, and the flow environment.",
+    "psi_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-102",
+    "publications": 16,
+    "limitations": [
+     {
+      "code": "TELEMETRY-DEFERRED",
+      "text": "1 Hz housekeeping telemetry not processed (material assignment and sentinel semantics unresolved)."
+     },
+     {
+      "code": "MOMENT-METHOD",
+      "text": "Particle sizes are moment-method results assuming a log-normal distribution."
+     },
+     {
+      "code": "SOURCES-DIFFER",
+      "text": "Different SAME documents print different values for the same quantity."
+     }
+    ],
+    "related": [
+     {
+      "investigation_id": "PSI-25",
+      "relation": "fire-safety context; no quantitative link"
+     }
+    ],
+    "isa_key": "SAME/PSI-102_metadata_PSI-170_SAME.zip::i_Investigation.txt"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "inv:PSI-68",
+   "test_id": null,
+   "provenance": {
+    "source_file": "FLEX-2/PSI-68_metadata_PSI-132_FLEX-2.zip::i_Investigation.txt",
+    "source_table": "ISA-Tab i_Investigation.txt",
+    "source_row": 6
+   },
+   "verification": "identity_from_isa_tab",
+   "values": {
+    "investigation_id": "PSI-68",
+    "key": "flex2",
+    "short_name": "FLEX-2",
+    "folder": "FLEX-2",
+    "scenario": "droplet_flame_extinction",
+    "readiness": "documentation_only",
+    "route": "/phenomena/flame-extinction#flex2",
+    "studio": null,
+    "datasets": [
+     "flex2_envelope"
+    ],
+    "conditions": [],
+    "scenario_label": "Droplet flame extinction and cool flames",
+    "readiness_label": "Documents and metadata only",
+    "title": "Flame Extinguishment Experiment - 2",
+    "doi": "10.60555/byp8-h018",
+    "platform": "International Space Station (ISS)",
+    "hardware": "Combustion Integrated Rack (CIR), Multi-user Droplet Combustion Appartatus (MDCA)",
+    "start": "08-12-2016",
+    "end": "09-30-2019",
+    "objective": "The primary goal of the FLEX-2 flight experiments is to extend the results of FLEX-1 to fuels and environmental conditions that mimic real combustor conditions, as well as, provide benchmark experimental data on bi-component droplet combustion over a wide range of initial conditions in order to validate numerical simulations and to develop new theoretical models.\n\nDetailed experimental objectives can be further itemized as:\n  1. Investigate the role of liquid-phase mixing on the burning characteristics of bi-component fuel droplets.\n  2. Examine the steady and unsteady liquid and gas-phase phenomena in pure fuel combustion.\n  3. Study flame extinction mechanisms and their boundaries.\n  4. Analyze the soot formation process, including soot volume fraction soot-shell dynamics.\n  5. Determine the influence of droplet interactions on the flammability limits and extinction behavior of droplet arrays.\n  6. Validate theoretical models of droplet combustion through comprehensive experimental data collection in microgravity environments.",
+    "psi_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-68",
+    "publications": 48,
+    "limitations": [
+     {
+      "code": "NO-MEASUREMENTS",
+      "text": "Only a test-matrix envelope (ranges) and documents were downloaded."
+     }
+    ],
+    "related": [
+     {
+      "investigation_id": "PSI-69",
+      "relation": "follow-on to FLEX"
+     }
+    ],
+    "isa_key": "FLEX-2/PSI-68_metadata_PSI-132_FLEX-2.zip::i_Investigation.txt"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "inv:PSI-62",
+   "test_id": null,
+   "provenance": {
+    "source_file": "PSI-62/PSI-62_metadata_NEWID-7_Concurrent Flame Spr.zip::i_Investigation.txt",
+    "source_table": "ISA-Tab i_Investigation.txt",
+    "source_row": 7
+   },
+   "verification": "identity_from_isa_tab",
+   "values": {
+    "investigation_id": "PSI-62",
+    "key": "psi62",
+    "short_name": "PSI-62",
+    "folder": "PSI-62",
+    "scenario": "material_flame_spread",
+    "readiness": "metadata_only",
+    "route": "/phenomena/flame-spread#related",
+    "studio": null,
+    "datasets": [],
+    "conditions": [],
+    "scenario_label": "Flame spread over spacecraft materials",
+    "readiness_label": "Metadata only",
+    "title": "Concurrent Flame Spread Modeling using Flamelet Generated Manifolds in Microgravity with Comparison to BASS Experiments using Two-Color Tomography",
+    "doi": "10.60555/e9xp-ex83",
+    "platform": null,
+    "hardware": null,
+    "start": "05-01-2019",
+    "end": "04-30-2021",
+    "objective": "The objective of this research was to develop and validate new flamelet generated manifold (FGM) modeling techniques for concurrent flame spread in microgravity. Concurrent flame spread presented one of the greatest modeling challenges in combustion science due to the intricate coupling between heat transfer, mass transport, and chemical kinetics near the solid-vapor interface. Traditional modeling strategies often relied on hybridized turbulence and chemistry models that were not fully consistent and failed to capture important intermediate reaction pathways.\nTo overcome these shortcomings, this PSI grant advanced the use of an unsteady flamelet generated manifold (UFGM) framework that reduced the complexity of reacting systems by mapping them into lower-dimensional manifolds. The research aimed to leverage this methodology to simulate solid fuel combustion processes with high fidelity, using the NASA Burning and Suppression of Solids (BASS and BASS-II) experiments as benchmarks. Ultimately, the long-term goal was to enable accurate prediction of flammability limits for spacecraft materials and to provide a tool that could also serve as a subgrid-scale model in large-eddy simulati",
+    "psi_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-62",
+    "publications": 4,
+    "limitations": [
+     {
+      "code": "METADATA-ONLY",
+      "text": "Only the ISA-Tab metadata was downloaded: no model outputs or tomography."
+     }
+    ],
+    "related": [
+     {
+      "investigation_id": "PSI-25",
+      "relation": "models BASS/BASS-II concurrent flame spread"
+     }
+    ],
+    "isa_key": "PSI-62/PSI-62_metadata_NEWID-7_Concurrent Flame Spr.zip::i_Investigation.txt"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "inv:PSI-159",
+   "test_id": null,
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_metadata_PSI-159-ISA.zip::i_Investigation.txt",
+    "source_table": "ISA-Tab i_Investigation.txt",
+    "source_row": 8
+   },
+   "verification": "identity_from_isa_tab",
+   "values": {
+    "investigation_id": "PSI-159",
+    "key": "cfig",
+    "short_name": "ACME CFI-G",
+    "folder": "ACME CFI-G",
+    "scenario": "gaseous_flame_behavior",
+    "readiness": "quantitative",
+    "route": "/phenomena/gaseous-flames?tab=cfig",
+    "studio": "/phenomena/gaseous-flames#studio",
+    "datasets": [
+     "cfig_tests",
+     "cfig_cool_flames",
+     "cfig_test_days"
+    ],
+    "conditions": [
+     "configuration",
+     "fuel_species",
+     "bottle_fuel_pct",
+     "x_o2_before",
+     "p_bar",
+     "m_fuel_mg_s",
+     "x_o2_supply"
+    ],
+    "scenario_label": "Gaseous flame behaviour (spherical diffusion flames, cool flames, burning emulation)",
+    "readiness_label": "Per-test data processed and charted",
+    "title": "Advanced Combustion via Microgravity Experiments / Cool Flames Investigation with Gases",
+    "doi": "10.60555/cyt1-kh64",
+    "platform": "International Space Station (ISS)",
+    "hardware": "ACME, Combustion Integrated Rack (CIR)",
+    "start": null,
+    "end": null,
+    "objective": "1. Plan and support flight testing on the International Space Station (ISS).\n2. Determine the conditions for which cool diffusion flames occur for propane, n-butane, and n-pentane; normal and inverse flames; and a broad range of Zst, Tad, and fluent flow rate.\n3. Support the flight tests with advanced CFD simulations.\n4. Identify or develop a chemical kinetics mechanism that yields good agreement between the CFD predictions and the ISS measurements.\n5. Disseminate the results as widely as possible.",
+    "psi_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-159",
+    "publications": 2,
+    "limitations": [
+     {
+      "code": "CENSORED",
+      "text": "FT burn times are right-censored."
+     },
+     {
+      "code": "COUNTS-DIFFER",
+      "text": "CSV and report count flames differently; both kept."
+     },
+     {
+      "code": "UNDEFINED-LABELS",
+      "text": "'limit' colour and PCI-A...G labels are undefined locally."
+     },
+     {
+      "code": "COOL-NARROW",
+      "text": "Cool flames only at one condition set; radii not transferable."
+     }
+    ],
+    "related": [
+     {
+      "investigation_id": "PSI-10",
+      "relation": "same ACME insert and burner type"
+     },
+     {
+      "investigation_id": "PSI-117",
+      "relation": "cool flames in droplets"
+     }
+    ],
+    "isa_key": "ACME CFI-G/PSI-159_metadata_PSI-159-ISA.zip::i_Investigation.txt"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "inv:PSI-10",
+   "test_id": null,
+   "provenance": {
+    "source_file": "ACME Flame Design/PSI-10_metadata_PSI-10-ISA.zip::i_Investigation.txt",
+    "source_table": "ISA-Tab i_Investigation.txt",
+    "source_row": 9
+   },
+   "verification": "identity_from_isa_tab",
+   "values": {
+    "investigation_id": "PSI-10",
+    "key": "flame_design",
+    "short_name": "ACME Flame Design",
+    "folder": "ACME Flame Design",
+    "scenario": "gaseous_flame_behavior",
+    "readiness": "conditions_only",
+    "route": "/phenomena/gaseous-flames?tab=flame-design",
+    "studio": "/phenomena/gaseous-flames#studio",
+    "datasets": [
+     "fd_conditions",
+     "fd_test_days"
+    ],
+    "conditions": [
+     "configuration",
+     "fuel",
+     "x_o2_init",
+     "x_o2_supply",
+     "p_mean_atm",
+     "m_total_mg_s",
+     "zst",
+     "tad_k"
+    ],
+    "scenario_label": "Gaseous flame behaviour (spherical diffusion flames, cool flames, burning emulation)",
+    "readiness_label": "Test conditions only; outcomes reported only as author findings",
+    "title": "Advanced Combustion via Microgravity Experiments / Flame Design",
+    "doi": "10.60555/w4zy-bt45",
+    "platform": "International Space Station (ISS)",
+    "hardware": "Advanced Combustion via Microgravity Experiments (ACME), Combustion Integrated Rack (CIR), Reconfiguration of Combustion Integrated Rack (CIR)",
+    "start": "01-14-1999",
+    "end": "04-30-2025",
+    "objective": "The primary objectives of this flight experiment are:\nA. Obtain soot-inception limits of quasi-steady normal and inverse spherical diffusion flames as functions of flow rate, Zst, amount of inert (N2 or CO2), and pressure for C2H4 and CH4 flames. Identify the corresponding temperatures in hot regions. Obtain similar limits and temperatures for inverse and normal coflow flames.\nB. Obtain detailed measurements in quasi-steady normal and inverse spherical diffusion flames for C2H4 and CH4. Determine the effects of flow rate, Zst, amount of N2, and pressure on flame temperature, size, color, and soot volume fraction. Evaluate the possible existence of steady flames.\nC. Obtain extinction limits as functions of Zst, amount of N2, and pressure for normal and inverse spherical C2H4 and CH4 flames. Identify the corresponding temperatures in hot regions. Identify the presence of radiative or kinetic extinction. Evaluate whether pseudo-flammability limits can be obtained for these flames.",
+    "psi_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-10",
+    "publications": 33,
+    "limitations": [
+     {
+      "code": "CONDITIONS-ONLY",
+      "text": "No per-test outcomes in the download."
+     },
+     {
+      "code": "RESULTS-ABSTRACT",
+      "text": "Key results exist only as author statements in the final report."
+     }
+    ],
+    "related": [
+     {
+      "investigation_id": "PSI-159",
+      "relation": "same ACME insert and burner type"
+     }
+    ],
+    "isa_key": "ACME Flame Design/PSI-10_metadata_PSI-10-ISA.zip::i_Investigation.txt"
+   },
+   "raw": {},
+   "flags": []
+  },
+  {
+   "record_id": "inv:PSI-20",
+   "test_id": null,
+   "provenance": {
+    "source_file": "ACME BRE/PSI-20_metadata_PSI-96_ACME BRE.zip::i_Investigation.txt",
+    "source_table": "ISA-Tab i_Investigation.txt",
+    "source_row": 10
+   },
+   "verification": "identity_from_isa_tab",
+   "values": {
+    "investigation_id": "PSI-20",
+    "key": "bre",
+    "short_name": "ACME BRE",
+    "folder": "ACME BRE",
+    "scenario": "gaseous_flame_behavior",
+    "readiness": "curated_tables",
+    "route": "/phenomena/gaseous-flames?tab=bre",
+    "studio": null,
+    "datasets": [
+     "bre_test_days",
+     "bre_literature"
+    ],
+    "conditions": [
+     "burner_mm",
+     "fuel",
+     "o2_pct"
+    ],
+    "scenario_label": "Gaseous flame behaviour (spherical diffusion flames, cool flames, burning emulation)",
+    "readiness_label": "Verified report tables and logs; no per-test outcome data",
+    "title": "Advanced Combustion via Microgravity Experiments - Burning Rate Emulator",
+    "doi": "10.60555/vb93-3y72",
+    "platform": "International Space Station (ISS)",
+    "hardware": "Combustion Integrated Rack (CIR), ACME",
+    "start": "01-01-2010",
+    "end": "02-08-2025",
+    "objective": "The BRE flight program seeks to establish the burning conditions in a quiescent microgravity ambient in terms of material properties.\nThe specific flight objectives are as follows.\n  1. Observe burning behavior in long-duration microgravity for CH4/N2 and C2H4/N2mixtures on porous circular burners of 25  and 50 mm diameter. Consider O2/N2 ambients with various pressures and ambient O2 concentrations and pressures. NASA - considered atmosphere for human space missions will be examined: 14.7 psia, 21 % oxygen: 10.2 psia, 26.5 %; and 8.2 psia, 34 % oxygen. Emphasize fuel conditions that can be related to a diverse range of condensed fuels.\n  2. Consider the conditions of Objective 1 for ambients of O2/CO2 (desired).\n  3. Consider the conditions of Objectives 1 – 2 for extinction limits.",
+    "psi_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-20",
+    "publications": 16,
+    "limitations": [
+     {
+      "code": "NO-PER-TEST",
+      "text": "No per-test measurements in the download (day log only)."
+     },
+     {
+      "code": "EMULATION",
+      "text": "Burning emulation is an analogy, not a material flammability test."
+     },
+     {
+      "code": "PRELIMINARY",
+      "text": "Results described as preliminary by the authors."
+     }
+    ],
+    "related": [
+     {
+      "investigation_id": "PSI-25",
+      "relation": "qualitative link to solid-material burning"
+     }
+    ],
+    "isa_key": "ACME BRE/PSI-20_metadata_PSI-96_ACME BRE.zip::i_Investigation.txt"
+   },
+   "raw": {},
+   "flags": []
+  }
+ ],
+ "flags": []
+}

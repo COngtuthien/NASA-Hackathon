@@ -27,7 +27,12 @@ def test_snapshot_counts(client):
         llm_mod.set_llm(None)
     o = client.get("/api/v1/overview").json()
     assert o["counts"]["total_burn_rows"] == 405
-    assert {i["short_name"]: i["burns"] for i in o["investigations"]} == {"FLEX": 274, "BASS-II": 129, "SAFFIRE-I": 2}
+    burns = {i["short_name"]: i["burns"] for i in o["investigations"]}
+    # the three original investigations are unchanged (Phase 13 adds seven more without 'experiments' rows:
+    # their records live in the p13_* tables, see test_phase13_science.py)
+    assert {k: burns[k] for k in ("FLEX", "BASS-II", "SAFFIRE-I")} == {"FLEX": 274, "BASS-II": 129, "SAFFIRE-I": 2}
+    assert {k for k, v in burns.items() if v == 0} == {"PSI-117", "SAME", "FLEX-2", "PSI-62", "ACME CFI-G",
+                                                         "ACME Flame Design", "ACME BRE"}
 
 
 def test_source_files_unchanged():
@@ -135,11 +140,21 @@ def test_evidence_acceptance_queries(client, q, doc, page):
         assert any(r["investigation_id"] == "PSI-69" for r in top)
 
 
+ORIGINAL_DOCS = {
+    "1g17-070he-0166", "20130010979", "2g11-070he-0310", "bass-2-engineering-requirements", "bass-ii-data-faq",
+    "bass-ii-isatab", "bass-ii-procedure", "bass-ii-summary-report", "cool-flames-in-space-a-hot-prospect-on-earth",
+    "flex-dod", "flex-eird-v4", "flex-engineering-requirements-document", "flex-isatab", "flex-overall-ext-file-2",
+    "flex-test-plan", "saffire-1-isatab", "saffire-i-and-saffire-iii-dod", "saffire-i-image-directory-nomenclature",
+    "saffire-i-operations", "srd-bass-ii"}
+
+
 def test_evidence_errors_and_doc_file(client):
     assert client.get("/api/v1/evidence/search", params={"q": ""}).status_code == 400
     assert client.get("/api/v1/evidence/nope:p1:0").status_code == 404
     docs = client.get("/api/v1/documents").json()["items"]
-    assert len(docs) == 20
+    ids = {d["document_id"] for d in docs}
+    # the 20 pre-Phase-13 documents are all still indexed; Phase 13 adds 30 (when the local NASA folders exist)
+    assert ORIGINAL_DOCS <= ids and len(docs) in (20, 50)
     pdf = client.get("/api/v1/documents/saffire-i-operations/file")
     assert pdf.status_code == 200 and pdf.content[:4] == b"%PDF"
     assert client.get("/api/v1/documents/../../etc/passwd/file").status_code == 404

@@ -1,0 +1,239 @@
+{
+ "processor_version": "phase13-1",
+ "datasets": {
+  "cfig_tests": {
+   "investigation_id": "PSI-159",
+   "title": "CFI-G per-test conditions and observed outcomes",
+   "evidence_class": "direct_measurement",
+   "source_records": 333,
+   "processed_records": 333,
+   "excluded_records": 0,
+   "flagged_records": 45,
+   "flagged_records_warning": 7,
+   "flags": 49,
+   "dataset_level_flags": 2,
+   "excluded_reasons": {
+    "blank CSV rows (not records)": 861
+   },
+   "verification": {
+    "parsed_from_source_csv": 333
+   }
+  },
+  "cfig_cool_flames": {
+   "investigation_id": "PSI-159",
+   "title": "CFI-G cool diffusion flame events (final report Table 3)",
+   "evidence_class": "direct_measurement",
+   "source_records": 15,
+   "processed_records": 15,
+   "excluded_records": 0,
+   "flagged_records": 1,
+   "flagged_records_warning": 0,
+   "flags": 1,
+   "dataset_level_flags": 0,
+   "excluded_reasons": {},
+   "verification": {
+    "verified_against_pdf_text": 15
+   }
+  },
+  "cfig_test_days": {
+   "investigation_id": "PSI-159",
+   "title": "CFI-G flames ignited per test day (final report Tables 1-2)",
+   "evidence_class": "operational_log",
+   "source_records": 23,
+   "processed_records": 23,
+   "excluded_records": 0,
+   "flagged_records": 1,
+   "flagged_records_warning": 0,
+   "flags": 1,
+   "dataset_level_flags": 0,
+   "excluded_reasons": {},
+   "verification": {
+    "verified_against_pdf_text": 23
+   }
+  },
+  "fd_conditions": {
+   "investigation_id": "PSI-10",
+   "title": "Flame Design per-test conditions (conditions only)",
+   "evidence_class": "test_condition",
+   "source_records": 327,
+   "processed_records": 327,
+   "excluded_records": 0,
+   "flagged_records": 91,
+   "flagged_records_warning": 1,
+   "flags": 94,
+   "dataset_level_flags": 2,
+   "excluded_reasons": {},
+   "verification": {
+    "parsed_from_source_csv": 327
+   }
+  },
+  "fd_test_days": {
+   "investigation_id": "PSI-10",
+   "title": "Flame Design flames ignited per test day (final report Table 1)",
+   "evidence_class": "operational_log",
+   "source_records": 23,
+   "processed_records": 23,
+   "excluded_records": 0,
+   "flagged_records": 0,
+   "flagged_records_warning": 0,
+   "flags": 0,
+   "dataset_level_flags": 0,
+   "excluded_reasons": {},
+   "verification": {
+    "verified_against_pdf_text": 23
+   }
+  },
+  "bre_test_days": {
+   "investigation_id": "PSI-20",
+   "title": "BRE flames ignited per test day (final report Table 1, authoritative)",
+   "evidence_class": "operational_log",
+   "source_records": 18,
+   "processed_records": 18,
+   "excluded_records": 0,
+   "flagged_records": 4,
+   "flagged_records_warning": 2,
+   "flags": 4,
+   "dataset_level_flags": 0,
+   "excluded_reasons": {},
+   "verification": {
+    "verified_against_pdf_text": 18
+   }
+  },
+  "bre_literature": {
+   "investigation_id": "PSI-20",
+   "title": "Materials near BRE heats of combustion (final report Table 2: literature)",
+   "evidence_class": "literature_value",
+   "source_records": 5,
+   "processed_records": 5,
+   "excluded_records": 0,
+   "flagged_records": 0,
+   "flagged_records_warning": 0,
+   "flags": 0,
+   "dataset_level_flags": 0,
+   "excluded_reasons": {},
+   "verification": {
+    "verified_against_pdf_text": 5
+   }
+  },
+  "same_particle_sizes": {
+   "investigation_id": "PSI-102",
+   "title": "SAME particle-size results (Final Science Report Table 1)",
+   "evidence_class": "derived_experimental",
+   "source_records": 8,
+   "processed_records": 8,
+   "excluded_records": 0,
+   "flagged_records": 0,
+   "flagged_records_warning": 0,
+   "flags": 0,
+   "dataset_level_flags": 0,
+   "excluded_reasons": {},
+   "verification": {
+    "verified_against_pdf_text": 8
+   }
+  },
+  "same_particle_sizes_other_sources": {
+   "investigation_id": "PSI-102",
+   "title": "SAME particle sizes as printed in other SAME documents",
+   "evidence_class": "derived_experimental",
+   "source_records": 22,
+   "processed_records": 22,
+   "excluded_records": 0,
+   "flagged_records": 0,
+   "flagged_records_warning": 0,
+   "flags": 1,
+   "dataset_level_flags": 1,
+   "excluded_reasons": {},
+   "verification": {
+    "verified_against_pdf_text": 12,
+    "verified_against_source_table": 10
+   }
+  },
+  "same_flight_log": {
+   "investigation_id": "PSI-102",
+   "title": "SAME flight-test log (Final Science Report Appendix A)",
+   "evidence_class": "operational_log",
+   "source_records": 51,
+   "processed_records": 51,
+   "excluded_records": 0,
+   "flagged_records": 6,
+   "flagged_records_warning": 0,
+   "flags": 6,
+   "dataset_level_flags": 0,
+   "excluded_reasons": {},
+   "verification": {
+    "verified_against_pdf_text": 51
+   }
+  },
+  "same_telemetry_inventory": {
+   "investigation_id": "PSI-102",
+   "title": "SAME 1 Hz housekeeping workbooks (inventory only)",
+   "evidence_class": "direct_measurement",
+   "source_records": 59,
+   "processed_records": 59,
+   "excluded_records": 59,
+   "flagged_records": 0,
+   "flagged_records_warning": 0,
+   "flags": 1,
+   "dataset_level_flags": 1,
+   "excluded_reasons": {
+    "telemetry values not processed in Phase 13": 59
+   },
+   "verification": {
+    "listed_only": 59
+   }
+  },
+  "psi117_series": {
+   "investigation_id": "PSI-117",
+   "title": "PSI-117 published figure data: experiment vs model series",
+   "evidence_class": "digitized_figure",
+   "source_records": 12891,
+   "processed_records": 61,
+   "excluded_records": 72,
+   "flagged_records": 35,
+   "flagged_records_warning": 7,
+   "flags": 46,
+   "dataset_level_flags": 4,
+   "excluded_reasons": {
+    "series with unclear role (I-unk-q)": 72
+   },
+   "series": 61,
+   "files": 9,
+   "plotted_points": 12819,
+   "verification": {
+    "parsed_from_source_csv": 61
+   }
+  },
+  "investigation_registry": {
+   "investigation_id": "ALL",
+   "title": "SpaceFire investigation registry",
+   "evidence_class": "report_statement",
+   "source_records": 10,
+   "processed_records": 10,
+   "excluded_records": 0,
+   "flagged_records": 0,
+   "flagged_records_warning": 0,
+   "flags": 0,
+   "dataset_level_flags": 0,
+   "excluded_reasons": {},
+   "verification": {
+    "identity_from_isa_tab": 10
+   }
+  },
+  "flex2_envelope": {
+   "investigation_id": "PSI-68",
+   "title": "FLEX-2 test-matrix envelope (conditions only)",
+   "evidence_class": "test_condition",
+   "source_records": 8,
+   "processed_records": 8,
+   "excluded_records": 0,
+   "flagged_records": 0,
+   "flagged_records_warning": 0,
+   "flags": 0,
+   "dataset_level_flags": 0,
+   "excluded_reasons": {},
+   "verification": {
+    "parsed_from_source_csv": 8
+   }
+  }
+ }
+}

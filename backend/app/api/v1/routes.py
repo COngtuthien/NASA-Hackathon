@@ -20,7 +20,7 @@ from ...core.config import get_settings
 from ...core.errors import ApiError, not_found
 from ...db.database import connect, jloads
 from ...providers.llm import llm_status
-from ...services import analytics, assistant, experiments, ml, overview, quality, retrieval, similarity
+from ...services import analytics, assistant, experiments, ml, overview, phase13, quality, retrieval, similarity
 from ...services.literature import get_literature, investigation_publications
 
 router = APIRouter(prefix="/api/v1")
@@ -266,6 +266,53 @@ def assistant_ask_stream(body: AskRequest):
 
     return StreamingResponse(lines(), media_type="application/x-ndjson",
                              headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"})
+
+
+# ------------------------------------------------------- Phase 13 science ---
+@router.get("/registry", tags=["phase13"])
+def investigation_registry(conn=Depends(get_conn)):
+    """All investigations with identity, scenario, readiness, routes, completeness and machine-readable limitations."""
+    return phase13.registry(conn)
+
+
+@router.get("/registry/datasets", tags=["phase13"])
+def p13_datasets(conn=Depends(get_conn)):
+    return phase13.datasets(conn)
+
+
+@router.get("/gasflames/cfig", tags=["phase13"])
+def gasflames_cfig(configuration: str | None = Query(None, pattern="^(normal|inverse)$"),
+                   fuel: str | None = Query(None, pattern="^(ethane|propane|n-butane)$"),
+                   p_bar: float | None = Query(None, ge=0, le=10), o2_min: float | None = Query(None, ge=0, le=1),
+                   o2_max: float | None = Query(None, ge=0, le=1), outcome: str | None = Query(None, max_length=40),
+                   conn=Depends(get_conn)):
+    return phase13.cfig(conn, {"configuration": configuration, "fuel": fuel, "p_bar": p_bar, "o2_min": o2_min,
+                               "o2_max": o2_max, "outcome": outcome})
+
+
+@router.get("/gasflames/cfig/test/{test_id}", tags=["phase13"])
+def gasflames_cfig_test(test_id: str, conn=Depends(get_conn)):
+    return phase13.cfig_test(conn, test_id)
+
+
+@router.get("/gasflames/flame-design", tags=["phase13"])
+def gasflames_flame_design(conn=Depends(get_conn)):
+    return phase13.flame_design(conn)
+
+
+@router.get("/gasflames/bre", tags=["phase13"])
+def gasflames_bre(conn=Depends(get_conn)):
+    return phase13.bre(conn)
+
+
+@router.get("/smoke/same", tags=["phase13"])
+def smoke_same(conn=Depends(get_conn)):
+    return phase13.same(conn)
+
+
+@router.get("/flex/psi117", tags=["phase13"])
+def flex_psi117(figure: str | None = Query(None, max_length=40), conn=Depends(get_conn)):
+    return phase13.psi117(conn, figure)
 
 
 # --------------------------------------------------------------- analytics ---

@@ -1,0 +1,14 @@
+{"id": "p13-01", "q": "Under what conditions were spherical gas-fueled cool diffusion flames observed on the space station?", "rel": "only obtained for normal n-butane flames at 2 bar"}
+{"id": "p13-02", "q": "How many hot diffusion flames did the cool flames gas experiment observe in total?", "rel": "total of 280 hot diffusion flames"}
+{"id": "p13-03", "q": "How large was the hot flame compared with the cool flame it spawned?", "rel": "2.6 times as large"}
+{"id": "p13-04", "q": "At what temperature do microgravity spherical ethylene diffusion flames go out?", "rel": "critical extinction temperature of 1130 K"}
+{"id": "p13-05", "q": "Can a flat material keep burning steadily in still air in microgravity at elevated oxygen?", "rel": "oxygen mole fractions of 0.265 and above"}
+{"id": "p13-06", "q": "What happened to the emulator flames in a normal 21 percent oxygen atmosphere?", "rel": "self-extinguished within 40 s"}
+{"id": "p13-07", "q": "Smoke particle diameters for aged Kapton smoke in the flight tests", "rel": "Kapton aged 155 186 267"}
+{"id": "p13-08", "q": "Which spacecraft smoke detector performed worse for Kapton and Teflon smoke?", "rel": "ISS Detector showed reduced detection performance"}
+{"id": "p13-09", "q": "Three stage hot warm and cool flame burning of an n-dodecane droplet at elevated pressure", "rel": "FLEX 1268"}
+{"id": "p13-10", "q": "FLEX-2 range of fuels, pressures and oxygen levels planned for the second campaign", "rel": "FLEX-2 Test Matrix Envelope"}
+{"id": "p13-11", "q": "Why was n-pentane not tested in the gaseous cool flame experiment?", "rel": "n-pentane.s low vapor pressure"}
+{"id": "p13-12", "q": "Where does soot form in an inverse spherical flame?", "rel": "soot formed outside rather than inside"}
+{"id": "p13-13", "q": "Could a burning rate emulator flame represent a common plastic like PMMA?", "rel": "could represent PMMA"}
+{"id": "p13-14", "q": "How does the moment method estimate the smoke size distribution from several instruments?", "rel": "moment method"}

@@ -18,11 +18,12 @@ from ..core.config import get_settings
 from ..db.database import connect, init_schema, jdumps, transaction
 from ..curation import bass_report, report_consistency
 from . import bass2, documents, flex, linking, saffire
+from .phase13 import load as p13
 from .common import Flag, now_iso, sha256_file
 
 log = logging.getLogger("spacefire.ingest")
 
-SOURCE_DIRS = ("FLEX", "BASS-II", "SAFFIRE-1")
+SOURCE_DIRS = ("FLEX", "BASS-II", "SAFFIRE-1") + tuple(p13.NEW_DIRS)   # Phase 13 folders are optional (local only)
 ROOT_FILES = ("download.zip", "PSI-98_metadata_PSI-166_SAFFIRE-I.zip")
 
 INVESTIGATIONS = [
@@ -53,7 +54,8 @@ MEDIA = {".csv": "text/csv", ".pdf": "application/pdf", ".zip": "application/zip
          ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
          ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
          ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
-INV_BY_DIR = {"FLEX": "PSI-69", "BASS-II": "PSI-25", "SAFFIRE-1": "PSI-98"}
+INV_BY_DIR = {"FLEX": "PSI-69", "BASS-II": "PSI-25", "SAFFIRE-1": "PSI-98", **p13.NEW_DIRS}
+CATALOG = {**documents.CATALOG, **p13.CATALOG}
 
 
 def role_for(rel: str) -> str:
@@ -75,7 +77,8 @@ def role_for(rel: str) -> str:
 def inventory(repo_root: Path) -> list[dict]:
     files: list[Path] = []
     for d in SOURCE_DIRS:
-        files += [p for p in (repo_root / d).rglob("*") if p.is_file()]
+        if (repo_root / d).is_dir():
+            files += [p for p in (repo_root / d).rglob("*") if p.is_file()]
     files += [repo_root / f for f in ROOT_FILES if (repo_root / f).exists()]
     entries = []
     for p in sorted(files, key=lambda x: x.relative_to(repo_root).as_posix()):
@@ -264,7 +267,7 @@ def run(dry_run: bool = False) -> dict:
 
     # documents
     doc_rows, chunk_rows, pubs, isa_meta = [], [], [], {}
-    for key, meta in documents.CATALOG.items():
+    for key, meta in CATALOG.items():
         file_key = key.split("::")[0]
         if file_key not in src:
             report["warnings"].append(f"catalog document missing on disk: {key}")
@@ -315,7 +318,8 @@ def run(dry_run: bool = False) -> dict:
     conn = connect(tmp)
     init_schema(conn)
     with transaction(conn):
-        for i in INVESTIGATIONS:
+        for i in INVESTIGATIONS + [dict(x, official_url=p13.PSI_URL.format(x["investigation_id"]))
+                                   for x in p13.NEW_INVESTIGATIONS]:
             meta = isa_meta.get(i["investigation_id"], {})
             conn.execute("INSERT INTO investigations VALUES (?,?,?,?,?,?,?,?,?,?)",
                          (i["investigation_id"], i["key"], i["short_name"], i["title"], i["description"], i["scale"],
@@ -323,7 +327,7 @@ def run(dry_run: bool = False) -> dict:
         ingested_at = now_iso()
         for e in inv:
             parsed = e["relative_path"] in (flex.REL_PATH, bass2.REL_PATH, saffire.REL_PATH, saffire.XLSX_PATH) or \
-                any(k.split("::")[0] == e["relative_path"] for k in documents.CATALOG)
+                any(k.split("::")[0] == e["relative_path"] for k in CATALOG)
             status = "skipped_duplicate" if e.get("duplicate_of") else ("parsed" if parsed else "not_parsed")
             conn.execute("INSERT INTO source_files VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                          (e["source_id"], e["relative_path"], e["sha256"], e["size_bytes"], e["media_type"],
@@ -346,6 +350,7 @@ def run(dry_run: bool = False) -> dict:
         nflags += write_flags(conn, fx_flags, "PSI-69", {}, src[flex.REL_PATH]["source_id"])
         nflags += write_flags(conn, b2_flags, "PSI-25", {}, src[bass2.REL_PATH]["source_id"])
         nflags += write_flags(conn, sa_flags, "PSI-98", {}, sa_src)
+        report["phase13"] = p13.load(conn, settings.processed_dir, src, report)
         conn.executemany("INSERT INTO documents VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", doc_rows)
         canonical = [c for c in chunk_rows if not c.get("duplicate_of")]
         conn.executemany(

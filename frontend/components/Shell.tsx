@@ -21,6 +21,8 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { href: ROUTES.extinction, label: "Flame Extinction & Burning Dynamics", icon: "droplet", source: "FLEX" },
     { href: ROUTES.spread, label: "Flame Spread & Material Behavior", icon: "solid", source: "BASS-II" },
     { href: ROUTES.spacecraft, label: "Spacecraft Fire Dynamics", icon: "fire", source: "SAFFIRE-I" },
+    { href: ROUTES.gasflames, label: "Gaseous Flame Dynamics", icon: "sphere", source: "ACME" },
+    { href: ROUTES.smoke, label: "Smoke & Fire Detection", icon: "smoke", source: "SAME" },
   ] },
   { group: "Research intelligence", items: [
     { href: ROUTES.similar, label: "Experiment Intelligence", icon: "similar", match: ["/intelligence"] },

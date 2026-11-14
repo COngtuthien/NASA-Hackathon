@@ -207,7 +207,9 @@ export const DATASETS = [
   { key: "saffire1", label: "SAFFIRE-I", inv: "PSI-98", system: "Spacecraft-scale fabric" },
 ] as const;
 
-export const INV_LABEL: Record<string, string> = { "PSI-69": "FLEX", "PSI-25": "BASS-II", "PSI-98": "SAFFIRE-I" };
+export const INV_LABEL: Record<string, string> = { "PSI-69": "FLEX", "PSI-25": "BASS-II", "PSI-98": "SAFFIRE-I",
+  "PSI-159": "ACME CFI-G", "PSI-10": "ACME Flame Design", "PSI-20": "ACME BRE", "PSI-102": "SAME", "PSI-117": "PSI-117",
+  "PSI-68": "FLEX-2", "PSI-62": "PSI-62" };
 export const INV_KEY: Record<string, string> = { "PSI-69": "flex", "PSI-25": "bass2", "PSI-98": "saffire1" };
 
 export function datasetOf(uid: string): string {

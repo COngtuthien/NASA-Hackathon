@@ -1,0 +1,750 @@
+{
+ "dataset_id": "cfig_cool_flames",
+ "investigation_id": "PSI-159",
+ "title": "CFI-G cool diffusion flame events (final report Table 3)",
+ "evidence_class": "direct_measurement",
+ "description": "All 15 cool-flame events reported in the CFI-G final report, with hot- and cool-flame radii measured from images. Valid only at the reported condition: 30% n-butane, normal flames, ~2.03 bar, XO2 ~0.39.",
+ "processor_version": "phase13-1",
+ "sources": [
+  {
+   "path": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+   "sha256": "f6cce7cc08ca69c155994d7a8898e21cd4aba122f4e46d5e00708e4889a1ebab",
+   "size_bytes": 3894907,
+   "role": "final_report"
+  }
+ ],
+ "field_specs": [
+  {
+   "field": "x_o2",
+   "variable": "Ambient O2 mole fraction",
+   "evidence_class": "test_condition",
+   "raw_column": "XO2",
+   "unit": "mole fraction",
+   "unit_status": "dimensionless",
+   "transform": "none"
+  },
+  {
+   "field": "x_f",
+   "variable": "Fuel mole fraction in burner supply",
+   "evidence_class": "test_condition",
+   "raw_column": "Xf",
+   "unit": "mole fraction",
+   "unit_status": "dimensionless",
+   "transform": "none"
+  },
+  {
+   "field": "p_bar",
+   "variable": "Pressure",
+   "evidence_class": "test_condition",
+   "raw_column": "p (bar)",
+   "unit_raw": "bar",
+   "unit": "bar",
+   "unit_status": "header",
+   "transform": "none"
+  },
+  {
+   "field": "m_fuel_mg_s",
+   "variable": "Hydrocarbon mass flow rate (footnote 2)",
+   "evidence_class": "test_condition",
+   "raw_column": "ṁ (mg/s)",
+   "unit_raw": "mg/s",
+   "unit": "mg/s",
+   "unit_status": "header",
+   "transform": "none"
+  },
+  {
+   "field": "cool_flame_duration_s",
+   "variable": "Cool flame duration",
+   "evidence_class": "direct_measurement",
+   "raw_column": "flame duration (sec)",
+   "unit_raw": "sec",
+   "unit": "s",
+   "unit_status": "header",
+   "transform": "none"
+  },
+  {
+   "field": "r_hot_mm",
+   "variable": "Hot-flame radius",
+   "evidence_class": "direct_measurement",
+   "raw_column": "rhf (mm)",
+   "unit_raw": "mm",
+   "unit": "mm",
+   "unit_status": "header",
+   "transform": "none"
+  },
+  {
+   "field": "r_cool_mm",
+   "variable": "Cool-flame radius",
+   "evidence_class": "direct_measurement",
+   "raw_column": "rcf (mm)",
+   "unit_raw": "mm",
+   "unit": "mm",
+   "unit_status": "header",
+   "transform": "none"
+  },
+  {
+   "field": "radius_ratio",
+   "variable": "Hot/cool radius ratio as printed",
+   "evidence_class": "derived_experimental",
+   "raw_column": "rhf/rcf",
+   "unit": "-",
+   "unit_status": "dimensionless",
+   "transform": "none"
+  }
+ ],
+ "counts": {
+  "source_records": 15,
+  "processed_records": 15,
+  "excluded_records": 0,
+  "flagged_records": 1,
+  "flagged_records_warning": 0,
+  "flags": 1,
+  "dataset_level_flags": 0,
+  "excluded_reasons": {}
+ },
+ "notes": [
+  "Radii are valid only for this narrow condition set; they are never interpolated to other conditions.",
+  "Report text (PDF p44): cool flames observed only with 30 vol% n-butane, 40 vol% O2, normal flames, 2.03 bar and 0.75-1.5 mg/s; 15 of the 189 radiatively extinguished hot flames reignited as cool flames."
+ ],
+ "extra": {
+  "cross_check": {
+   "table3_tests": [
+    "21174C3",
+    "21174C4",
+    "21174C6",
+    "21174D1",
+    "21174F1",
+    "21291A1",
+    "21291C1"
+   ],
+   "csv_cool_flame_yes_tests": [
+    "21174C3",
+    "21174C4",
+    "21174C6",
+    "21174D1",
+    "21174F1",
+    "21291A1",
+    "21291C1"
+   ],
+   "match": true,
+   "events": 15,
+   "tests": 7
+  }
+ },
+ "records": [
+  {
+   "record_id": "cfig:coolflame:21174C3",
+   "test_id": "21174C3",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 1
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": null,
+    "x_o2": 0.395,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.5,
+    "cool_flame_duration_s": 13.9,
+    "r_hot_mm": 17.6,
+    "r_cool_mm": 7.6,
+    "radius_ratio": 2.3,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21174C3"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21174C3",
+     "0.395",
+     "0.300",
+     "2.03",
+     "1.50",
+     "13.9",
+     "17.6",
+     "7.6",
+     "2.3"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21174C4",
+   "test_id": "21174C4",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 2
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": null,
+    "x_o2": 0.394,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.0,
+    "cool_flame_duration_s": 13.8,
+    "r_hot_mm": 14.6,
+    "r_cool_mm": 5.3,
+    "radius_ratio": 2.8,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21174C4"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21174C4",
+     "0.394",
+     "0.300",
+     "2.03",
+     "1.00",
+     "13.8",
+     "14.6",
+     "5.3",
+     "2.8"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21174C6",
+   "test_id": "21174C6",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 3
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": null,
+    "x_o2": 0.385,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 0.75,
+    "cool_flame_duration_s": 14.3,
+    "r_hot_mm": 12.4,
+    "r_cool_mm": 5.1,
+    "radius_ratio": 2.4,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21174C6"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21174C6",
+     "0.385",
+     "0.300",
+     "2.03",
+     "0.75",
+     "14.3",
+     "12.4",
+     "5.1",
+     "2.4"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21174D1",
+   "test_id": "21174D1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 4
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": null,
+    "x_o2": 0.392,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.0,
+    "cool_flame_duration_s": null,
+    "r_hot_mm": 13.9,
+    "r_cool_mm": null,
+    "radius_ratio": null,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21174D1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21174D13",
+     "0.392",
+     "0.300",
+     "2.03",
+     "1.00",
+     "-",
+     "13.9",
+     "-",
+     "-"
+    ]
+   },
+   "flags": [
+    "CFIG-T3-FOOTNOTE3"
+   ]
+  },
+  {
+   "record_id": "cfig:coolflame:21174F1",
+   "test_id": "21174F1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 5
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": null,
+    "x_o2": 0.39,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.5,
+    "cool_flame_duration_s": 13.8,
+    "r_hot_mm": 17.4,
+    "r_cool_mm": 7.5,
+    "radius_ratio": 2.3,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21174F1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21174F1",
+     "0.390",
+     "0.300",
+     "2.03",
+     "1.50",
+     "13.8",
+     "17.4",
+     "7.5",
+     "2.3"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21291A1-1",
+   "test_id": "21291A1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 6
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": 1,
+    "x_o2": 0.399,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.5,
+    "cool_flame_duration_s": 10.9,
+    "r_hot_mm": 17.2,
+    "r_cool_mm": 7.1,
+    "radius_ratio": 2.4,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21291A1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21291A1-1",
+     "0.399",
+     "0.300",
+     "2.03",
+     "1.50",
+     "10.9",
+     "17.2",
+     "7.1",
+     "2.4"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21291A1-2",
+   "test_id": "21291A1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 7
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": 2,
+    "x_o2": 0.399,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.5,
+    "cool_flame_duration_s": 3.4,
+    "r_hot_mm": 17.3,
+    "r_cool_mm": 6.5,
+    "radius_ratio": 2.7,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21291A1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21291A1-2",
+     "0.399",
+     "0.300",
+     "2.03",
+     "1.50",
+     "3.4",
+     "17.3",
+     "6.5",
+     "2.7"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21291A1-3",
+   "test_id": "21291A1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 8
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": 3,
+    "x_o2": 0.399,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.5,
+    "cool_flame_duration_s": 3.8,
+    "r_hot_mm": 17.6,
+    "r_cool_mm": 6.3,
+    "radius_ratio": 2.8,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21291A1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21291A1-3",
+     "0.399",
+     "0.300",
+     "2.03",
+     "1.50",
+     "3.8",
+     "17.6",
+     "6.3",
+     "2.8"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21291A1-4",
+   "test_id": "21291A1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 9
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": 4,
+    "x_o2": 0.399,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.5,
+    "cool_flame_duration_s": 4,
+    "r_hot_mm": 17.6,
+    "r_cool_mm": 6.2,
+    "radius_ratio": 2.8,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21291A1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21291A1-4",
+     "0.399",
+     "0.300",
+     "2.03",
+     "1.50",
+     "4",
+     "17.6",
+     "6.2",
+     "2.8"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21291A1-5",
+   "test_id": "21291A1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 10
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": 5,
+    "x_o2": 0.399,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.5,
+    "cool_flame_duration_s": 3.7,
+    "r_hot_mm": 17.7,
+    "r_cool_mm": 6.2,
+    "radius_ratio": 2.9,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21291A1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21291A1-5",
+     "0.399",
+     "0.300",
+     "2.03",
+     "1.50",
+     "3.7",
+     "17.7",
+     "6.2",
+     "2.9"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21291C1-1",
+   "test_id": "21291C1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 11
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": 1,
+    "x_o2": 0.394,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.0,
+    "cool_flame_duration_s": 6.2,
+    "r_hot_mm": 14.4,
+    "r_cool_mm": 5.1,
+    "radius_ratio": 2.8,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21291C1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21291C1-1",
+     "0.394",
+     "0.300",
+     "2.03",
+     "1.00",
+     "6.2",
+     "14.4",
+     "5.1",
+     "2.8"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21291C1-2",
+   "test_id": "21291C1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 12
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": 2,
+    "x_o2": 0.394,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.0,
+    "cool_flame_duration_s": 5.8,
+    "r_hot_mm": 14.9,
+    "r_cool_mm": 5.5,
+    "radius_ratio": 2.7,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21291C1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21291C1-2",
+     "0.394",
+     "0.300",
+     "2.03",
+     "1.00",
+     "5.8",
+     "14.9",
+     "5.5",
+     "2.7"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21291C1-3",
+   "test_id": "21291C1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 13
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": 3,
+    "x_o2": 0.394,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.0,
+    "cool_flame_duration_s": 5.5,
+    "r_hot_mm": 14.7,
+    "r_cool_mm": 5.7,
+    "radius_ratio": 2.6,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21291C1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21291C1-3",
+     "0.394",
+     "0.300",
+     "2.03",
+     "1.00",
+     "5.5",
+     "14.7",
+     "5.7",
+     "2.6"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21291C1-4",
+   "test_id": "21291C1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 14
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": 4,
+    "x_o2": 0.394,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.0,
+    "cool_flame_duration_s": 5.4,
+    "r_hot_mm": 14.9,
+    "r_cool_mm": 5.7,
+    "radius_ratio": 2.6,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21291C1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21291C1-4",
+     "0.394",
+     "0.300",
+     "2.03",
+     "1.00",
+     "5.4",
+     "14.9",
+     "5.7",
+     "2.6"
+    ]
+   },
+   "flags": []
+  },
+  {
+   "record_id": "cfig:coolflame:21291C1-5",
+   "test_id": "21291C1",
+   "provenance": {
+    "source_file": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+    "source_table": "Final report Table 3",
+    "page_pdf": 46,
+    "source_row": 15
+   },
+   "verification": "verified_against_pdf_text",
+   "values": {
+    "sub_event": 5,
+    "x_o2": 0.394,
+    "x_f": 0.3,
+    "p_bar": 2.03,
+    "m_fuel_mg_s": 1.0,
+    "cool_flame_duration_s": 5.3,
+    "r_hot_mm": 14.4,
+    "r_cool_mm": 5.5,
+    "radius_ratio": 2.6,
+    "configuration": "normal",
+    "fuel_species": "n-butane",
+    "bottle_fuel_pct": 30.0,
+    "csv_record_id": "cfig:normal:21291C1"
+   },
+   "raw": {
+    "printed_tokens": [
+     "21291C1-5",
+     "0.394",
+     "0.300",
+     "2.03",
+     "1.00",
+     "5.3",
+     "14.4",
+     "5.5",
+     "2.6"
+    ]
+   },
+   "flags": []
+  }
+ ],
+ "flags": [
+  {
+   "rule_id": "CFIG-T3-FOOTNOTE3",
+   "category": "missing",
+   "severity": "info",
+   "description": "Footnote 3: the cool-flame radius could not be evaluated due to low camera gain (duration and radius ratio also blank). Printed ID '21174D1' plus footnote marker 3; not a test called 21174D13.",
+   "record_id": "cfig:coolflame:21174D1",
+   "test_id": "21174D1",
+   "evidence_ref": "ACME CFI-G/PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf PDF p46",
+   "status": "confirmed"
+  }
+ ]
+}

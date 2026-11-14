@@ -314,3 +314,59 @@ CREATE TABLE IF NOT EXISTS model_runs (
   decision TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
+
+-- Phase 13: verified derivatives of the seven newly audited investigations (built by app.ingest.phase13, loaded
+-- from processed/curated/phase13/*.json). Values are never edited; raw strings and provenance travel with them.
+CREATE TABLE IF NOT EXISTS investigation_registry (
+  investigation_id TEXT PRIMARY KEY,
+  key TEXT NOT NULL UNIQUE,
+  scenario TEXT NOT NULL,                     -- material_flame_spread / gaseous_flame_behavior / ...
+  readiness TEXT NOT NULL,                    -- quantitative / curated_tables / figure_data / conditions_only / ...
+  registry_json TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS p13_datasets (
+  dataset_id TEXT PRIMARY KEY,
+  investigation_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  evidence_class TEXT NOT NULL,
+  meta_json TEXT NOT NULL                     -- description, sources (path + sha256), field_specs, counts, notes, extra
+);
+
+CREATE TABLE IF NOT EXISTS p13_records (
+  record_id TEXT PRIMARY KEY,
+  dataset_id TEXT NOT NULL REFERENCES p13_datasets(dataset_id),
+  investigation_id TEXT NOT NULL,
+  test_id TEXT,
+  source_file TEXT NOT NULL,
+  source_table TEXT,
+  page_pdf INTEGER,
+  source_row INTEGER,
+  verification TEXT NOT NULL,
+  values_json TEXT NOT NULL,
+  raw_json TEXT NOT NULL,
+  flags_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_p13_rec_ds ON p13_records(dataset_id);
+CREATE INDEX IF NOT EXISTS ix_p13_rec_test ON p13_records(investigation_id, test_id);
+
+-- Long-format view of every processed scalar value with its evidence class, units and transformation.
+CREATE TABLE IF NOT EXISTS p13_values (
+  record_id TEXT NOT NULL REFERENCES p13_records(record_id),
+  dataset_id TEXT NOT NULL,
+  investigation_id TEXT NOT NULL,
+  test_id TEXT,
+  field TEXT NOT NULL,
+  variable TEXT NOT NULL,
+  raw_column TEXT,
+  original_value TEXT,
+  original_unit TEXT,
+  value REAL,
+  value_text TEXT,
+  unit TEXT,
+  unit_status TEXT,
+  transform TEXT,
+  evidence_class TEXT NOT NULL,
+  verification TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_p13_val ON p13_values(dataset_id, field);

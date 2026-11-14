@@ -11,8 +11,23 @@ SpaceFire AI turns three NASA Physical Sciences Informatics investigations into 
 | **BASS-II** (PSI-25) | Small solid samples (PMMA, SIBAL, Nomex, wax) in a glovebox flow duct | 129 test rows |
 | **SAFFIRE-I** (PSI-98) | Large-scale fabric fire aboard an uncrewed Cygnus vehicle (2016) | 2 burns + 2 image-set rows + a 12-sheet image manifest |
 
-Every number in the UI links back to the CSV row, document page or external record it came from. The three
-investigations are different physical systems and are never pooled into one dataset or model.
+**Phase 13** adds seven more investigations at the evidence level their downloaded files support (see
+`docs/PHASE13_IMPLEMENTATION_REPORT.md`):
+
+| Investigation | Evidence in SpaceFire | Where |
+|---|---|---|
+| **ACME CFI-G** (PSI-159) | 333 per-test outcomes (normal/inverse kept apart) + 15 measured cool-flame events | Gaseous Flame Dynamics |
+| **ACME Flame Design** (PSI-10) | 327 test conditions (no outcomes in the data) + report findings | Gaseous Flame Dynamics |
+| **ACME BRE** (PSI-20) | 18-day campaign log + report findings (emulation, not a material test) | Gaseous Flame Dynamics |
+| **SAME** (PSI-102) | Verified particle sizes (8), 47-test flight log; raw telemetry deferred | Smoke & Fire Detection |
+| **PSI-117** | 61 published figure series: experiment vs 1-D model | Flame Extinction page |
+| **FLEX-2** (PSI-68), **PSI-62** | Documents and metadata only | Copilot and registry |
+
+The NASA source folders for these seven are local-only (not in Git); their verified derivatives are committed in
+`processed/curated/phase13/` and rebuilt with `python -m app.ingest.phase13.run`.
+
+Every number in the UI links back to the CSV row, document page or external record it came from. The investigations
+are different physical systems and are never pooled into one dataset or model.
 
 ## Features
 

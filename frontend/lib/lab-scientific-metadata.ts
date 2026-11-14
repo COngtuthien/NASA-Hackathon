@@ -27,6 +27,7 @@ export const SOURCES = {
   flexEird64: doc("flex-eird-v4", 64, "FLEX ERD v4, PDF p.64 (why reduced gravity: diffusive vs buoyancy-controlled residence times)"),
   mdcaIgniter: doc("flex-overall-ext-file-2", 22, "MDCA/FLEX2 Reflight Safety Data Package, PDF p.22 (Kanthal hot-wire igniters)"),
   flexEird74: doc("flex-eird-v4", 74,"FLEX ERD v4, PDF p.74 (earlier quiescent and forced-flow droplet experiments)"),
+  psi117Ext: doc("psi-117-presentations-extinction-characteristics-tfarouk", 9, "PSI-117 extinction slides, PDF p.9 (measured vs modelled hot- and cool-flame extinction diameters, mm)"),
   coolFlames: doc("cool-flames-in-space-a-hot-prospect-on-earth", 23, "Cool Flames in Space, PDF p.23 (cool-flame burning after extinction)"),
   bassP12: doc("bass-ii-summary-report", 12, "BASS-II Summary Report, PDF p.12 (flow duct, fan, flow straightener, radiometer)"),
   bassP13: doc("bass-ii-summary-report", 13, "BASS-II Summary Report, PDF p.13 (sample geometries, igniter, cameras)"),

@@ -3,7 +3,7 @@
 // UID; conceptual 3D settings are never included, so they cannot be mistaken for NASA data.
 import { ROUTES } from "@/lib/routes";
 
-export type Inv = "PSI-69" | "PSI-25" | "PSI-98";
+export type Inv = "PSI-69" | "PSI-25" | "PSI-98" | "PSI-159" | "PSI-10" | "PSI-20" | "PSI-102" | "PSI-117";
 export type Suggestion = { text: string; href: string };
 export type SuggestionContext = {
   inv: Inv;
@@ -13,7 +13,8 @@ export type SuggestionContext = {
 };
 
 export const MAX_SUGGESTION = 300;
-const SOURCE: Record<Inv, string> = { "PSI-69": "FLEX", "PSI-25": "BASS-II", "PSI-98": "SAFFIRE-I" };
+const SOURCE: Record<Inv, string> = { "PSI-69": "FLEX", "PSI-25": "BASS-II", "PSI-98": "SAFFIRE-I", "PSI-159": "ACME CFI-G",
+  "PSI-10": "ACME Flame Design", "PSI-20": "ACME BRE", "PSI-102": "SAME", "PSI-117": "PSI-117" };
 
 const BASE: Record<Inv, string[]> = {
   "PSI-69": [
@@ -25,6 +26,31 @@ const BASE: Record<Inv, string[]> = {
     "How does airflow direction affect flame spread over solid materials?",
     "Which BASS-II tests have measured spread rates in the Summary Report?",
     "How much CO₂ is produced per O₂ consumed in the BASS-II PMMA tests?",
+  ],
+  "PSI-159": [
+    "Under what conditions did CFI-G observe cool diffusion flames?",
+    "How large were the cool flames compared with the hot flames that spawned them?",
+    "Why must flow-terminated burn times not be read as extinction times?",
+  ],
+  "PSI-10": [
+    "At what temperature do microgravity spherical diffusion flames extinguish?",
+    "What is the difference between a normal and an inverse spherical diffusion flame?",
+    "Why does a microgravity spherical diffusion flame keep growing until it extinguishes?",
+  ],
+  "PSI-20": [
+    "What does the Burning Rate Emulator actually emulate?",
+    "At which oxygen levels did BRE flames burn steadily, and what happened at 21% O₂?",
+    "Why is BRE not a direct material flammability test?",
+  ],
+  "PSI-102": [
+    "How do smoke particle sizes change with aging in microgravity?",
+    "Which materials produced the smallest smoke particles, and why does that matter for smoke detectors?",
+    "How does the moment method estimate particle size from the SAME instruments?",
+  ],
+  "PSI-117": [
+    "What is a three-stage cool-flame burn of an n-dodecane droplet?",
+    "How do modelled and measured cool-flame extinction diameters compare with pressure?",
+    "Why is the PSI-117 model not a validated 3D CFD simulation?",
   ],
   "PSI-98": [
     "Why is large-scale spacecraft fire testing important?",

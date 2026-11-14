@@ -18,6 +18,7 @@ import { ScientificNotice } from "@/components/scientific-notice";
 import { NOTICES } from "@/lib/scientific-notices";
 import { Callout, Field, inputCls, Loadable, PageHeader, Prov, Segmented } from "@/components/ui";
 import { expHref, fmt, qs, useApi } from "@/lib/api";
+import Psi117Section, { Flex2Context } from "@/components/views/Psi117Section";
 
 type MapResp = { points: FlexPoint[]; excluded: { experiment_uid: string; identifier: string; reason: string }[]; n_total: number;
   n_plotted: number; outcome_by_o2_band: { fuel: string; o2_band: string; n: number; outcomes: Record<string, number> }[];
@@ -132,7 +133,7 @@ export default function FlexLabView() {
         source={{ source: "FLEX", inv: "PSI-69" }}
         art={<MediaFigure id="flex-heptane-soot-composite" eager compact aspect="4 / 3" sizes="(min-width: 768px) 340px, 92vw"
           caption="A burning 3 mm heptane droplet in FLEX aboard the ISS (NASA colorized composite of video frames)." />}
-        sections={[{ id: "studio", label: "3D model" }, { id: "conclusions", label: "Key findings" }, { id: "seen", label: "In orbit" }, { id: "data", label: "Explore the data" }, { id: "literature", label: "Literature" }]} />
+        sections={[{ id: "studio", label: "3D model" }, { id: "conclusions", label: "Key findings" }, { id: "seen", label: "In orbit" }, { id: "data", label: "Explore the data" }, { id: "psi117", label: "Cool flames (PSI-117)" }, { id: "literature", label: "Literature" }]} />
       <ScienceStudio sceneId="flex" />
       <div className="h-6" />
       <ScientificConclusions
@@ -249,6 +250,10 @@ export default function FlexLabView() {
             onPointClick={(u) => sel.select(String(u))} /> : <Loadable state={map}>{() => null}</Loadable>}
           <p className="mt-2 text-xs text-text-3">For heptane, the visible flame can go out (radiative extinction) while a cool flame keeps burning, so Dext marks the end of the visible flame, not of burning.</p>
         </Disclosure>
+      </div>
+      <div className="mt-10 flex flex-col gap-5">
+        <Psi117Section />
+        <Flex2Context />
       </div>
       <div className="mt-10 flex flex-col gap-5">
         <LiteraturePanel inv="PSI-69" source="FLEX" query="FLEX droplet combustion microgravity extinction" question="What do the NASA FLEX (PSI-69) sources say about droplet flame extinction in microgravity?" />

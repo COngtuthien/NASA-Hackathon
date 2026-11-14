@@ -1,5 +1,9 @@
 # ACME Dataset Audit: BRE, CFI-G, Flame Design (Phase 13, 2026-11-14)
 
+> **Rename note (Phase 13 implementation, 2026-11-14):** the folder `AMCE Flame Design` described below was renamed to
+> `ACME Flame Design` after verifying its PSI-10 identity; all 14 files kept identical SHA-256 hashes. This audit and
+> its inventory CSV keep the original name as historical evidence. See `docs/PHASE13_IMPLEMENTATION_REPORT.md`.
+
 This is an audit only. Nothing has been integrated. No change was made to frontend, backend, database, model, Gemini
 configuration or NASA source files. No Gemini or paid API was used, and nothing was downloaded. Page references are
 **PDF page indexes** (1-based) unless "printed p." is stated.

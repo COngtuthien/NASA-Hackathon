@@ -348,6 +348,13 @@ function EmptyWorkspace({ onPick }: { onPick: (q: string) => void }) {
   );
 }
 
+// Phase 13 investigations the Copilot can be scoped to (documents and curated tables; no experiments rows).
+const PHASE13_INVS: [string, string, string][] = [
+  ["PSI-159", "Gas cool flames", "ACME CFI-G"], ["PSI-10", "Spherical gas flames", "ACME Flame Design"],
+  ["PSI-20", "Burning emulation", "ACME BRE"], ["PSI-102", "Smoke detection", "SAME"],
+  ["PSI-117", "Cool-flame modelling", "PSI-117"],
+];
+
 export default function AssistantView() {
   const sp = useSearchParams();
   // `q` asks immediately (existing links); `draft` only pre-fills (Interactive Lab): nothing is sent until Ask.
@@ -355,7 +362,7 @@ export default function AssistantView() {
   const [scope, setScope] = useState(sp.get("scope") ?? "internal");
   const [invs, setInvs] = useState<string[]>(() => {
     const inv = sp.get("inv");
-    return inv && PHENOMENA.some((p) => p.inv === inv) ? [inv] : [];
+    return inv && (PHENOMENA.some((p) => p.inv === inv) || PHASE13_INVS.some(([i]) => i === inv)) ? [inv] : [];
   });
   const fromLab = sp.get("from") === "lab";
   const journey = useJourney();
@@ -462,7 +469,8 @@ export default function AssistantView() {
               <fieldset className="text-sm">
                 <legend className="text-text-2">Limit to phenomena (optional)</legend>
                 <div className="mt-1.5 flex flex-col gap-1.5">
-                  {PHENOMENA.map((p) => {
+                  {[...PHENOMENA.map((p) => ({ inv: p.inv as string, short: p.short as string, source: p.source as string })),
+                    ...PHASE13_INVS.map(([inv, short, source]) => ({ inv, short, source }))].map((p) => {
                     const on = invs.includes(p.inv);
                     return (
                       <label key={p.inv} className={`press flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2 ${on ? "border-flame/60 bg-flame/[0.08]" : "border-line-strong/70 hover:border-line-strong"}`}>

@@ -22,10 +22,11 @@ from ..services import retrieval
 from ..services.vectors import LsaIndex
 
 BENCH = Path(__file__).resolve().parents[2] / "tests" / "retrieval_benchmark.jsonl"
+BENCH_PHASE13 = Path(__file__).resolve().parents[2] / "tests" / "retrieval_benchmark_phase13.jsonl"
 
 
-def load_bench() -> list[dict]:
-    return [json.loads(x) for x in BENCH.read_text(encoding="utf-8").splitlines() if x.strip()]
+def load_bench(path: Path = BENCH) -> list[dict]:
+    return [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines() if x.strip()]
 
 
 def relevant_ids(conn, rx: str) -> set[str]:
@@ -74,10 +75,10 @@ def evaluate(fn, bench, rels) -> dict:
             "per_query": per}
 
 
-def run(neural: bool = False) -> dict:
+def run(neural: bool = False, bench_path: Path = BENCH) -> dict:
     s = get_settings()
     conn = connect(s.db_path, readonly=True)
-    bench = load_bench()
+    bench = load_bench(bench_path)
     rels = {b["id"]: relevant_ids(conn, b["rel"]) for b in bench}
     empty = [k for k, v in rels.items() if not v]
     lsa = LsaIndex.load(s.processed_dir)
@@ -101,8 +102,9 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--neural", action="store_true")
     ap.add_argument("--full", action="store_true", help="include per-query metrics")
+    ap.add_argument("--phase13", action="store_true", help="use the Phase 13 benchmark (new investigations)")
     a = ap.parse_args()
-    r = run(a.neural)
+    r = run(a.neural, BENCH_PHASE13 if a.phase13 else BENCH)
     if not a.full:
         for k in ("bm25", "lsa", "hybrid_current", "neural"):
             if isinstance(r.get(k), dict):

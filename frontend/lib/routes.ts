@@ -9,6 +9,8 @@ export const ROUTES = {
   extinction: "/phenomena/flame-extinction",
   spread: "/phenomena/flame-spread",
   spacecraft: "/phenomena/spacecraft-fire",
+  gasflames: "/phenomena/gaseous-flames",
+  smoke: "/phenomena/smoke-detection",
   similar: "/intelligence/similar",
   compare: "/intelligence/compare",
   documents: "/evidence",
@@ -41,6 +43,14 @@ export function canonical(href: string): string {
 }
 
 /** The phenomenon each NASA investigation supports (dataset names stay as source badges). */
+/** Phase 13 sections: investigations whose data live in curated Phase 13 datasets (not the experiments table). */
+export const NEW_SECTIONS = [
+  { invs: ["PSI-159", "PSI-10", "PSI-20"], href: ROUTES.gasflames, title: "Gaseous Flame Dynamics", short: "Gaseous flames",
+    source: "ACME CFI-G · Flame Design · BRE", scale: "Centimetre gas flames", system: "Gas-fed porous burners" },
+  { invs: ["PSI-102"], href: ROUTES.smoke, title: "Smoke & Fire Detection", short: "Smoke detection",
+    source: "SAME", scale: "Sub-micron smoke particles", system: "Overheated materials (pre-flaming)" },
+] as const;
+
 export const PHENOMENA = [
   { inv: "PSI-69", dataset: "flex", source: "FLEX", href: ROUTES.extinction, title: "Flame Extinction & Burning Dynamics",
     short: "Flame extinction", scale: "Droplet scale", system: "Liquid fuel droplets" },

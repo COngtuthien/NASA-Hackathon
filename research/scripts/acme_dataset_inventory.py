@@ -1,7 +1,8 @@
 """Build docs/ACME_DATASET_INVENTORY.csv for the 2026-11-14 ACME dataset audit (Phase 13).
 
-Read-only over the three downloaded ACME folders (exact on-disk names, including the misspelled
-'AMCE Flame Design'). Walks every file, hashes it, lists every ZIP member without extracting it,
+Read-only over the three downloaded ACME folders. Phase 13 renamed the misspelled 'ACME Flame Design' folder to
+'ACME Flame Design' (hash-verified, see docs/PHASE13_IMPLEMENTATION_REPORT.md); the committed CSV from the original
+audit keeps the old paths as historical evidence, and re-running this script writes the corrected paths. Walks every file, hashes it, lists every ZIP member without extracting it,
 tests each member of the damaged drawing archives for readability, and attaches the content-based
 classification established in docs/ACME_DATASET_AUDIT.md. Categories come from inspected contents;
 the rules below map each inspected file (or family of identical-format files) to that finding.
@@ -20,7 +21,7 @@ import zipfile
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT = os.path.join(ROOT, 'docs', 'ACME_DATASET_INVENTORY.csv')
-FOLDERS = {'ACME BRE': 'PSI-20', 'ACME CFI-G': 'PSI-159', 'AMCE Flame Design': 'PSI-10'}
+FOLDERS = {'ACME BRE': 'PSI-20', 'ACME CFI-G': 'PSI-159', 'ACME Flame Design': 'PSI-10'}
 
 NO_MARK = 'No restriction marking found in text layer'
 DRAWING = ('Image-only engineering drawing; markings not machine-verifiable (2 sampled had none visible); '
@@ -32,16 +33,16 @@ DUPLICATES = {
         'exact: ACME BRE Data interpretation.zip::ACME Data interpretation/ACME non-imaging data file description 20170217.pdf',
     'ACME BRE/ACME-DOC-010_D.pdf': 'exact: ACME BRE Data interpretation.zip::ACME Data interpretation/ACME-DOC-010_D.pdf',
     'ACME BRE/ACME_Science_Operation_Requirements_revA_20111018.pdf':
-        'exact: AMCE Flame Design/PSI-10_Science Documents_ACME_SORD.pdf',
-    'AMCE Flame Design/PSI-10_Science Documents_ACME_SORD.pdf':
+        'exact: ACME Flame Design/PSI-10_Science Documents_ACME_SORD.pdf',
+    'ACME Flame Design/PSI-10_Science Documents_ACME_SORD.pdf':
         'exact: ACME BRE/ACME_Science_Operation_Requirements_revA_20111018.pdf',
     'ACME BRE/ACME_Integrated_Science_Requirements_RevB.pdf':
-        'text-identical (110 p): AMCE Flame Design/PSI-10_Science Documents_ACME_ISRD.pdf',
-    'AMCE Flame Design/PSI-10_Science Documents_ACME_ISRD.pdf':
+        'text-identical (110 p): ACME Flame Design/PSI-10_Science Documents_ACME_ISRD.pdf',
+    'ACME Flame Design/PSI-10_Science Documents_ACME_ISRD.pdf':
         'text-identical (110 p): ACME BRE/ACME_Integrated_Science_Requirements_RevB.pdf',
     'ACME CFI-G/PSI-159_Engineering Documents_ACME Engineering Implementation Rpt.pdf':
-        'exact: AMCE Flame Design/PSI-10_Engineering Documents_ACME Engineering Implementation Rpt.pdf',
-    'AMCE Flame Design/PSI-10_Engineering Documents_ACME Engineering Implementation Rpt.pdf':
+        'exact: ACME Flame Design/PSI-10_Engineering Documents_ACME Engineering Implementation Rpt.pdf',
+    'ACME Flame Design/PSI-10_Engineering Documents_ACME Engineering Implementation Rpt.pdf':
         'exact: ACME CFI-G/PSI-159_Engineering Documents_ACME Engineering Implementation Rpt.pdf',
     'ACME BRE/ACME_engineering_20210328.pdf':
         'earlier version (95 p, 2021-03-28) of the 102-page ACME Engineering Implementation report in CFI-G/FD',
@@ -197,42 +198,42 @@ rule(r'^ACME CFI-G/.*Representative Image', 'Images', 'CFI-G', 'viewed (364x364 
      'File name says cool flames; image shows a bright luminous yellow-white flame, inconsistent with the report\'s '
      'cool-flame imagery (intensified, non-luminous). No caption source', 'Do not label as a cool flame without a source',
      'PSI representative image; caption not verifiable locally')
-# ---------------- AMCE Flame Design (PSI-10)
-rule(r'^AMCE Flame Design/.*Experimental table_Flame Design_Normal', 'Experimental tables', 'Flame Design',
+# ---------------- ACME Flame Design (PSI-10)
+rule(r'^ACME Flame Design/.*Experimental table_Flame Design_Normal', 'Experimental tables', 'Flame Design',
      'parsed in full (207 rows x 15 cols)',
      'Per-test normal flame CONDITIONS only: fuel (C2H4/C3H8), Xfuel, mfuel, mN2, mtot, XO2 init/final, p init/final/mean, '
      'Zst, Tad. 60 ramped tests marked RAMP/RAMPED. No outcomes', 'Condition-space maps; join key for future outcomes')
-rule(r'^AMCE Flame Design/.*Experimental table_Flame Design_Inverse', 'Experimental tables', 'Flame Design',
+rule(r'^ACME Flame Design/.*Experimental table_Flame Design_Inverse', 'Experimental tables', 'Flame Design',
      'parsed in full (120 rows x 14 cols)',
      'Per-test inverse flame CONDITIONS only: XO2, mO2, mN2, mtot, XC2H4 init/final, p, Zst, Tad; RAMP / LOW O2 markers',
      'Condition-space maps')
-rule(r'^AMCE Flame Design/PSI-10_metadata.*\.zip$', 'Metadata', 'Flame Design', 'entries listed; extracted to temp workspace',
+rule(r'^ACME Flame Design/PSI-10_metadata.*\.zip$', 'Metadata', 'Flame Design', 'entries listed; extracted to temp workspace',
      'ISA-Tab archive', 'Identity, objectives, 33 publications')
-rule(r'^AMCE Flame Design/PSI-10_metadata.*::i_Investigation', 'Metadata', 'Flame Design', 'read in full',
+rule(r'^ACME Flame Design/PSI-10_metadata.*::i_Investigation', 'Metadata', 'Flame Design', 'read in full',
      'PSI-10 "ACME / Flame Design", DOI 10.60555/w4zy-bt45, ISS/CIR, 1999-01-14..2025-04-30, PI R. Axelbaum',
      'RAG metadata')
-rule(r'^AMCE Flame Design/PSI-10_Reports_FinalRpt', 'Scientific reports', 'Flame Design', 'text extracted (109 p)',
+rule(r'^ACME Flame Design/PSI-10_Reports_FinalRpt', 'Scientific reports', 'Flame Design', 'text extracted (109 p)',
      'Flame Design Final Report 2023: Table 1 flames per test day (p24), paper abstracts with critical extinction '
      'temperature 1130 K and extinction mass fluxes (p25-27), data appendix (p93)', 'RAG (primary)')
-rule(r'^AMCE Flame Design/PSI-10_Reports_TaskbookPubsList', 'Publications', 'Flame Design', 'text extracted (3 p)',
+rule(r'^ACME Flame Design/PSI-10_Reports_TaskbookPubsList', 'Publications', 'Flame Design', 'text extracted (3 p)',
      'NASA Task Book publication list (Feb 2023)', 'Citation list')
-rule(r'^AMCE Flame Design/PSI-10_Reports_TaskbookRpts', 'Scientific reports', 'Flame Design', 'text extracted (45 p)',
+rule(r'^ACME Flame Design/PSI-10_Reports_TaskbookRpts', 'Scientific reports', 'Flame Design', 'text extracted (45 p)',
      'NASA Task Book annual progress reports', 'RAG (history, interim findings)')
-rule(r'^AMCE Flame Design/PSI-10_Science Documents_ACME_ISRD', 'Scientific reports', 'ACME-wide', 'text extracted (110 p)',
+rule(r'^ACME Flame Design/PSI-10_Science Documents_ACME_ISRD', 'Scientific reports', 'ACME-wide', 'text extracted (110 p)',
      'ACME ISRD Rev B (same text as BRE-folder copy)', 'RAG')
-rule(r'^AMCE Flame Design/PSI-10_Science Documents_ACME_SORD', 'Scientific reports', 'ACME-wide', 'text extracted (45 p)',
+rule(r'^ACME Flame Design/PSI-10_Science Documents_ACME_SORD', 'Scientific reports', 'ACME-wide', 'text extracted (45 p)',
      'ACME SORD (exact duplicate of BRE-folder copy)', 'RAG')
-rule(r'^AMCE Flame Design/PSI-10_Science Documents_SRD', 'Scientific reports', 'Flame Design', 'text extracted (39 p)',
+rule(r'^ACME Flame Design/PSI-10_Science Documents_SRD', 'Scientific reports', 'Flame Design', 'text extracted (39 p)',
      'Flame Design Science Requirements Document (2010)', 'RAG (objectives, theory)')
-rule(r'^AMCE Flame Design/PSI-10_Engineering Documents', 'Configuration and engineering documentation', 'ACME-wide',
+rule(r'^ACME Flame Design/PSI-10_Engineering Documents', 'Configuration and engineering documentation', 'ACME-wide',
      'text extracted (102 p)', 'ACME Engineering Implementation report (exact duplicate of CFI-G copy)', 'Hardware context')
-rule(r'^AMCE Flame Design/.*Flame Stages', 'Images', 'Flame Design', 'viewed (574x575 px)',
+rule(r'^ACME Flame Design/.*Flame Stages', 'Images', 'Flame Design', 'viewed (574x575 px)',
      '3x3 composite of spherical flames (blue to sooty yellow); no caption, conditions or test IDs',
      'Illustrative imagery only, labelled "representative"', 'PSI representative image; caption not documented')
-rule(r'^AMCE Flame Design/.*In Space flame', 'Images', 'Flame Design', 'viewed (1094x804 px)',
+rule(r'^ACME Flame Design/.*In Space flame', 'Images', 'Flame Design', 'viewed (1094x804 px)',
      'Flame on/near a spherical burner with bright streaks; no caption', 'Illustrative only',
      'PSI representative image; caption not documented')
-rule(r'^AMCE Flame Design/.*(Hardware|CIR support)', 'Images', 'Flame Design / ACME-wide', 'viewed',
+rule(r'^ACME Flame Design/.*(Hardware|CIR support)', 'Images', 'Flame Design / ACME-wide', 'viewed',
      'Hardware photo (spherical porous burner, igniter) / astronaut at the CIR', 'Context imagery',
      'PSI representative image')
 rule(r'::s_PSI-[0-9]+\.txt$', 'Metadata', '-', 'read in full', 'Placeholder sample file ("Do not use this")', 'None')

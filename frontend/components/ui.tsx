@@ -11,6 +11,13 @@ const PSI_URL: Record<string, string> = {
   "PSI-69": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69",
   "PSI-25": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
   "PSI-98": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-98",
+  "PSI-159": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-159",
+  "PSI-10": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-10",
+  "PSI-20": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-20",
+  "PSI-102": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-102",
+  "PSI-117": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-117",
+  "PSI-68": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-68",
+  "PSI-62": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-62",
 };
 
 /** Attribution chip: which NASA investigation a view or value comes from. */

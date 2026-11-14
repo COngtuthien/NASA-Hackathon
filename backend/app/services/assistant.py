@@ -34,7 +34,20 @@ INVESTIGATION_WORDS = {
     "PSI-25": ("bass", "bass-ii", "pmma", "glovebox", "nomex", "sibal strip", "msg"),
     "PSI-98": ("saffire", "cygnus", "large-scale", "spacecraft fire experiment"),
 }
-INV_SHORT = {"PSI-69": "FLEX", "PSI-25": "BASS-II", "PSI-98": "SAFFIRE-I"}
+# Phase 13 investigations: matched with word boundaries (e.g. 'psi-10' must not match 'psi-102', 'bre' not 'break').
+NEW_INVESTIGATION_RE = {
+    "PSI-117": re.compile(r"\b(psi-117|farouk|three-stage cool|cool[- ]flame dynamics)\b", re.I),
+    "PSI-102": re.compile(r"\b(psi-102|smoke aerosol|same experiment|smoke particles?|smoke detect\w*|particle sizes?)\b", re.I),
+    "PSI-68": re.compile(r"\b(flex-2|psi-68)\b", re.I),
+    "PSI-62": re.compile(r"\b(psi-62|flamelet|two-color tomography)\b", re.I),
+    "PSI-159": re.compile(r"\b(psi-159|cfi-g|cool flames investigation with gases|gas-fueled cool|cool diffusion flames?)\b", re.I),
+    "PSI-10": re.compile(r"\b(psi-10|acme flame design|flame design|spherical diffusion flames?|inverse flames?)\b", re.I),
+    "PSI-20": re.compile(r"\b(psi-20|burning rate emulator|acme bre|emulat\w*)\b", re.I),
+}
+INV_SHORT = {"PSI-69": "FLEX", "PSI-25": "BASS-II", "PSI-98": "SAFFIRE-I", "PSI-117": "PSI-117", "PSI-102": "SAME",
+             "PSI-68": "FLEX-2", "PSI-62": "PSI-62", "PSI-159": "ACME CFI-G", "PSI-10": "ACME Flame Design",
+             "PSI-20": "ACME BRE"}
+KNOWN_INVESTIGATIONS = set(INV_SHORT)
 LITERATURE_RE = re.compile(r"\b(paper|papers|publication|publications|literature|study|studies|article|journal|"
                            r"recent|latest|research on|doi|cited|citation|reference)\b", re.I)
 COUNT_RE = re.compile(r"\b(how many|count|number of|distribution)\b", re.I)
@@ -85,7 +98,7 @@ ANSWER_SCHEMA = {
 }
 
 SYSTEM_PROMPT = """You are SpaceFire AI, a scientific research assistant for NASA microgravity combustion data \
-(FLEX liquid droplets PSI-69, BASS-II solid samples PSI-25, SAFFIRE-I large-scale fabric fire PSI-98).
+(FLEX liquid droplets PSI-69, BASS-II solid samples PSI-25, SAFFIRE-I large-scale fabric fire PSI-98; and, from documents and curated report tables: ACME CFI-G gaseous cool flames PSI-159, ACME Flame Design PSI-10, ACME Burning Rate Emulator PSI-20, SAME smoke particles PSI-102, PSI-117 cool-flame droplet modelling, FLEX-2 PSI-68, PSI-62).
 
 You answer ONLY from the evidence pack in the user message. Rules:
 - Every claim must cite one or more citation_ids that exist in the evidence pack. Never invent ids, pages, DOIs, \
@@ -113,6 +126,7 @@ def _detect_investigations(q: str, explicit: list[str] | None) -> list[str]:
         return explicit
     ql = q.lower()
     found = [inv for inv, words in INVESTIGATION_WORDS.items() if any(w in ql for w in words)]
+    found += [inv for inv, rx in NEW_INVESTIGATION_RE.items() if rx.search(q)]
     return found
 
 
@@ -251,8 +265,8 @@ def validate_request(question: str, source_scope: str, investigations: list[str]
         raise bad_request("Question too long (max 1000 characters).")
     if source_scope not in ("internal", "external", "both"):
         raise bad_request("source_scope must be internal, external or both")
-    if investigations and any(i not in {"PSI-69", "PSI-25", "PSI-98"} for i in investigations):
-        raise bad_request("investigations must be PSI-69, PSI-25 or PSI-98")
+    if investigations and any(i not in KNOWN_INVESTIGATIONS for i in investigations):
+        raise bad_request("investigations must be one of " + ", ".join(sorted(KNOWN_INVESTIGATIONS)))
     return question
 
 
