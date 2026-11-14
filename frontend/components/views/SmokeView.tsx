@@ -3,7 +3,7 @@
 // Phase 13: Smoke & Fire Detection (SAME, PSI-102). Report-derived particle sizes (Table 1, verified), the 47-test
 // flight log (Appendix A, verified), instrument explanations, and the Smoke Detection Studio (conceptual 3D).
 // Raw 1 Hz telemetry is inventoried but not plotted: its semantics are unresolved (see the deferred notice).
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { AskSuggestions } from "@/components/ask-suggestions";
 import { Disclosure } from "@/components/disclosure";
 import { DocLink, EvidenceTag, type EvidenceKind } from "@/components/evidence-tag";
@@ -49,10 +49,13 @@ const PARTS: Record<string, { title: string; kind: EvidenceKind; text: string }>
   iss: { title: "ISS smoke detector", kind: "guided", text: "Light-scattering (laser-diode) detector, most sensitive to larger particles; the authors report reduced detection performance for Kapton and Teflon smoke (ICES 2013, slide 28)." },
 };
 
-function SmokeStudio({ data }: { data: SameResp | null }) {
+const noSubscribe = () => () => {};
+
+function SmokeStudio({ data, initialMaterial }: { data: SameResp | null; initialMaterial: string }) {
   const [stage, setStage] = useState(1);
   const [aged, setAged] = useState(false);
-  const [material, setMaterial] = useState("kapton");
+  const [materialChoice, setMaterial] = useState<string | null>(null);
+  const material = materialChoice ?? initialMaterial;
   const [labels, setLabels] = useState(true);
   const [animate, setAnimate] = useState(true);
   const [selected, setSelected] = useState<string | null>(null);
@@ -107,7 +110,13 @@ function SmokeStudio({ data }: { data: SameResp | null }) {
 
 export default function SmokeView() {
   const d = useApi<SameResp>("/smoke/same");
-  const [mat, setMat] = useState("kapton");
+  // ?material= (e.g. from the Research-to-Safety Explorer) preselects a Table 1 material; anything else is ignored.
+  // Read without useSearchParams so the page stays statically prerendered (the server snapshot is the default).
+  const search = useSyncExternalStore(noSubscribe, () => window.location.search, () => "");
+  const urlMat = new URLSearchParams(search).get("material");
+  const initialMaterial = MATERIALS.some(([m]) => m === urlMat) ? (urlMat as string) : "kapton";
+  const [matChoice, setMat] = useState<string | null>(null);
+  const mat = matChoice ?? initialMaterial;
   const [logSample, setLogSample] = useState("");
   const charts = useMemo(() => {
     if (!d.data) return null;
@@ -131,7 +140,7 @@ export default function SmokeView() {
         lead={<>Before a spacecraft fire flames, overheated materials make smoke. SAME measured how big those smoke particles are in microgravity, how they grow as smoke ages, and which spacecraft smoke detectors notice them.</>}
         source={{ source: "SAME", inv: "PSI-102" }}
         sections={[{ id: "studio", label: "3D studio" }, { id: "sizes", label: "Particle sizes" }, { id: "log", label: "Flight log" }, { id: "instruments", label: "Instruments" }, { id: "limits", label: "Limits" }]} />
-      <SmokeStudio data={d.data} />
+      <SmokeStudio data={d.data} initialMaterial={initialMaterial} />
       <div className="h-8" />
       <Loadable state={d} rows={8}>{(x) => (
         <div className="flex flex-col gap-5">

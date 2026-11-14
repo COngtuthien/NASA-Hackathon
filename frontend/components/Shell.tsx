@@ -14,6 +14,7 @@ type NavItem = { href: string; label: string; icon: string; source?: string; mat
 export const NAV: { group: string; items: NavItem[] }[] = [
   { group: "Discover", items: [
     { href: ROUTES.mission, label: "Home", icon: "overview" },
+    { href: ROUTES.safety, label: "Research-to-Safety Explorer", icon: "compass" },
     { href: ROUTES.copilot, label: "Research Copilot", icon: "assistant" },
     { href: ROUTES.explorer, label: "Combustion Explorer", icon: "experiments" },
   ] },

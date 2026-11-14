@@ -8,6 +8,8 @@ export const EVIDENCE = {
   report: { label: "Report statement", cls: "border-link/60 text-link", note: "Stated in a NASA report (page cited); per-test values not available." },
   literature: { label: "Literature value", cls: "border-dashed border-text-2 text-text-2", note: "Quoted from the literature in a NASA report; not measured in this experiment." },
   log: { label: "Operational log", cls: "border-text-2/60 text-text-2", note: "What was run and when (counts, dates)." },
+  passage: { label: "NASA document passage", cls: "border-text-2/60 text-text-2", note: "Text retrieved from an indexed NASA document; open the page to read it in context." },
+  metadata: { label: "Metadata only", cls: "border-dashed border-text-3 text-text-3", note: "Only investigation metadata was downloaded: no measurements or model output." },
   guided: { label: "Evidence-guided concept", cls: "border-flame/70 text-flame", note: "Arrangement or behaviour documented in a NASA source; drawn shape is illustrative." },
   illustration: { label: "Educational illustration", cls: "border-dashed border-text-3 text-text-3", note: "Shape, colour, size or motion chosen for clarity; not from data." },
 } as const;

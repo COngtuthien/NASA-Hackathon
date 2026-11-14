@@ -1,5 +1,29 @@
 # SpaceFire AI — Implementation Status
 
+## Phase 14 — Research-to-Safety Explorer, Knowledge Graph & Evidence-Aware Copilot (branch `feature/spacefire-phase14-safety-explorer`, 2026-11-14): COMPLETE (with the limits listed)
+Base `33b8478` (latest Phase 13). Rollback: `backup/spacefire-before-phase14`.
+- Done:
+  - SQLite knowledge graph (1,588 nodes, 7,223 provenance-backed edges, 5 required queries, `/graph/*`).
+  - Deterministic ranking with separate relevance, evidence strength and applicability.
+  - Exact condition matching (incomplete vs rejected vs not recorded).
+  - Research-to-Safety Explorer at `/safety-explorer` with 4 scenarios: filters from data, ranked investigations, evidence
+    with classes and sources, interpretation, and chart/3D/experiment deep links.
+  - Copilot handoff (ids only, server-validated).
+  - Copilot classification, a graph evidence tool, a comparison guard, and deterministic abstention without a model call.
+- Tests:
+  - Backend: 255 passed (44 new).
+  - Golden set: 21/21 on every check. Held-out set: type 7/8, abstention 8/8.
+  - Retrieval benchmarks unchanged.
+  - tsc/eslint clean; production build OK.
+  - Browser: 167 desktop passed and 1 skipped (live LLM) across all 17 spec files, run in memory-safe batches; mobile 13/13.
+    Three regressions found and fixed (flaky Phase 13 studio locator, bounded Copilot request, duplicated abstention text).
+    85 desktop tests last ran on the build before the final Copilot-body fix.
+- Not done:
+  - Graph visualization (optional).
+  - Live Gemini check (by design).
+  - Classifier misses "is … joined to …" availability phrasing.
+  - Details: `docs/PHASE14_*.md`.
+
 ## Phase 13 — Scientific Data Integration, Analysis & Interactive 3D (branch `feature/spacefire-phase13-scientific-expansion`, 2026-11-14): PARTIALLY COMPLETE
 Base `4a3b2bc` (Phase 12 + Copilot fix + both audits; linear). Rollback: `backup/spacefire-before-phase13`.
 - Done: ACME folder rename (hash-verified); reproducible processing of all 7 investigations (`app.ingest.phase13`,

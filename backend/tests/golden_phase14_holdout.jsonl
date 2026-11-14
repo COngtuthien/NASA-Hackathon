@@ -1,0 +1,8 @@
+{"id": "h-01", "scenario": "gaseous-flames", "category": "fact", "question": "Which fuels did CFI-G test?", "expect": {"type": "fact", "investigations_any": ["PSI-159"], "structured": true}}
+{"id": "h-02", "scenario": "gaseous-flames", "category": "comparison", "question": "Contrast normal and inverse CFI-G flames.", "expect": {"type": "comparison", "investigations_any": ["PSI-159"], "structured": true}}
+{"id": "h-03", "scenario": "smoke-detection", "category": "fact", "question": "What does the DustTrak measure in SAME?", "expect": {"type": "fact", "investigations_any": ["PSI-102"], "structured": true}}
+{"id": "h-04", "scenario": "droplet-extinction", "category": "availability", "question": "Is PSI-117 data joined to FLEX test rows?", "expect": {"type": "availability", "investigations_any": ["PSI-117"], "structured": true}}
+{"id": "h-05", "scenario": "flame-spread", "category": "interpretation", "question": "Explain why BASS-II imposed a slow airflow on the burning samples.", "expect": {"type": "interpretation", "investigations_any": ["PSI-25"], "structured": true}}
+{"id": "h-06", "scenario": "flame-spread", "category": "unsupported", "question": "Tell me if a new fabric will burn aboard the ISS.", "expect": {"type": "unsupported", "abstain": true}}
+{"id": "h-07", "scenario": "flame-spread", "category": "unsupported", "question": "Estimate the spread rate for all oxygen levels.", "expect": {"type": "unsupported", "abstain": true}}
+{"id": "h-08", "scenario": "gaseous-flames", "category": "interpretation", "question": "Why do Flame Design spherical flames extinguish?", "expect": {"type": "interpretation", "investigations_any": ["PSI-10"], "structured": true}}

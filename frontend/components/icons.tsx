@@ -20,6 +20,7 @@ const P: Record<string, string> = {
   empty: "M4 7h16v12H4zM4 7l2-3h12l2 3M9 12h6",
   chevron: "M9 6l6 6-6 6",
   lab: "M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12L4 7.5",
+  compass: "M12 21a9 9 0 100-18 9 9 0 000 18zM15.5 8.5l-2 5-5 2 2-5 5-2z",
   sphere: "M12 3a9 9 0 100 18 9 9 0 000-18zM12 9a3 3 0 100 6 3 3 0 000-6zM12 15v6",
   smoke: "M6 18h11a4 4 0 00.5-7.97A5.5 5.5 0 007 9.5 4.25 4.25 0 006 18zM8 21h1M12 21h1M16 21h1",
   // Phase 11: immersive studio and collapsible navigation

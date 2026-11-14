@@ -80,7 +80,7 @@ test.describe("SpaceFire AI user journeys", () => {
 
   test("assistant abstains on an operational safety threshold", async ({ page }) => {
     await page.goto(`/assistant?q=${encodeURIComponent("What is the exact safe O2 threshold for an occupied future spacecraft?")}`);
-    await expect(page.getByText(/does not infer one/)).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByText(/does not infer one/).first()).toBeVisible({ timeout: 60_000 });
   });
 
   test("external research lists papers with links, or reports providers unavailable", async ({ page }) => {

@@ -19,6 +19,7 @@ from ..db.database import connect, init_schema, jdumps, transaction
 from ..curation import bass_report, report_consistency
 from . import bass2, documents, flex, linking, saffire
 from .phase13 import load as p13
+from . import kg
 from .common import Flag, now_iso, sha256_file
 
 log = logging.getLogger("spacefire.ingest")
@@ -390,6 +391,8 @@ def run(dry_run: bool = False) -> dict:
         report["source_hashes"] = {e["relative_path"]: e["sha256"] for e in inv}
         conn.execute("INSERT INTO meta VALUES ('ingest_report', ?)", (jdumps(report),))
         conn.execute("INSERT INTO meta VALUES ('ingested_at', ?)", (report["finished_at"],))
+    kg_rep = kg.build(conn)   # Phase 14 knowledge graph, derived from the rows loaded above
+    report["kg"] = {k: kg_rep[k] for k in ("nodes", "edges", "skipped")}
     conn.close()
 
     # build retrieval vectors before swapping the DB in

@@ -26,6 +26,14 @@ SpaceFire AI turns three NASA Physical Sciences Informatics investigations into 
 The NASA source folders for these seven are local-only (not in Git); their verified derivatives are committed in
 `processed/curated/phase13/` and rebuilt with `python -m app.ingest.phase13.run`.
 
+**Phase 14** adds the **Research-to-Safety Explorer** (`/safety-explorer`): start from one of four research scenarios
+(flame spread in spacecraft materials, gaseous flame behavior, early smoke detection, droplet flame extinction), filter
+by conditions present in the data, and get the NASA investigations ranked by a transparent research-relevance score
+(not a fire-risk score), the supporting evidence with its class and source, an interpretation, and links to the charts,
+3D studios and Copilot. It is backed by a provenance-tracked SQLite knowledge graph (`/api/v1/graph/*`), which the
+Copilot also queries; the Copilot now classifies questions and abstains on certification or prediction requests without
+calling the model. See `docs/PHASE14_IMPLEMENTATION_REPORT.md`.
+
 Every number in the UI links back to the CSV row, document page or external record it came from. The investigations
 are different physical systems and are never pooled into one dataset or model.
 
@@ -37,6 +45,7 @@ source badge. Old Phase 1–2 URLs (`/physics/flex`, `/assistant`, `/quality`, .
 | Group | Page | Route | Notes |
 |---|---|---|---|
 | Discover | Home | `/` | A calm start: "Why does fire behave differently in space?" with a real BASS-II flame photographed on the ISS; **Start exploring** opens the optional seven-step Discover SpaceFire journey, **Explore on my own** goes to the three phenomena; then the 3D studios, the Research Copilot (example questions only pre-fill) and how the evidence is checked |
+| | Research-to-Safety Explorer | `/safety-explorer` | Four research scenarios; data-driven filters; deterministic, explainable ranking (relevance, evidence strength, applicability); evidence with class and source; interpretation; chart, 3D and Copilot links |
 | | Research Copilot | `/copilot` | Gemini-written answers (or evidence only) from whitelisted data tools, hybrid document search and optional external literature; every claim's citations and numbers verified in code; live step-by-step progress streamed from the backend; quota-aware fallback |
 | | Combustion Explorer | `/experiments`, `/experiments/{dataset}/{uid}` | Server-side filters/sort/paging, CSV export (normalized or original cells), raw vs parsed values, provenance, flags, report pages |
 | Scientific analysis | Flame Extinction & Burning Dynamics (FLEX) | `/phenomena/flame-extinction` | **Interactive Science Studio** (3D droplet flame: five explained combustion stages, fuel comparison, Earth vs microgravity explained stage by stage, **Compare with NASA** imagery and recorded values, burn timeline, layers, idealized d²-law calculation, guided tour), clickable charts that select a test (record spotlight), condition console, extinction map, outcome bars by O₂ band, d²-law consistency check, Dext/D₀ vs O₂, conclusions, literature |

@@ -370,3 +370,28 @@ CREATE TABLE IF NOT EXISTS p13_values (
   verification TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS ix_p13_val ON p13_values(dataset_id, field);
+
+-- Phase 14: lightweight scientific knowledge graph (built from the tables above by app.ingest.kg).
+-- Every edge names its basis (source_record / report_table / document_catalog / registry_metadata / documented_text)
+-- and a source_ref that points back to the row, page or ISA-Tab field that supports it.
+CREATE TABLE IF NOT EXISTS kg_nodes (
+  node_id TEXT PRIMARY KEY,
+  node_type TEXT NOT NULL,
+  label TEXT NOT NULL,
+  investigation_id TEXT,
+  props_json TEXT NOT NULL DEFAULT '{}'
+);
+CREATE INDEX IF NOT EXISTS ix_kg_nodes_type ON kg_nodes(node_type, investigation_id);
+
+CREATE TABLE IF NOT EXISTS kg_edges (
+  edge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  src TEXT NOT NULL REFERENCES kg_nodes(node_id),
+  rel TEXT NOT NULL,
+  dst TEXT NOT NULL REFERENCES kg_nodes(node_id),
+  basis TEXT NOT NULL,
+  source_ref TEXT NOT NULL,
+  props_json TEXT NOT NULL DEFAULT '{}',
+  UNIQUE(src, rel, dst)
+);
+CREATE INDEX IF NOT EXISTS ix_kg_e_src ON kg_edges(src, rel);
+CREATE INDEX IF NOT EXISTS ix_kg_e_dst ON kg_edges(dst, rel);

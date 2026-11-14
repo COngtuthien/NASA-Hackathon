@@ -26,6 +26,8 @@ type Answer = {
   investigations_detected: string[]; experiments_matched: string[];
   external_providers: Record<string, { status: string; error?: string }> | null; trace_id: string;
   verification?: { rejected: string[]; accepted_claims: number };
+  question_type?: { type: string; label: string; reason: string | null };
+  explorer_context?: { scenario: string; title: string; investigation: string | null; test: string | null; evidence: string[] } | null;
 };
 type Step = { tool: string; args: unknown; running: boolean; ok?: boolean; ms?: number; error?: string };
 
@@ -61,7 +63,8 @@ type Turn = { id: number; q: string; scope: string; res?: Answer; err?: ApiError
 
 const SOURCE_LABEL: Record<string, string> = { experiment: "Experiment rows", analysis: "Computed", quality_flag: "Quality rules",
   local_document: "NASA documents", report_table: "Report tables", external_paper: "External papers",
-  publication_list: "NASA publication lists" };
+  publication_list: "NASA publication lists", graph: "Knowledge graph", curated_record: "Curated NASA records",
+  report_statement: "Report statements", explorer_context: "Explorer context" };
 
 const STATUS: Record<string, { label: string; cls: string; note: string }> = {
   answered: { label: "Answered", cls: "text-ok border-ok/50", note: "All statements passed citation and number checks." },
@@ -204,6 +207,7 @@ function AnswerBlock({ a, onRetry }: { a: Answer; onRetry?: () => void }) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
         <span className={`rounded border px-2 py-0.5 text-sm font-semibold ${st.cls}`}>{st.label}</span>
+        {a.question_type && <span data-testid="question-type" data-type={a.question_type.type} className="rounded border border-line-strong px-2 py-0.5 text-[12.5px] text-text-2">{a.question_type.label}</span>}
         <span className="text-sm text-text-3">{st.note}</span>
       </div>
       {a.llm.configured && !a.llm.error && (a.llm.calls || a.llm.cached) ? (
@@ -373,6 +377,14 @@ export default function AssistantView() {
   const auto = useRef(false);
   const seq = useRef(0);
   const ctxUid = sp.get("uid");
+  // Research-to-Safety Explorer handoff: only ids travel; the server resolves and validates every one of them.
+  const exScenario = sp.get("scenario");
+  const exInv = sp.get("inv");
+  const explorerCtx = exScenario && /^[a-z-]{3,40}$/.test(exScenario) ? {
+    scenario: exScenario, investigation: exInv && /^PSI-\d{1,4}$/.test(exInv) ? exInv : null,
+    test: sp.get("test")?.slice(0, 80) || null,
+    evidence: (sp.get("evidence") ?? "").split(",").filter(Boolean).slice(0, 5) } : null;
+  const [useCtx, setUseCtx] = useState(true);
 
   async function ask(question: string) {
     const text = question.trim();
@@ -390,7 +402,9 @@ export default function AssistantView() {
     const id = ++seq.current;
     const patch = (f: (x: Turn) => Turn) => setTurns((t) => t.map((x) => (x.id === id ? f(x) : x)));
     setTurns((t) => [{ id, q: text, scope, steps: [] }, ...t]);
-    const body = { question: text, source_scope: scope, investigations: invs, context_experiment_uids: ctxUid ? [ctxUid] : [] };
+    // explorer_context is added only when the page was opened from the Explorer: requests stay bounded otherwise.
+    const body = { question: text, source_scope: scope, investigations: invs, context_experiment_uids: ctxUid ? [ctxUid] : [],
+      ...(explorerCtx && useCtx ? { explorer_context: explorerCtx } : {}) };
     const onEvent = (ev: Record<string, unknown>) => {
       alive();
       if (ev.event === "tool_start") {
@@ -489,7 +503,17 @@ export default function AssistantView() {
                   <p className="mt-0.5">Draft question only: edit it, then press Ask. Sent with it: {invs.length ? `investigation filter ${invs.join(", ")}` : "no investigation filter"}{ctxUid ? ` and experiment ${ctxUid}` : ""}.{labTopic ? ` “${labTopic.slice(0, 60)}” is a conceptual component and appears only in the question text.` : ""} Lab slider positions are never sent.</p>
                 </div>
               )}
-              {!fromLab && sp.get("draft") && (
+              {explorerCtx && (
+                <div className="rounded-lg border border-flame/40 bg-flame/[0.05] px-3 py-2 text-[12.5px] text-text-2" data-testid="explorer-context">
+                  <p className="font-medium text-text">From the Research-to-Safety Explorer</p>
+                  <p className="mt-0.5">Draft question only: nothing has been sent. With it goes the scenario <b className="text-text">{explorerCtx.scenario.replace(/-/g, " ")}</b>
+                    {explorerCtx.investigation ? <>, investigation <b className="text-text">{explorerCtx.investigation}</b></> : null}
+                    {explorerCtx.test ? <>, test <b className="text-text">{explorerCtx.test}</b></> : null}
+                    {explorerCtx.evidence.length ? <> and {explorerCtx.evidence.length} selected evidence item(s)</> : null}. SpaceFire looks these up in its own database; their limitations are added to the evidence.</p>
+                  <label className="mt-1.5 inline-flex items-center gap-1.5"><input type="checkbox" checked={useCtx} onChange={(e) => setUseCtx(e.target.checked)} data-testid="explorer-context-toggle" />Send this Explorer context</label>
+                </div>
+              )}
+              {!fromLab && !explorerCtx && sp.get("draft") && (
                 <p className="rounded-lg border border-electric/40 bg-electric/[0.06] px-3 py-2 text-[12.5px] text-text-2" data-testid="draft-context">
                   Draft question only: nothing has been sent. Edit it if you like; AI generation begins only when you press Ask.
                 </p>

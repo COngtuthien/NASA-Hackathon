@@ -189,12 +189,16 @@ test("Smoke Detection Studio: six stages, labels and scene switching without lea
   await page.getByTestId("labels-toggle").click();
   await expect(page.getByTestId("labels-toggle")).toHaveAttribute("aria-pressed", "false");
   // switch between the two studio pages client-side: never more than one live canvas
+  // Scope to the destination studio: during a client-side navigation the outgoing page's studio can still be in the
+  // DOM for a moment, and an unscoped locator may grab it just before it detaches.
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: /Gaseous Flame Dynamics/ }).click();
-  await page.getByTestId("lite-canvas-host").scrollIntoViewIfNeeded();
-  await expect(page.getByTestId("lite-canvas-host").locator("canvas")).toBeVisible({ timeout: 60_000 });
+  const gasHost = page.locator('[data-studio="gas"]').getByTestId("lite-canvas-host");
+  await gasHost.scrollIntoViewIfNeeded();
+  await expect(gasHost.locator("canvas")).toBeVisible({ timeout: 60_000 });
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: /Smoke & Fire Detection/ }).click();
-  await page.getByTestId("lite-canvas-host").scrollIntoViewIfNeeded();
-  await expect(page.getByTestId("lite-canvas-host").locator("canvas")).toBeVisible({ timeout: 60_000 });
+  const smokeHost = page.locator('[data-studio="smoke"]').getByTestId("lite-canvas-host");
+  await smokeHost.scrollIntoViewIfNeeded();
+  await expect(smokeHost.locator("canvas")).toBeVisible({ timeout: 60_000 });
   await expect.poll(async () => (await stats(page))?.live ?? 99).toBeLessThanOrEqual(1);
   const s = (await stats(page))!;
   expect(s.disposed).toBeGreaterThanOrEqual(s.mounts - 1);
