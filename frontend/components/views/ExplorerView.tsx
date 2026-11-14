@@ -1,12 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { DUR, EASE, motion } from "@/components/motion";
-import { PHENOMENA } from "@/lib/routes";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Button, Empty, Field, FilterChips, inputCls, Kind, Loadable, PageHeader, Pager, Panel, Severity } from "@/components/ui";
-import { DATASETS, expHref, fmt, useApi, useDraft } from "@/lib/api";
+import { expHref, fmt, useApi, useDraft } from "@/lib/api";
+import { StartExploreButton } from "@/components/demo/DemoBar";
+import type { DemoScenario } from "@/lib/demo";
+import CollectionBrowser from "@/components/views/combustion/CollectionBrowser";
+import DomainPicker from "@/components/views/combustion/DomainPicker";
+import InvestigationProfile from "@/components/views/combustion/InvestigationProfile";
+
+/** The three original investigations keep their full experiment table (Phases 1-12); the others are Phase 16 collections. */
+const ORIGINAL = ["flex", "bass2", "saffire1"];
+/** The Research-to-Safety scenario (and guided-exploration journey) that matches each collection's domain. */
+const SCENARIO_OF: Record<string, DemoScenario> = { flex: "droplet-extinction", psi117: "droplet-extinction", flex2: "droplet-extinction",
+  cfig: "gaseous-flames", flame_design: "gaseous-flames", bre: "gaseous-flames", bass2: "flame-spread", psi62: "flame-spread",
+  saffire1: "flame-spread", same_log: "smoke-detection", same_sizes: "smoke-detection" };
 
 type FieldDef = { name: string; label: string; kind: string; unit: string | null; role: string; source_header: string | null; note: string | null };
 type Item = {
@@ -49,7 +59,8 @@ export default function ExplorerView() {
   const setSelected = (fn: (s: string[]) => string[]) => setSel({ ds: dataset, list: fn(selected) });
 
   const apiPath = `/experiments?${new URLSearchParams({ ...Object.fromEntries([...sp.entries()].filter(([k]) => !VIEW_KEYS.has(k))), dataset }).toString()}`;
-  const list = useApi<ListResp>(apiPath);
+  const isOriginal = ORIGINAL.includes(dataset);
+  const list = useApi<ListResp>(isOriginal ? apiPath : null);
 
   function update(patch: Record<string, string | null>, resetPage = true) {
     const next = new URLSearchParams(sp.toString());
@@ -97,25 +108,18 @@ export default function ExplorerView() {
 
   return (
     <>
-      <PageHeader kicker="Experiments" title="Combustion Explorer"
-        lead="Browse every NASA test. Open one to see all its recorded values, or tick two to five to compare them." />
+      <PageHeader kicker="Experiments & evidence" title="Combustion & Fire Science Explorer"
+        lead="Explore NASA experiments, scientific measurements and research evidence."
+        actions={<StartExploreButton scenario={SCENARIO_OF[dataset] ?? "gaseous-flames"} />} />
 
-      <div role="tablist" aria-label="Investigation" className="mb-5 grid gap-2 sm:grid-cols-3">
-        {DATASETS.map((d) => {
-          const ph = PHENOMENA.find((p) => p.dataset === d.key);
-          const on = dataset === d.key;
-          return (
-            <button key={d.key} role="tab" aria-selected={on} onClick={() => switchDataset(d.key)}
-              className={`press relative rounded-xl border px-4 py-3 text-left ${on ? "border-flame/70 text-text" : "border-line-strong/70 text-text-2 hover:border-line-strong hover:text-text"}`}>
-              {on && <motion.span layoutId="explorer-ds" aria-hidden className="absolute inset-0 rounded-xl bg-[linear-gradient(135deg,color-mix(in_srgb,var(--flame)_14%,transparent),color-mix(in_srgb,var(--raised)_60%,transparent))]"
-                transition={{ duration: DUR.base, ease: EASE }} />}
-              <span className="relative block text-[15px] font-semibold">{ph?.title ?? d.system}</span>
-              <span className="relative mt-0.5 block text-[12.5px] text-text-3">{d.label} · {d.system}</span>
-            </button>
-          );
-        })}
-      </div>
+      <DomainPicker current={dataset} onPick={switchDataset} />
 
+      {!isOriginal ? (dataset === "psi62" ? (
+        <div className="flex flex-col gap-3" data-testid="profile-only">
+          <p className="rounded-lg border border-dashed border-text-3 px-3 py-2 text-[13.5px] text-text-2" data-testid="evidence-badge">Metadata only: PSI-62 has no downloaded measurements or model output. Its profile and publications are below.</p>
+          <InvestigationProfile inv="PSI-62" />
+        </div>
+      ) : <CollectionBrowser key={dataset} dataset={dataset} />) : (
       <div className="grid gap-5 lg:grid-cols-[260px_1fr]">
         <Panel title="Filters" aside={activeFilters.length ? <button className="text-link" onClick={() => switchDataset(dataset)}>Reset</button> : undefined}>
           <form onSubmit={(e) => { e.preventDefault(); update({ q: qDraft.trim() || null }); }} className="mb-4">
@@ -295,6 +299,7 @@ export default function ExplorerView() {
           </Loadable>
         </div>
       </div>
+      )}
     </>
   );
 }

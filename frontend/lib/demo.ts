@@ -4,7 +4,9 @@
 import { useSyncExternalStore } from "react";
 
 export type DemoScenario = "gaseous-flames" | "smoke-detection" | "droplet-extinction" | "flame-spread";
-export type DemoState = { active: boolean; step: number; scenario: DemoScenario };
+/** "demo": the five-step presentation (Phase 15). "explore": the six-step Combustion Explorer guide (Phase 16). */
+export type DemoMode = "demo" | "explore";
+export type DemoState = { active: boolean; step: number; scenario: DemoScenario; mode?: DemoMode };
 
 export const DEMO_STEPS = [
   { n: 1, title: "The challenge" },
@@ -13,6 +15,37 @@ export const DEMO_STEPS = [
   { n: 4, title: "Interactive 3D exploration" },
   { n: 5, title: "Ask Research Copilot" },
 ] as const;
+
+export const EXPLORE_STEPS = [
+  { n: 1, title: "Choose a scientific domain" },
+  { n: 2, title: "Choose a dataset" },
+  { n: 3, title: "Explore records and filters" },
+  { n: 4, title: "Inspect a record and its source" },
+  { n: 5, title: "View the chart or 3D studio" },
+  { n: 6, title: "Continue to Research Copilot" },
+] as const;
+
+/** Combustion Explorer guide per scenario: real collections, a real filter, a real record (all exist in SpaceFire). */
+export const EXPLORE: Record<DemoScenario, { domain: string; dataset: string; filtered: string; record: string; viz: { label: string; href: string };
+  test?: string; notes: Record<number, string> }> = {
+  "gaseous-flames": { domain: "Gaseous Flame Dynamics", dataset: "cfig", filtered: "/experiments?dataset=cfig&f_configuration=normal&f_fuel_species=n-butane",
+    record: "/experiments/cfig/cfig%3Anormal%3A21174C3", viz: { label: "CFI-G charts", href: "/phenomena/gaseous-flames?tab=cfig" }, test: "21174C3",
+    notes: { 2: "ACME CFI-G holds measured outcomes; Flame Design is conditions only; BRE is day-level summaries.",
+      3: "Normal flames, n-butane: outcomes and censored (FT) burn times per test point.",
+      4: "Test 21174C3: every value with its role, the CSV row, flags and the Table 3 page." } },
+  "smoke-detection": { domain: "Smoke & Fire Detection", dataset: "same_sizes", filtered: "/experiments?dataset=same_sizes&f_material=kapton",
+    record: "/experiments/same_sizes/same%3Asize%3Akapton%3Aaged", viz: { label: "SAME particle-size charts", href: "/phenomena/smoke-detection#sizes" },
+    notes: { 2: "Two separate SAME tables: the flight log (what was run) and Table 1 particle sizes (results).",
+      3: "Kapton: fresh and aged rows from Table 1.", 4: "Aged Kapton smoke with Table 1, p.27 as its source." } },
+  "droplet-extinction": { domain: "Liquid Droplet Combustion", dataset: "flex", filtered: "/experiments?dataset=flex&f_fuel=Heptane",
+    record: "/experiments/flex/flex%3A180", viz: { label: "FLEX 3D studio for this test", href: "/phenomena/flame-extinction?record=flex%3A180#studio" }, test: "flex:180",
+    notes: { 2: "FLEX has measured tests; PSI-117 has figure-data series; FLEX-2 has a test plan only.",
+      3: "Heptane tests with O₂, pressure and diameter filters.", 4: "One FLEX test with every recorded value and its CSV row." } },
+  "flame-spread": { domain: "Solid Flame Spread", dataset: "bass2", filtered: "/experiments?dataset=bass2&f_material_class=PMMA%20slab",
+    record: "/experiments/bass2/bass2%3A27", viz: { label: "BASS-II report tables", href: "/phenomena/flame-spread#spread" }, test: "bass2:27",
+    notes: { 2: "BASS-II has measured runs; PSI-62 is metadata only.", 3: "PMMA slabs.",
+      4: "Test M1 with its Summary Report Table 5.1 spread rate." } },
+};
 
 type Journey = {
   label: string; letter: string; question: string; investigation: string;
@@ -107,8 +140,10 @@ function read(): DemoState {
   let state = OFF;
   try {
     const v = raw ? JSON.parse(raw) : null;
-    if (v && typeof v.step === "number" && v.step >= 1 && v.step <= 5 && SCENARIO_ORDER.includes(v.scenario)) {
-      state = { active: !!v.active, step: v.step, scenario: v.scenario };
+    const mode: DemoMode = v?.mode === "explore" ? "explore" : "demo";
+    const max = mode === "explore" ? 6 : 5;
+    if (v && typeof v.step === "number" && v.step >= 1 && v.step <= max && SCENARIO_ORDER.includes(v.scenario)) {
+      state = { active: !!v.active, step: v.step, scenario: v.scenario, mode };
     }
   } catch { /* ignore malformed */ }
   cache = { raw, state };
@@ -132,8 +167,29 @@ export function useDemo(): DemoState {
   return useSyncExternalStore(subscribe, read, () => OFF);
 }
 
+export function stepsFor(mode: DemoMode | undefined) {
+  return mode === "explore" ? EXPLORE_STEPS : DEMO_STEPS;
+}
+
+/** The page each step of the Combustion Explorer guide opens. */
+export function exploreHref(step: number, scenario: DemoScenario): string {
+  const e = EXPLORE[scenario];
+  switch (step) {
+    case 1: case 2: return `/experiments?dataset=${e.dataset}`;
+    case 3: return e.filtered;
+    case 4: return e.record;
+    case 5: return e.viz.href;
+    default: {
+      const q = new URLSearchParams({ draft: JOURNEYS[scenario].copilotQuestion, inv: JOURNEYS[scenario].investigation, scenario });
+      if (e.test) q.set("test", e.test);
+      return `/copilot?${q.toString()}`;
+    }
+  }
+}
+
 /** The page each step opens for a scenario. */
-export function stepHref(step: number, scenario: DemoScenario): string {
+export function stepHref(step: number, scenario: DemoScenario, mode: DemoMode = "demo"): string {
+  if (mode === "explore") return exploreHref(step, scenario);
   const j = JOURNEYS[scenario];
   switch (step) {
     case 1: return "/demo";
