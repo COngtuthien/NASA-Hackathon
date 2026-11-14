@@ -56,12 +56,17 @@ export default function MlView() {
 
   return (
     <>
-      <PageHeader kicker="Research intelligence" title="Prediction & Modeling"
-        lead="An exploratory statistical estimate of how long a FLEX droplet burns, from its starting conditions. It is not a physical simulation and not a validated scientific or safety result."
+      <PageHeader kicker="Advanced research tool · exploratory" title="Exploratory FLEX Burn-Time Estimator"
+        lead="A statistical estimate of how long a FLEX droplet burns, from its starting conditions, for FLEX conditions only. It is not a physical simulation and not a validated scientific or safety result."
         sections={[{ id: "estimate", label: "Try an estimate" }, { id: "card", label: "Model card" }, { id: "metrics", label: "Validation" }, { id: "limits", label: "Leakage & limitations" }]} />
       <Loadable state={m} rows={10}>
         {(d) => (
           <div className="flex flex-col gap-5">
+            <p className="text-[14px] text-text-2" data-testid="ml-validation-summary">
+              Validated by grouped 5-fold cross-validation ({d.metrics.regression.groups} atmosphere groups, n = {d.metrics.regression.n}):
+              mean absolute error {fmt(d.metrics.regression.models.ridge.mae_s)} s versus {fmt(d.metrics.regression.models.dummy_mean.mae_s)} s for a mean-only baseline;
+              median error about {fmt(d.metrics.regression.models.ridge.median_ape_pct, 2)} %. Trained on FLEX only: no other investigation is pooled.
+            </p>
             <Callout tone={d.prediction_enabled ? "warn" : "crit"}>
               <b className="text-text">{d.prediction_enabled ? "Prediction enabled (exploratory)." : "Prediction disabled."}</b> Gate: {d.metrics.gate.rule}. Result: {d.metrics.gate.passed ? "passed" : "failed"} (Ridge improves on the dummy by {fmt(d.metrics.regression.ridge_improvement_vs_dummy * 100)} %). {d.status_label}
             </Callout>

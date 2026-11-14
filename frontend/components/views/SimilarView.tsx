@@ -12,7 +12,7 @@ type Res = { experiment_uid: string; display_id: string; similarity: number; fie
   explanation: string; outcome_preview: Record<string, unknown> };
 type Resp = { supported: boolean; explanation?: string; compare_url?: string; method?: string; dataset?: string;
   features?: { field: string; kind: string; weight: number; transform: string | null; range: number | null }[];
-  excluded_outcomes?: string[]; note?: string; results: Res[]; query_values?: Record<string, unknown> };
+  excluded_outcomes?: string[]; note?: string; results: Res[]; query_values?: Record<string, unknown>; scope?: string };
 
 const COND: Record<string, { name: string; label: string; type: "num" | "cat"; options?: string[] }[]> = {
   flex: [
@@ -27,7 +27,28 @@ const COND: Record<string, { name: string; label: string; type: "num" | "cat"; o
     { name: "o2_initial", label: "Initial O₂ (% by volume)", type: "num" }, { name: "thickness_mm", label: "Thickness (mm)", type: "num" },
     { name: "diameter_mm", label: "Rod diameter (mm)", type: "num" }, { name: "width_cm", label: "Width (cm)", type: "num" },
   ],
+  cfig: [
+    { name: "configuration", label: "Configuration (required: never pooled)", type: "cat", options: ["normal", "inverse"] },
+    { name: "fuel_species", label: "Fuel", type: "cat", options: ["ethane", "propane", "n-butane"] },
+    { name: "x_o2", label: "O₂ mole fraction (ambient for normal, supplied for inverse)", type: "num" },
+    { name: "p_bar", label: "Pressure (bar)", type: "num" },
+    { name: "bottle_fuel_pct", label: "Fuel in bottle (%)", type: "num" },
+    { name: "supply_flow_mg_s", label: "Supply flow (mg/s; fuel for normal, O₂ for inverse)", type: "num" },
+  ],
 };
+const SEARCHED: [string, string][] = [
+  ["FLEX (PSI-69)", "274 droplet tests: fuel, diluent, O₂, CO₂, He, pressure, initial diameter"],
+  ["BASS-II (PSI-25)", "129 runs: material class, geometry, PI, thickness, diameter, width, initial O₂, flow restrictor"],
+  ["ACME CFI-G (PSI-159)", "179 normal and 154 inverse test points, searched separately: fuel, O₂, pressure, fuel fraction, supply flow"],
+];
+const NOT_SEARCHED: [string, string][] = [
+  ["SAFFIRE-I", "only two burns: use the side-by-side comparison"],
+  ["ACME Flame Design", "conditions only, without outcomes; browse them in the Combustion Explorer"],
+  ["ACME BRE", "day-level summaries, not individual tests"],
+  ["SAME", "particle sizes are results, not starting conditions; the log has no condition values"],
+  ["PSI-117", "figure-data series, not tests"],
+  ["FLEX-2, PSI-62", "no downloaded test records"],
+];
 
 export default function SimilarView() {
   const sp = useSearchParams();
@@ -57,20 +78,27 @@ export default function SimilarView() {
 
   return (
     <>
-      <PageHeader kicker="Experiment Intelligence" title="Find similar experiments"
-        lead="Find the tests whose starting conditions are closest to one you choose. Outcomes are never used to measure similarity." />
+      <PageHeader kicker="Advanced research tool" title="Find similar experiments"
+        lead="Find NASA tests with similar starting conditions in the SpaceFire AI database. Outcomes are never used to measure similarity." />
+      <details className="mb-5 rounded-xl border border-line/60 bg-panel/40 px-4 py-3 text-[14px] text-text-2" data-testid="similar-scope">
+        <summary className="cursor-pointer font-medium text-text">What this searches: the local NASA records processed by SpaceFire (not the internet)</summary>
+        <ul className="mt-2 list-disc pl-5">{SEARCHED.map(([a, b]) => <li key={a}><b className="text-text">{a}</b>: {b}.</li>)}</ul>
+        <p className="mt-2">Not searched, and why:</p>
+        <ul className="list-disc pl-5">{NOT_SEARCHED.map(([a, b]) => <li key={a}><b className="text-text">{a}</b>: {b}.</li>)}</ul>
+        <p className="mt-2 text-[13px]">Method: Gower distance on starting conditions only. Numeric differences are divided by the range in the collection; a different category counts 1. Weighted fields are compared only where both records have a value, and the number compared is shown.</p>
+      </details>
       <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
         <div className="flex flex-col gap-5">
           <Panel title="Start from a test">
             <form onSubmit={submitUid} className="flex flex-col gap-2">
-              <Field label="Canonical ID (e.g. flex:145, bass2:31)" htmlFor="suid"><input id="suid" className={inputCls} value={uidDraft} onChange={(e) => setUidDraft(e.target.value)} /></Field>
+              <Field label="Canonical ID (e.g. flex:145, bass2:31, cfig:normal:21174C3)" htmlFor="suid"><input id="suid" className={inputCls} value={uidDraft} onChange={(e) => setUidDraft(e.target.value)} /></Field>
               <Button type="submit">Find similar</Button>
             </form>
             <p className="mt-2 text-xs text-text-3">Or use “Find similar tests” on any experiment page.</p>
           </Panel>
           <Panel title="Or describe conditions">
             <div role="tablist" className="mb-3 flex gap-2">
-              {[["flex", "FLEX"], ["bass2", "BASS-II"]].map(([k, l]) => (
+              {[["flex", "FLEX"], ["bass2", "BASS-II"], ["cfig", "ACME CFI-G"]].map(([k, l]) => (
                 <button key={k} role="tab" aria-selected={ds === k} onClick={() => router.replace(`${pathname}${qs({ mode: "conditions", dataset: k })}`)}
                   className={`rounded-md border px-3 py-1 text-sm ${ds === k ? "border-flame bg-flame/15" : "border-line-strong text-text-2"}`}>{l}</button>
               ))}
@@ -95,6 +123,7 @@ export default function SimilarView() {
                 <Callout tone="warn">{d.explanation} <Link href={canonical(d.compare_url ?? "/intelligence/compare")}>Open the comparison</Link>.</Callout>
               ) : (
                 <div className="flex flex-col gap-5">
+                  {d.scope && <p className="text-[13.5px] text-text-2" data-testid="similar-scope-line">{d.scope}</p>}
                   <Panel title={mode === "uid" ? <>Closest to <Link href={expHref(uid!)}>{uid}</Link></> : "Closest to your conditions"} aside={`${d.results.length} results`}>
                     <div className="overflow-x-auto">
                       <table className="data">

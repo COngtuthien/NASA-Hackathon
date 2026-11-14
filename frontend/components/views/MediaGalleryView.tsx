@@ -53,6 +53,21 @@ function Card({ m, onOpen }: { m: ScientificMedia; onOpen: () => void }) {
   );
 }
 
+/** Phase 16: media coverage of the ten registered investigations. A count of 0 means no verified NASA image or video
+ *  is in SpaceFire for it; none is substituted. "BASS" and "SoFIE" items are related context, not registered here. */
+const COVERAGE: { inv: string; name: string; label: string | null; analysis: string }[] = [
+  { inv: "PSI-69", name: "FLEX", label: "FLEX", analysis: "/phenomena/flame-extinction" },
+  { inv: "PSI-117", name: "PSI-117", label: null, analysis: "/phenomena/flame-extinction#psi117-explore" },
+  { inv: "PSI-68", name: "FLEX-2", label: "FLEX-2", analysis: "/phenomena/flame-extinction#flex2" },
+  { inv: "PSI-159", name: "ACME CFI-G", label: "CFI-G", analysis: "/phenomena/gaseous-flames?tab=cfig" },
+  { inv: "PSI-10", name: "ACME Flame Design", label: null, analysis: "/phenomena/gaseous-flames?tab=flame-design" },
+  { inv: "PSI-20", name: "ACME BRE", label: null, analysis: "/phenomena/gaseous-flames?tab=bre" },
+  { inv: "PSI-25", name: "BASS-II", label: "BASS-II", analysis: "/phenomena/flame-spread" },
+  { inv: "PSI-62", name: "PSI-62", label: null, analysis: "/experiments?dataset=psi62" },
+  { inv: "PSI-102", name: "SAME", label: null, analysis: "/phenomena/smoke-detection" },
+  { inv: "PSI-98", name: "SAFFIRE-I", label: "SAFFIRE-I", analysis: "/phenomena/spacecraft-fire" },
+];
+
 export default function MediaGalleryView() {
   const sp = useSearchParams();
   const router = useRouter();
@@ -103,6 +118,25 @@ export default function MediaGalleryView() {
         </details>
 
       </div>
+      <details className="mb-5 rounded-2xl border border-line/60 bg-panel/40 p-4" data-testid="media-coverage">
+        <summary className="cursor-pointer text-[14px] font-medium text-text">Coverage of the ten NASA investigations</summary>
+        <ul className="mt-3 grid gap-2 text-[13.5px] sm:grid-cols-2 xl:grid-cols-3">
+          {COVERAGE.map((c) => {
+            const n = c.label ? MEDIA.filter((m) => m.investigation === c.label).length : 0;
+            return (
+              <li key={c.inv} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line/60 px-3 py-2" data-testid={`coverage-${c.inv}`} data-count={n}>
+                <span><b className="text-text">{c.name}</b> <span className="text-text-3">{c.inv}</span></span>
+                <span className="flex items-center gap-3">
+                  {n > 0 ? <button type="button" className="text-link hover:underline" onClick={() => set("investigation", c.label!)}>{n} item{n > 1 ? "s" : ""}</button>
+                    : <span className="text-text-3">No verified NASA media in SpaceFire</span>}
+                  <a href={c.analysis}>Analysis</a>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-2 text-[12.5px] text-text-3">Only media whose NASA source and investigation could be verified are shown. Engineering drawings from the downloads are not published (redistribution rights unverified).</p>
+      </details>
       <p className="mb-3 text-sm text-text-3" aria-live="polite">{shown.length} of {MEDIA.length} items</p>
       {shown.length === 0 ? (
         <p className="rounded-xl border border-line p-6 text-text-2">No media match these filters. <button className="text-link hover:underline" onClick={() => router.replace(path, { scroll: false })}>Clear filters</button></p>

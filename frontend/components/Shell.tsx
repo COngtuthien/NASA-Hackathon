@@ -26,10 +26,10 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { href: ROUTES.gasflames, label: "Gaseous Flame Dynamics", icon: "sphere", source: "ACME" },
     { href: ROUTES.smoke, label: "Smoke & Fire Detection", icon: "smoke", source: "SAME" },
   ] },
-  { group: "Research intelligence", items: [
+  { group: "Advanced research tools", items: [
     { href: ROUTES.similar, label: "Experiment Intelligence", icon: "similar", match: ["/intelligence"] },
     { href: ROUTES.documents, label: "Evidence & Literature", icon: "documents", match: ["/evidence"] },
-    { href: ROUTES.modeling, label: "Prediction & Modeling", icon: "model" },
+    { href: ROUTES.modeling, label: "FLEX Burn-Time Estimator", icon: "model" },
   ] },
   { group: "Trust & methods", items: [
     { href: ROUTES.reliability, label: "Data Reliability", icon: "quality" },
