@@ -6,8 +6,11 @@ Base `4a3b2bc` (Phase 12 + Copilot fix + both audits; linear). Rollback: `backup
   curated JSON committed); registry/API; Gaseous Flame Dynamics and Smoke & Fire Detection pages; PSI-117 on the FLEX
   page; Gaseous Flame and Smoke Detection 3D studios; 30 new RAG documents; backend 211 passed; Phase 13 browser tests
   10 passed; tsc/eslint clean; production build OK.
-- Not finished: the full Playwright regression was stopped at 125 passed / 0 failed by a low-memory shutdown; the
-  mobile Phase 13 spec was not run. SAME telemetry plots deferred. Details: docs/PHASE13_*.md.
+- Browser tests: every desktop and mobile spec passed at least once on a Phase 13 production build; the one regression
+  found (Phase 8 density budget on the FLEX page) was fixed by moving the PSI-117 charts into a closed disclosure and
+  re-verified (phase8 + phase13 21 passed; mobile 12 passed incl. Phase 13 mobile). Two full runs were cut short by
+  low-memory shutdowns (125 and 56 passed, 0 failed), so phase2–5, 7, 9 and 12 were not re-run after that fix.
+  SAME telemetry plots deferred. Details: docs/PHASE13_*.md.
 
 ## Phase 13 ACME dataset audit (branch `audit/spacefire-acme-datasets`, 2026-11-14): AUDIT ONLY
 Base: `79d08cf` (previous dataset audit). No app, data, model or database change; no Gemini request.

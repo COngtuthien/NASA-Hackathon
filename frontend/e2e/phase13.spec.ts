@@ -128,16 +128,19 @@ test("Smoke & Fire Detection: particle sizes, materials, flight log and deferred
 test("FLEX page: PSI-117 model vs experiment charts with distinct labels; existing FLEX analysis intact", async ({ page }) => {
   const errs = consoleErrors(page);
   await page.goto(FLEX);
+  await expect(page.getByTestId("psi117-caveat")).toBeVisible();
+  await openSection(page, "psi117-explore");
   await chartReady(page, "psi117-chart");
   const list = page.getByTestId("psi117-series-list");
   await expect(list).toContainText("(experiment,");
   await expect(list).toContainText("(model,");
   await expect(page.getByTestId("psi117-caveat")).toContainText("Not FLEX rows and not 3D CFD");
+  await expect(page.locator("section#psi117-explore")).toContainText("no 3-D or OpenFOAM output");
   await page.getByTestId("psi117-figure").selectOption("3s-d2");
   await expect(page.getByTestId("psi117-chart")).toHaveAttribute("data-figure", "3s-d2");
   await chartReady(page, "psi117-chart");
   await expect(page.getByTestId("psi117-chart")).toContainText("published figure data");
-  await expect(page.getByTestId("flex2-context")).toContainText("no FLEX-2 measurements");
+  await expect(page.getByTestId("flex2-context")).toContainText("no FLEX-2 measurements in SpaceFire");
   await openSection(page, "map");
   await expect(page.locator("section#map")).toContainText("plotted of");
   expect(errs).toEqual([]);

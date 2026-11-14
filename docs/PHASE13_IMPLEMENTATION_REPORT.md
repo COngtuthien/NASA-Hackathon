@@ -59,7 +59,7 @@ changes existed. The NASA folders, the user's `NASAChallenge202611.pptx` and `ru
 - **Smoke & Fire Detection** `/phenomena/smoke-detection`: the studio; material selector; fresh vs aged charts and
   table; other-source comparison; flight log with sample filter; moment-method and detector explanation; telemetry
   deferral notice; limitations.
-- **FLEX extension** (`/phenomena/flame-extinction#psi117`, `#flex2`): cool-flame explanation; 22 PSI-117 figures
+- **FLEX extension** (`/phenomena/flame-extinction#psi117`, `#flex2`): a short visible caveat; behind "Explore the PSI-117 charts" (`#psi117-explore`) the cool-flame explanation and 22 PSI-117 figures
   (experiment markers, model lines, model-only dashed, flagged points drawn separately, units with their status);
   provenance and limits; FLEX-2 context card. The existing FLEX map, d²-law and studio are unchanged.
 - Navigation: two new items under *Scientific analysis*. `INV_LABEL`, PSI links, Copilot suggestions and the scope

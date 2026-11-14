@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { Disclosure } from "@/components/disclosure";
 import { DocLink, EvidenceTag } from "@/components/evidence-tag";
 import Plot, { baseLayout, CAT } from "@/components/Plot";
-import { Callout, Field, inputCls, Loadable } from "@/components/ui";
+import { Field, inputCls, Loadable } from "@/components/ui";
 import { useApi } from "@/lib/api";
 import { FlagRules } from "@/components/views/gas/CfigSection";
 
@@ -82,16 +82,17 @@ export default function Psi117Section() {
     <section id="psi117" className="scroll-mt-36 flex flex-col gap-4" data-testid="psi117-section">
       <div>
         <h2 className="subhead flex flex-wrap items-center gap-2 text-[22px] md:text-[26px]">Cool flames: model vs experiment (PSI-117)</h2>
-        <p className="mt-1 max-w-[72ch] text-[15px] text-text-2">PSI-117, a NASA ground investigation, built droplet-combustion models and tested them against FLEX flight data. Its published figure data let you compare measured and modelled
-          extinction diameters, burning rates and burn histories for n-heptane, n-decane and n-dodecane, including the three-stage hot → warm → cool burning seen in FLEX test 1268.</p>
+        <p className="mt-1 max-w-[72ch] text-[15px] text-text-2">A NASA ground investigation that modelled FLEX cool flames: compare its published measured points with its 1-D model.</p>
+        <p className="mt-2 max-w-[72ch] text-[13.5px] text-warn" data-testid="psi117-caveat">Not FLEX rows and not 3D CFD: shown separately, never merged with FLEX tests.</p>
       </div>
-      <div className="grid gap-3 lg:grid-cols-3">
-        <div className="rounded-xl border border-line/60 bg-panel/50 p-4 text-[14px] leading-relaxed text-text-2 lg:col-span-2">
-          <p><b className="text-text">What a cool flame is.</b> Large n-alkane droplets can keep burning after the visible (hot) flame goes out from radiative heat loss: a low-temperature reaction zone
-            sits much closer to the droplet and burns slowly and nearly invisibly. At higher pressure a droplet can pass through three stages, hot, then warm, then cool (<DocLink id={SLIDES_3S} page={15}>three-stage slides p.15–22</DocLink>; <DocLink id={SEM} page={7}>PSI seminar p.7</DocLink>).</p>
-          <p className="mt-2 flex flex-wrap items-center gap-2"><EvidenceTag kind="digitized" /> experimental points <EvidenceTag kind="model" /> 1-D sphero-symmetric model (lines; dashed = model-only quantity such as peak temperature)</p>
-        </div>
-        <Callout tone="warn"><span data-testid="psi117-caveat">Not FLEX rows and not 3D CFD. PSI-117 refers to FLEX tests by numbers (e.g. 1268) that have no key in SpaceFire&apos;s FLEX table, so its points are shown here, separately, and never merged. The model is 1-D; no 3-D or OpenFOAM output is in the NASA download.</span></Callout>
+      <Disclosure id="psi117-explore" level="explore" anchors={["psi117-chart"]} title="Model vs experiment charts" action="Explore the PSI-117 charts"
+        summary="Extinction diameters, burning rates and burn histories for n-heptane, n-decane and n-dodecane.">
+      <div className="flex flex-col gap-3">
+      <div className="rounded-xl border border-line/60 bg-panel/50 p-4 text-[14px] leading-relaxed text-text-2">
+        <p><b className="text-text">What a cool flame is.</b> Large n-alkane droplets can keep burning after the visible (hot) flame goes out from radiative heat loss: a low-temperature reaction zone
+          sits much closer to the droplet and burns slowly and nearly invisibly. At higher pressure a droplet can pass through three stages, hot, then warm, then cool (<DocLink id={SLIDES_3S} page={15}>three-stage slides p.15–22</DocLink>; <DocLink id={SEM} page={7}>PSI seminar p.7</DocLink>).</p>
+        <p className="mt-2 flex flex-wrap items-center gap-2"><EvidenceTag kind="digitized" /> experimental points <EvidenceTag kind="model" /> 1-D sphero-symmetric model (lines; dashed = model-only quantity such as peak temperature)</p>
+        <p className="mt-2">PSI-117 refers to FLEX tests by numbers (e.g. 1268) that have no key in SpaceFire&apos;s FLEX table, so its points are never merged with FLEX rows. The model is 1-D; no 3-D or OpenFOAM output is in the NASA download.</p>
       </div>
       <div className="rounded-xl border border-line/60 bg-panel/40 p-3">
         <div className="flex flex-wrap items-end gap-3">
@@ -112,6 +113,8 @@ export default function Psi117Section() {
             <p className="mt-1 text-[12.5px] text-text-3">Conditions (ReadMe): {Object.entries(x.series[0]?.conditions ?? {}).map(([k, v]) => `${k} ${v}`).join(" · ")}</p>
           </div>)}</Loadable>
       </div>
+      </div>
+      </Disclosure>
       <Disclosure id="psi117-limits" title="Data provenance and limits (PSI-117)" action="Show provenance and limits"
         summary="Which series are measured vs modelled, which units are inferred, and what was excluded.">
         <Loadable state={list} rows={4}>{(x) => (
@@ -132,9 +135,8 @@ export function Flex2Context() {
   return (
     <section id="flex2" className="scroll-mt-36 rounded-2xl border border-line/60 bg-panel/40 p-4 md:p-5" data-testid="flex2-context">
       <h2 className="subhead flex flex-wrap items-center gap-2 text-[18px]">What came next: FLEX-2 (PSI-68) <EvidenceTag kind="report" /></h2>
-      <p className="mt-1 max-w-[72ch] text-[14.5px] leading-relaxed text-text-2">FLEX-2 reused the same droplet apparatus to study bi-component and surrogate fuels (n-decane, ethanol and mixtures),
-        droplets in slow flows and droplet pairs, at 0.5–3 atm and 0.17–0.30 O₂ (<DocLink id="flex-2-srd-final" page={33}>FLEX-2 Science Requirements, Table 2 p.33</DocLink>).
-        Only requirements, metadata and a test-matrix envelope were downloaded: <b className="text-text">there are no FLEX-2 measurements in SpaceFire</b>, so no FLEX-2 chart is shown.</p>
+      <p className="mt-1 max-w-[72ch] text-[14.5px] leading-relaxed text-text-2">Mixed and surrogate fuels in the same apparatus (<DocLink id="flex-2-srd-final" page={33}>Science Requirements p.33</DocLink>).
+        Only documents were downloaded: <b className="text-text">no FLEX-2 measurements in SpaceFire</b>.</p>
     </section>
   );
 }
