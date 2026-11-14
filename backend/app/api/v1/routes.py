@@ -20,7 +20,7 @@ from ...core.config import get_settings
 from ...core.errors import ApiError, not_found
 from ...db.database import connect, jloads
 from ...providers.llm import llm_status
-from ...services import analytics, assistant, experiments, explorer, kg, ml, overview, phase13, quality, retrieval, similarity
+from ...services import analytics, assistant, combustion, experiments, explorer, kg, ml, overview, phase13, quality, retrieval, similarity
 from ...services.literature import get_literature, investigation_publications
 
 router = APIRouter(prefix="/api/v1")
@@ -387,6 +387,40 @@ def explorer_workspace(scenario: str, request: Request, conn=Depends(get_conn)):
                "pressure_max", "aging", "investigation", "evidence"}
     raw = {k: v[:120] for k, v in request.query_params.items() if k in allowed}
     return explorer.workspace(conn, scenario, raw)
+
+
+# --------------------------------------------- Phase 16 combustion explorer ---
+@router.get("/combustion/domains", tags=["phase16"])
+def combustion_domains(conn=Depends(get_conn)):
+    """Five scientific domains and the collections in each, with their evidence level and record counts."""
+    return combustion.domains(conn)
+
+
+@router.get("/combustion/collections/{key}", tags=["phase16"])
+def combustion_browse(key: str, request: Request, conn=Depends(get_conn)):
+    """Browse one collection with dataset-specific filters: f_<field>=value, min_<field>, max_<field>, q, sort, order,
+    page, page_size. Unknown filter values are rejected."""
+    params = {k: v[:120] for k, v in request.query_params.items()}
+    return combustion.browse(conn, key, params)
+
+
+@router.get("/combustion/record/{record_id:path}", tags=["phase16"])
+def combustion_record(record_id: str, conn=Depends(get_conn)):
+    return combustion.record(conn, record_id)
+
+
+@router.get("/combustion/investigation/{inv}", tags=["phase16"])
+def combustion_profile(inv: str, conn=Depends(get_conn)):
+    return combustion.profile(conn, inv)
+
+
+class CombustionCompare(BaseModel):
+    record_ids: list[str] = Field(..., min_length=1, max_length=5)
+
+
+@router.post("/combustion/compare", tags=["phase16"])
+def combustion_compare(body: CombustionCompare, conn=Depends(get_conn)):
+    return combustion.compare(conn, body.record_ids)
 
 
 # --------------------------------------------------------------- analytics ---

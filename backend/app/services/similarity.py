@@ -36,12 +36,24 @@ FEATURES = {
         ("flow_restrictor", "category", 0.5, None),
     ],
 }
+# Phase 16: ACME CFI-G (PSI-159), starting conditions only. Candidates are always restricted to the same configuration
+# (normal or inverse): O2 means the ambient before ignition for normal flames and the supplied oxidizer for inverse
+# flames, and the supply flow is fuel (normal) or O2 (inverse), so the two are not on a common axis.
+FEATURES["cfig"] = [
+    ("fuel_species", "category", 3.0, None),
+    ("x_o2", "numeric", 3.0, None),
+    ("p_bar", "numeric", 2.0, "log"),
+    ("bottle_fuel_pct", "numeric", 1.5, None),
+    ("supply_flow_mg_s", "numeric", 1.5, None),
+]
 EXCLUDED_OUTCOMES = {
     "flex": ["burn_time_s", "dext_mm", "k_mm2_s", "test_end"],
     "bass2": ["o2_final", "co2_final", "co_final", "fan/air stage history (multi-stage, not comparable)"],
+    "cfig": ["outcome", "hot_ignition", "termination", "burn_time_s", "x_o2_after", "peak_burner_t_c"],
 }
+CFIG_CONFIGS = ("normal", "inverse")
 TABLE = {"flex": "flex_tests", "bass2": "bass2_tests"}
-DISPLAY = {"flex": "identifier", "bass2": "test_id"}
+DISPLAY = {"flex": "identifier", "bass2": "test_id", "cfig": "test_id"}
 
 
 def _transform(v, t):
@@ -52,8 +64,24 @@ def _transform(v, t):
     return v
 
 
-def _load(conn, key):
-    rows = [dict(r) for r in conn.execute(f"SELECT * FROM {TABLE[key]}")]
+def _cfig_rows(conn, configuration: str) -> list[dict]:
+    import json
+    out = []
+    for rid, vj in conn.execute("SELECT record_id, values_json FROM p13_records WHERE dataset_id='cfig_tests' ORDER BY rowid"):
+        v = json.loads(vj)
+        if v.get("configuration") != configuration:
+            continue
+        normal = configuration == "normal"
+        out.append({"experiment_uid": rid, "test_id": (v.get("test_id_raw") or "").replace(" ", ""), "configuration": configuration,
+                    "fuel_species": v.get("fuel_species"), "x_o2": v.get("x_o2_before") if normal else v.get("x_o2_supply"),
+                    "p_bar": v.get("p_bar"), "bottle_fuel_pct": v.get("bottle_fuel_pct"),
+                    "supply_flow_mg_s": v.get("m_fuel_mg_s") if normal else v.get("m_o2_mg_s"),
+                    **{o: v.get(o) for o in EXCLUDED_OUTCOMES["cfig"]}})
+    return out
+
+
+def _load(conn, key, configuration: str | None = None):
+    rows = _cfig_rows(conn, configuration or "normal") if key == "cfig" else [dict(r) for r in conn.execute(f"SELECT * FROM {TABLE[key]}")]
     if key == "flex":
         for r in rows:  # pressure 0 is a known invalid entry -> treat as missing
             if r["pressure_atm"] is None or (r["pressure_mmhg"] or 0) <= 0:
@@ -95,6 +123,19 @@ def distance(a: dict, b: dict, key: str, ranges: dict) -> tuple[float | None, li
 
 
 def similar_to(conn: sqlite3.Connection, uid: str, k: int = 10, same_category: bool = False) -> dict:
+    if uid.startswith("cfig:"):
+        cfgn = uid.split(":")[1] if uid.count(":") >= 2 else ""
+        if cfgn not in CFIG_CONFIGS:
+            raise not_found("CFI-G test", uid)
+        if not (1 <= k <= 50):
+            raise bad_request("k must be between 1 and 50")
+        rows, ranges = _load(conn, "cfig", cfgn)
+        target = next((r for r in rows if r["experiment_uid"] == uid), None)
+        if not target:
+            raise not_found("CFI-G test", uid)
+        res = _rank(conn, "cfig", target, rows, ranges, k, same_category, exclude_uid=uid)
+        res["scope"] = f"CFI-G {cfgn} flames only ({len(rows)} tests); the other configuration is never compared."
+        return res
     ds = dataset_for_uid(uid)
     if not ds:
         raise not_found("Experiment", uid)
@@ -114,7 +155,13 @@ def similar_to(conn: sqlite3.Connection, uid: str, k: int = 10, same_category: b
 
 def similar_to_conditions(conn: sqlite3.Connection, dataset: str, conditions: dict, k: int = 10) -> dict:
     if dataset not in FEATURES:
-        raise bad_request("Condition search is available for flex and bass2 only.")
+        raise bad_request("Condition search is available for flex, bass2 and cfig only.")
+    conditions = dict(conditions)
+    configuration = None
+    if dataset == "cfig":
+        configuration = conditions.pop("configuration", None)
+        if configuration not in CFIG_CONFIGS:
+            raise bad_request("For CFI-G, choose configuration=normal or configuration=inverse (they are never pooled).")
     allowed = {f[0]: f[1] for f in FEATURES[dataset]}
     target = {}
     for name, value in conditions.items():
@@ -132,9 +179,12 @@ def similar_to_conditions(conn: sqlite3.Connection, dataset: str, conditions: di
             target[name] = str(value)
     if not target:
         raise bad_request("Provide at least one condition.")
-    rows, ranges = _load(conn, dataset)
+    rows, ranges = _load(conn, dataset, configuration)
     target["experiment_uid"] = "query"
-    return _rank(conn, dataset, target, rows, ranges, k, False, exclude_uid=None)
+    res = _rank(conn, dataset, target, rows, ranges, k, False, exclude_uid=None)
+    if configuration:
+        res["scope"] = f"CFI-G {configuration} flames only ({len(rows)} tests); the other configuration is never compared."
+    return res
 
 
 def _rank(conn, key, target, rows, ranges, k, same_category, exclude_uid):
@@ -143,7 +193,7 @@ def _rank(conn, key, target, rows, ranges, k, same_category, exclude_uid):
         if r["experiment_uid"] == exclude_uid:
             continue
         if same_category:
-            cat = "fuel" if key == "flex" else "material_class"
+            cat = {"flex": "fuel", "bass2": "material_class", "cfig": "fuel_species"}[key]
             if r.get(cat) != target.get(cat):
                 continue
         d, parts = distance(target, r, key, ranges)
